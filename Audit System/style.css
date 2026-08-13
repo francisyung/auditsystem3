@@ -1,0 +1,91 @@
+/* ============================================================
+   Sentinel Enterprise — Audit Plan & Program
+   Design tokens & print styles
+   ============================================================ */
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3 {
+    font-family: 'Manrope', sans-serif;
+}
+
+/* Subtle focus ring consistent with design system */
+.field:focus {
+    outline: 2px solid rgba(0, 74, 119, 0.4);
+    outline-offset: 0;
+}
+
+/* Print-only login watermark */
+.print-watermark {
+    display: none;
+}
+
+/* ============================================================
+   PRINT STYLES — "Print / Save as PDF"
+   ============================================================ */
+@media print {
+    @page {
+        size: A4;
+        margin: 14mm 12mm;
+    }
+
+    /* Hide all interactive chrome */
+    body {
+        background: #ffffff !important;
+    }
+    .no-print,
+    .toolbar,
+    .btn-print,
+    .btn-icon,
+    .btn-delete-row {
+        display: none !important;
+    }
+
+    #app {
+        padding: 0 !important;
+    }
+
+    /* Neutralize backgrounds so they print cleanly */
+    .print-card {
+        box-shadow: none !important;
+        border: 1px solid #c1c7d0 !important;
+        break-inside: avoid;
+        background: #ffffff !important;
+    }
+
+    /* Force full contrast for header bars */
+    .print-headerbar {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Ensure table rows don't get orphaned awkwardly */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    tr {
+        break-inside: avoid;
+    }
+
+    /* Section headings */
+    h2, .audit-program h3 {
+        break-after: avoid;
+    }
+}
+
+/* ============================================================
+   Print button — subtle accessible styling (base)
+   ============================================================ */
+.btn-print {
+    transition: background-color 0.15s ease, transform 0.1s ease;
+}
+.btn-print:active {
+    transform: translateY(1px);
+}

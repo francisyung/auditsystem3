@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Create Risk Register Entry | Sentinel Enterprise</title>
+      <!-- Tailwind CSS with Forms & Container Queries Plugins -->  
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>  
+
+    <!-- Fonts: Manrope (headlines) + Inter (body) -->  
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>  
+    <!-- Material Symbols Outlined -->  
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>  
+
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#003354",
+                        "primary-container": "#004a77",
+                        secondary: "#1b6d24",
+                        tertiary: "#680007",
+                        "tertiary-container": "#93000e",
+                        error: "#ba1a1a",
+                        surface: "#f9f9fd",
+                        "surface-container-low": "#f3f3f7",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e2e2e6",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#41474f",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#c1c7d0"
+                    },
+                    fontFamily: { headline: ["Manrope"], body: ["Inter"] }
+                }
+            }
+        };
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24 }
+        body { font-family: 'Inter', sans-serif }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif }
+        
+    </style>
+    <script defer src="risk-assessment.js"></script>
+</head>
+<body class="bg-surface text-on-surface flex flex-col md:flex-row min-h-screen">
+
+  <!-- Sidebar Shell Navigation -->  
+    <aside class="flex flex-col h-screen w-64 fixed left-0 top-0 bg-slate-100 dark:bg-slate-950 py-6 z-[60] border-r border-outline-variant/10">  
+        <div class="px-6 mb-10 flex items-start justify-between gap-2">  
+            <div class="flex items-center gap-3">  
+                <div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center">  
+                    <span class="material-symbols-outlined text-white" style="font-variation-settings:'FILL' 1">security</span>  
+                </div>  
+                <div>  
+                    <div class="text-lg font-black text-sky-900 dark:text-sky-50">Sentinel</div>  
+                    <div class="text-xs text-slate-500 uppercase tracking-widest">Enterprise Audit</div>  
+                </div>  
+            </div>  
+        </div>  
+        <nav class="flex-1 space-y-1">  
+    <!-- Existing Core Dashboard Links -->
+      
+    <a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="audit-universe.html">  
+        <span class="material-symbols-outlined mr-3">public</span>  
+        <span class="font-medium">Audit Universe</span>  
+    </a>  
+    <a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="risk-assessment.html">  
+        <span class="material-symbols-outlined mr-3">list_alt</span>  
+        <span class="font-medium">Risk Register</span>  
+    </a>  
+<a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="internal_Audit_Work_Plan.html">  
+        <span class="material-symbols-outlined mr-3">dashboard</span>  
+        <span class="font-medium"> internal_Audit_Work_Plan</span>  
+    </a>
+    <!-- Performing & Reporting Phase Header / Separator Label -->
+    <div class="px-6 pt-4 pb-1 text-[10px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase select-none">
+        Performing & Reporting
+    </div>
+
+    <!-- STAGE 1: Audit Plan & Program Link -->
+    <!-- [Active Treatment for plan_program.html] Use these Tailwind active classes when on plan_program.html: "text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10" -->
+    <a class="flex items-center px-6 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="Audit_Plan&Program.html">  
+        <span class="material-symbols-outlined mr-3" style="font-variation-settings: 'FILL' 1;">description</span>  
+        <span class="font-medium text-sm">Stage 1: Audit Plan</span>  
+    </a>  
+
+    <!-- STAGE 2: Draft Audit Report Link -->
+    <!-- [Active Treatment for draft_report.html] Use these Tailwind active classes when on draft_report.html: "text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10" -->
+    <a class="flex items-center px-6 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="Draft_Audit_Report.html">  
+        <span class="material-symbols-outlined mr-3">edit_document</span>  
+        <span class="font-medium text-sm">Stage 2: Draft Report</span>  
+    </a>  
+
+    <!-- STAGE 3: Final Audit Report Link -->
+    <!-- [Active Treatment for final_report.html] Use these Tailwind active classes when on final_report.html: "text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10" -->
+    <a class="flex items-center px-6 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="Final_Audit_Report.html">  
+        <span class="material-symbols-outlined mr-3">verified_user</span>  
+        <span class="font-medium text-sm">Stage 3: Final Report</span>  
+    </a>  
+</nav> 
+ 
+    </aside>
+    <!-- Main Content Area -->
+    <main id="app-main" class="flex-1 md:ml-64 min-h-screen flex flex-col">
+        <header class="bg-slate-50/80 backdrop-blur-xl flex justify-between items-center px-4 md:px-6 py-3 sticky top-0 z-50 shadow-sm">
+            <h1 class="text-lg font-bold text-sky-900">Planning Phase</h1>
+            <div class="flex items-center gap-4">
+                <span id="selection-counter" class="text-xs bg-primary text-white px-2.5 py-1 rounded-full font-bold">0 Selected</span>
+                <span class="text-sm font-semibold text-sky-900">Risk Officer</span>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 space-y-6 max-w-[100vw] overflow-x-hidden mx-auto w-full">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-primary">Risk Identification &amp; Assessment Matrix</h2>
+                    <p class="text-on-surface-variant mt-1">Map and analyze specific organizational vulnerabilities row-by-row.</p>
+                </div>
+                <!-- Interactive Controls -->
+                <div class="flex items-center gap-3">
+                    <button type="button" id="sort-trigger" class="flex items-center gap-2 px-4 py-2 bg-white border border-outline-variant hover:bg-slate-50 text-xs font-bold rounded-lg text-primary shadow-sm transition-all">
+                        <span class="material-symbols-outlined text-sm">swap_vert</span>
+                        <span>Sort Risk Score (High → Low)</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="form-alert" class="hidden p-4 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">
+                Selected risk entries successfully committed to the corporate Risk Register!
+            </div>
+
+            <form id="risk-assessment-form" class="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-4 shadow-sm space-y-4">
+                
+                <!-- Dynamic Horizontally Tabular Container -->
+                <div class="overflow-x-auto border border-outline-variant/20 rounded-xl bg-surface-container-low">
+                    <table class="min-w-[2100px] w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-outline-variant/30 text-on-surface-variant font-bold uppercase tracking-wider select-none">
+                                <th class="p-3 w-12 text-center">Include</th>
+                                <th class="p-3 w-28">Risk ID</th>
+                                <th class="p-3 w-40">Risk Category</th>
+                                <th class="p-3 w-44">Risk Owner</th>
+                                <th class="p-3 w-44">Lead Dept</th>
+                                <th class="p-3 w-56">Audit Item / Title</th>
+                                <th class="p-3 w-64">Description</th>
+                                <th class="p-3 w-64">Triggers / Causes</th>
+                                <th class="p-3 w-64">Existing Controls</th>
+                                <th class="p-3 w-28">Likelihood</th>
+                                <th class="p-3 w-28">Impact</th>
+                                <th class="p-3 w-28 text-center">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-rows-container">
+                            
+                           <!-- Row 1 -->
+                            <tr class="audit-row border-b border-outline-variant/10 bg-white hover:bg-slate-50/50 transition-colors">
+                                <td class="p-3 text-center">
+                                    <input type="checkbox" name="rows[0][selected]" class="row-selector rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[0][risk_id]" value="RISK-IT-001" required class="w-full text-xs font-bold text-slate-700 border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[0][category]" required class="w-full rounded border border-outline-variant/40 bg-surface px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-primary">
+                                        <option value="IT" selected>IT</option>
+                                        <option value="Financial">Financial</option>
+                                        <option value="Operational">Operational</option>
+                                        <option value="Compliance">Compliance</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[0][owner]" value="Director Security" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[0][department]" value="InfoSec Division" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[0][title]" value="Production Server Ransomware Vector" required class="w-full text-xs font-semibold text-primary border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[0][description]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Potential deployment of malicious payloads encrypting core customer databases.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[0][triggers]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Phishing vectors, unpatched perimeter RDP ports, lack of multi-factor rules.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[0][controls]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Daily offline configuration snapshots, corporate firewall perimeters.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[0][likelihood]" class="likelihood-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1">Low (1)</option>
+                                        <option value="2">Mod (2)</option>
+                                        <option value="3" selected>High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[0][impact]" class="impact-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1">Low (1)</option>
+                                        <option value="2">Mod (2)</option>
+                                        <option value="3" selected>High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3 text-center">
+                                    <div class="score-container flex items-center justify-center gap-2" data-score="9">
+                                        <span class="score-display font-black text-sm text-red-700">9</span>
+                                        <span class="ranking-badge text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 uppercase tracking-wide">HIGH</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 2 -->
+                            <tr class="audit-row border-b border-outline-variant/10 bg-white hover:bg-slate-50/50 transition-colors">
+                                <td class="p-3 text-center">
+                                    <input type="checkbox" name="rows[1][selected]" class="row-selector rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[1][risk_id]" value="RISK-FIN-042" required class="w-full text-xs font-bold text-slate-700 border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[1][category]" required class="w-full rounded border border-outline-variant/40 bg-surface px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-primary">
+                                        <option value="IT">IT</option>
+                                        <option value="Financial" selected>Financial</option>
+                                        <option value="Operational">Operational</option>
+                                        <option value="Compliance">Compliance</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[1][owner]" value="VP Finance" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[1][department]" value="Treasury Team" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[1][title]" value="Vendor Invoice Reconciliation Gaps" required class="w-full text-xs font-semibold text-primary border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[1][description]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Manual data synchronization errors generating duplicate corporate payments.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[1][triggers]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">High ledger transaction volumes during end-of-quarter fiscal matching windows.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[1][controls]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Dual authority sign-offs required for batch payouts over $10,000 threshold.</textarea>
+                                </td>
+                               <td class="p-3">
+                                    <select name="rows[1][likelihood]" class="likelihood-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1">Low (1)</option>
+                                        <option value="2" selected>Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[1][impact]" class="impact-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1">Low (1)</option>
+                                        <option value="2" selected>Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3 text-center">
+                                    <div class="score-container flex items-center justify-center gap-2" data-score="4">
+                                        <span class="score-display font-black text-sm text-sky-700">4</span>
+                                        <span class="ranking-badge text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 uppercase tracking-wide">MOD</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 3 -->
+                            <tr class="audit-row border-b border-outline-variant/10 bg-white hover:bg-slate-50/50 transition-colors">
+                                <td class="p-3 text-center">
+                                    <input type="checkbox" name="rows[2][selected]" class="row-selector rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[2][risk_id]" value="RISK-OPS-112" required class="w-full text-xs font-bold text-slate-700 border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[2][category]" required class="w-full rounded border border-outline-variant/40 bg-surface px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-primary">
+                                        <option value="IT">IT</option>
+                                        <option value="Financial">Financial</option>
+                                        <option value="Operational" selected>Operational</option>
+                                        <option value="Compliance">Compliance</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[2][owner]" value="Facilities Mgr" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[2][department]" value="Global Real Estate" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[2][title]" value="Server Room AC Fluctuations" required class="w-full text-xs font-semibold text-primary border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[2][description]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Intermittent ambient humidity anomalies observed inside data containment lockers.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[2][triggers]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Extreme seasonal atmospheric weather changes bypassing external intake filters.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[2][controls]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Automated secondary extractor fan relays linked to IoT environmental alerts.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[2][likelihood]" class="likelihood-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1" selected>Low (1)</option>
+                                        <option value="2">Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[2][impact]" class="impact-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1">Low (1)</option>
+                                        <option value="2" selected>Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3 text-center">
+                                    <div class="score-container flex items-center justify-center gap-2" data-score="2">
+                                        <span class="score-display font-black text-sm text-emerald-700">2</span>
+                                        <span class="ranking-badge text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wide">LOW</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 4 -->
+                            <tr class="audit-row border-b border-outline-variant/10 bg-white hover:bg-slate-50/50 transition-colors">
+                                <td class="p-3 text-center">
+                                    <input type="checkbox" name="rows[3][selected]" class="row-selector rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[3][risk_id]" value="RISK-CMP-089" required class="w-full text-xs font-bold text-slate-700 border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[3][category]" required class="w-full rounded border border-outline-variant/40 bg-surface px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-primary">
+                                        <option value="IT">IT</option>
+                                        <option value="Financial">Financial</option>
+                                        <option value="Operational">Operational</option>
+                                        <option value="Compliance" selected>Compliance</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[3][owner]" value="Chief Counsel" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[3][department]" value="Regulatory Unit" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[3][title]" value="GDPR Data Retain Violations" required class="w-full text-xs font-semibold text-primary border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[3][description]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Historical consumer logging records preserved past authorized legal timelines.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[3][triggers]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Legacy database purging script misconfigurations running without log checks.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[3][controls]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Quarterly internal compliance audits and isolated lifecycle tracking indicators.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[3][likelihood]" class="likelihood-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1">Low (1)</option>
+                                        <option value="2" selected>Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[3][impact]" class="impact-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1">Low (1)</option>
+                                        <option value="2">Mod (2)</option>
+                                        <option value="3" selected>High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3 text-center">
+                                    <div class="score-container flex items-center justify-center gap-2" data-score="6">
+                                        <span class="score-display font-black text-sm text-amber-700">6</span>
+                                        <span class="ranking-badge text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wide">MOD</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 5 -->
+                            <tr class="audit-row border-b border-outline-variant/10 bg-white hover:bg-slate-50/50 transition-colors">
+                                <td class="p-3 text-center">
+                                    <input type="checkbox" name="rows[4][selected]" class="row-selector rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[4][risk_id]" value="RISK-IT-105" required class="w-full text-xs font-bold text-slate-700 border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[4][category]" required class="w-full rounded border border-outline-variant/40 bg-surface px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-primary">
+                                        <option value="IT" selected>IT</option>
+                                        <option value="Financial">Financial</option>
+                                        <option value="Operational">Operational</option>
+                                        <option value="Compliance">Compliance</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[4][owner]" value="Network Admin" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[4][department]" value="Infrastructure" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[4][title]" value="Expired SSL Certificates on Gateways" required class="w-full text-xs font-semibold text-primary border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[4][description]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Public-facing endpoint connection drops triggered by automated renewal omissions.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[4][triggers]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Lack of tracking scripts linked directly to external certificates lifecycle alerts.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[4][controls]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Automated deployment policies established on core infrastructure cluster networks.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[4][likelihood]" class="likelihood-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1" selected>Low (1)</option>
+                                        <option value="2">Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[4][impact]" class="impact-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1" selected>Low (1)</option>
+                                        <option value="2">Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3 text-center">
+                                    <div class="score-container flex items-center justify-center gap-2" data-score="1">
+                                        <span class="score-display font-black text-sm text-emerald-700">1</span>
+                                        <span class="ranking-badge text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wide">LOW</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 6 -->
+                            <tr class="audit-row border-b border-outline-variant/10 bg-white hover:bg-slate-50/50 transition-colors">
+                                <td class="p-3 text-center">
+                                    <input type="checkbox" name="rows[5][selected]" class="row-selector rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer">
+                                </td>
+                                                                <td class="p-3">
+                                    <input type="text" name="rows[5][risk_id]" value="RISK-FIN-112" required class="w-full text-xs font-bold text-slate-700 border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[5][category]" required class="w-full rounded border border-outline-variant/40 bg-surface px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-primary">
+                                        <option value="IT">IT</option>
+                                        <option value="Financial" selected>Financial</option>
+                                        <option value="Operational">Operational</option>
+                                        <option value="Compliance">Compliance</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[5][owner]" value="Billing Officer" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[5][department]" value="Accounts Receivable" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[5][title]" value="Unallocated Credit Balance Variances" required class="w-full text-xs font-semibold text-primary border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[5][description]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Overpayments resting inside ledger profiles without specific allocation tracking IDs.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[5][triggers]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">System integration anomalies matching manual entry parameters to bulk records.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[5][controls]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Weekly review script validation protocols routed directly to team managers.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[5][likelihood]" class="likelihood-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1">Low (1)</option>
+                                        <option value="2" selected>Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[5][impact]" class="impact-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1" selected>Low (1)</option>
+                                        <option value="2">Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3 text-center">
+                                    <div class="score-container flex items-center justify-center gap-2" data-score="2">
+                                        <span class="score-display font-black text-sm text-emerald-700">2</span>
+                                        <span class="ranking-badge text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wide">LOW</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 7 -->
+                            <tr class="audit-row border-b border-outline-variant/10 bg-white hover:bg-slate-50/50 transition-colors">
+                                <td class="p-3 text-center">
+                                    <input type="checkbox" name="rows[6][selected]" class="row-selector rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[6][risk_id]" value="RISK-OPS-034" required class="w-full text-xs font-bold text-slate-700 border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[6][category]" required class="w-full rounded border border-outline-variant/40 bg-surface px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-primary">
+                                        <option value="IT">IT</option>
+                                        <option value="Financial">Financial</option>
+                                        <option value="Operational" selected>Operational</option>
+                                        <option value="Compliance">Compliance</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[6][owner]" value="Logistics Mgr" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[6][department]" value="Supply Chain Unit" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[6][title]" value="Single-Source Component Assembly Dependency" required class="w-full text-xs font-semibold text-primary border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[6][description]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Production bottlenecks stemming from critical localized regional supplier shut-downs.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[6][triggers]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Sudden cross-border shipping restriction mandates or environmental shipping terminal pauses.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[6][controls]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Strategic component buffer safety stock thresholds preserved for 45 operations days.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[6][likelihood]" class="likelihood-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1">Low (1)</option>
+                                        <option value="2" selected>Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[6][impact]" class="impact-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1">Low (1)</option>
+                                        <option value="2" selected>Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                                               </td>
+                                <td class="p-3 text-center">
+                                    <div class="score-container flex items-center justify-center gap-2" data-score="4">
+                                        <span class="score-display font-black text-sm text-sky-700">4</span>
+                                        <span class="ranking-badge text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 uppercase tracking-wide">MOD</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 8 (Dummy 8) -->
+                            <tr class="audit-row border-b border-outline-variant/10 bg-white hover:bg-slate-50/50 transition-colors">
+                                <td class="p-3 text-center">
+                                    <input type="checkbox" name="rows[7][selected]" class="row-selector rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[7][risk_id]" value="RISK-CMP-012" required class="w-full text-xs font-bold text-slate-700 border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[7][category]" required class="w-full rounded border border-outline-variant/40 bg-surface px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-primary">
+                                        <option value="IT">IT</option>
+                                        <option value="Financial">Financial</option>
+                                        <option value="Operational">Operational</option>
+                                        <option value="Compliance" selected>Compliance</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[7][owner]" value="HR Policy Lead" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[7][department]" value="Human Capital" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[7][title]" value="Statutory Workplace Posting Gaps" required class="w-full text-xs font-semibold text-primary border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[7][description]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Outdated regional labor regulation notices displayed across distributed branch offices.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[7][triggers]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Frequent amendments to territorial worker legislation outpacing standard monitoring protocols.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[7][controls]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Digital dashboard update templates pushed directly onto target terminal screens.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[7][likelihood]" class="likelihood-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1" selected>Low (1)</option>
+                                        <option value="2">Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[7][impact]" class="impact-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1" selected>Low (1)</option>
+                                        <option value="2">Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3 text-center">
+                                    <div class="score-container flex items-center justify-center gap-2" data-score="1">
+                                        <span class="score-display font-black text-sm text-emerald-700">1</span>
+                                        <span class="ranking-badge text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wide">LOW</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 9 (Dummy 9) -->
+                            <tr class="audit-row border-b border-outline-variant/10 bg-white hover:bg-slate-50/50 transition-colors">
+                                <td class="p-3 text-center">
+                                    <input type="checkbox" name="rows[8][selected]" class="row-selector rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[8][risk_id]" value="RISK-IT-223" required class="w-full text-xs font-bold text-slate-700 border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[8][category]" required class="w-full rounded border border-outline-variant/40 bg-surface px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-primary">
+                                        <option value="IT" selected>IT</option>
+                                        <option value="Financial">Financial</option>
+                                        <option value="Operational">Operational</option>
+                                        <option value="Compliance">Compliance</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[8][owner]" value="DevOps Specialist" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[8][department]" value="Cloud Deployment" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[8][title]" value="API Token Leakage in Public Repositories" required class="w-full text-xs font-semibold text-primary border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[8][description]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Accidental commits exposing cleartext environment security keys on remote channels.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[8][triggers]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Absence of automated pre-commit scanning hooks across isolated local engineer systems.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[8][controls]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Advanced organizational threat modeling features monitoring outbound branch operations.</textarea>
+                                </td>
+                                                               <td class="p-3">
+                                    <select name="rows[8][likelihood]" class="likelihood-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1">Low (1)</option>
+                                        <option value="2" selected>Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[8][impact]" class="impact-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1">Low (1)</option>
+                                        <option value="2">Mod (2)</option>
+                                        <option value="3" selected>High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3 text-center">
+                                    <div class="score-container flex items-center justify-center gap-2" data-score="6">
+                                        <span class="score-display font-black text-sm text-amber-700">6</span>
+                                        <span class="ranking-badge text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wide">MOD</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 10 -->
+                            <tr class="audit-row border-b border-outline-variant/10 bg-white hover:bg-slate-50/50 transition-colors">
+                                <td class="p-3 text-center">
+                                    <input type="checkbox" name="rows[9][selected]" class="row-selector rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[9][risk_id]" value="RISK-FIN-091" required class="w-full text-xs font-bold text-slate-700 border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[9][category]" required class="w-full rounded border border-outline-variant/40 bg-surface px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-primary">
+                                        <option value="IT">IT</option>
+                                        <option value="Financial" selected>Financial</option>
+                                        <option value="Operational">Operational</option>
+                                        <option value="Compliance">Compliance</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[9][owner]" value="Payroll Specialist" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[9][department]" value="Human Resources" required class="w-full text-xs border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <input type="text" name="rows[9][title]" value="Manual Executive Expense Processing" required class="w-full text-xs font-semibold text-primary border border-outline-variant/40 rounded bg-surface px-2 py-1.5 focus:ring-1 focus:ring-primary outline-none">
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[9][description]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Paper-based transaction verification routines creating corporate audit data leaks.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[9][triggers]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Delayed corporate travel voucher filing generating retrospective allocation balance sheets.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <textarea name="rows[9][controls]" rows="2" required class="w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface px-2 py-1.5 outline-none resize-y">Pre-authorization spending caps embedded on digital corporate ledger cards.</textarea>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[9][likelihood]" class="likelihood-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1" selected>Low (1)</option>
+                                        <option value="2">Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3">
+                                    <select name="rows[9][impact]" class="impact-selector w-full text-xs text-slate-700 rounded border border-outline-variant/40 bg-surface py-1.5 outline-none">
+                                        <option value="1">Low (1)</option>
+                                        <option value="2" selected>Mod (2)</option>
+                                        <option value="3">High (3)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3 text-center">
+                                    <div class="score-container flex items-center justify-center gap-2" data-score="2">
+                                        <span class="score-display font-black text-sm text-emerald-700">2</span>
+                                        <span class="ranking-badge text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wide">LOW</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Form Bottom Actions -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-outline-variant/30">
+                    <button type="button" onclick="window.history.back()" class="px-5 py-2 rounded-lg border border-outline-variant font-semibold text-xs text-on-surface hover:bg-slate-50 transition-colors">
+                        Back to Selection
+                    </button>
+                    <button type="submit" class="px-6 py-2 rounded-lg bg-primary font-semibold text-xs text-white hover:bg-primary-container transition-colors flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">save</span>
+                        <span>Commit Selected Risks</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    
+</body>
+</html>
+
+

@@ -1,0 +1,184 @@
+(function () {
+  function escapeHtml(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function formatDate(value) {
+    if (!value) return '-';
+    var d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '-';
+    return d.toLocaleString();
+  }
+
+  function initialsFromEmail(email) {
+    var name = String(email || '').split('@')[0] || 'NA';
+    var parts = name.replace(/[._-]+/g, ' ').split(' ').filter(Boolean);
+    if (!parts.length) return 'NA';
+    return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+  }
+
+  function isAdminRole(role) {
+    return role === 'ADMIN' || role === 'ADMIN_AUDITOR';
+  }
+
+  function mapAction(eventType, status) {
+    var base = eventType === 'signup' ? 'User signup' : eventType === 'logout' ? 'User logout' : 'User login';
+    return status === 'failed' ? base + ' failed' : base;
+  }
+
+  function renderStats(events) {
+    var dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    var total24h = 0;
+    var failed = 0;
+    var signup = 0;
+    var login = 0;
+
+    events.forEach(function (e) {
+      var t = new Date(e.created_at || e.timestamp).getTime();
+      if (!Number.isNaN(t) && t >= dayAgo) total24h += 1;
+      if (e.status === 'failed') failed += 1;
+      if (e.event_type === 'signup' && e.status === 'success') signup += 1;
+      if (e.event_type === 'login' && e.status === 'success') login += 1;
+    });
+
+    document.querySelector('[data-auth-stat="total24h"]').textContent = String(total24h);
+    document.querySelector('[data-auth-stat="failed"]').textContent = String(failed);
+    document.querySelector('[data-auth-stat="signup"]').textContent = String(signup);
+    document.querySelector('[data-auth-stat="login"]').textContent = String(login);
+  }
+
+  function renderTable(events) {
+    var table = document.getElementById('auth-events-table');
+    var mobile = document.getElementById('auth-events-mobile');
+    var count = document.querySelector('[data-auth-count]');
+    if (!table || !mobile || !count) return;
+
+    if (!events.length) {
+      table.innerHTML =
+        '<tr><td class="px-6 py-4 text-sm text-on-surface-variant" colspan="5">No authentication events found.</td></tr>';
+      mobile.innerHTML = '<div class="p-4 text-sm text-on-surface-variant">No authentication events found.</div>';
+      count.textContent = 'Showing 0 entries';
+      return;
+    }
+
+    table.innerHTML = events
+      .map(function (e, idx) {
+        var severityBadge =
+          e.status === 'failed'
+            ? '<span class="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-error-container text-on-error-container">Failed</span>'
+            : '<span class="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-primary-fixed/40 text-on-primary-fixed-variant">Success</span>';
+        return (
+          '<tr class="hover:bg-primary-fixed/20 transition-colors ' +
+          (idx % 2 ? 'bg-surface-container-low/30' : '') +
+          '">' +
+          '<td class="px-6 py-4 text-sm font-mono text-on-surface-variant whitespace-nowrap">' +
+          escapeHtml(formatDate(e.created_at || e.timestamp)) +
+          '</td>' +
+          '<td class="px-6 py-4"><div class="flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-[10px] font-bold text-on-primary-fixed">' +
+          escapeHtml(initialsFromEmail(e.email)) +
+          '</span><span class="text-sm font-semibold">' +
+          escapeHtml(e.email || '-') +
+          '</span></div></td>' +
+          '<td class="px-6 py-4 text-sm">' +
+          escapeHtml(mapAction(e.event_type, e.status)) +
+          '</td>' +
+          '<td class="px-6 py-4 text-sm text-on-surface-variant">' +
+          escapeHtml(e.role || '-') +
+          '</td>' +
+          '<td class="px-6 py-4">' +
+          severityBadge +
+          '</td></tr>'
+        );
+      })
+      .join('');
+
+    mobile.innerHTML = events
+      .slice(0, 20)
+      .map(function (e, idx) {
+        var badge =
+          e.status === 'failed'
+            ? '<span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-error-container text-on-error-container">Failed</span>'
+            : '<span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-primary-fixed/40 text-on-primary-fixed-variant">Success</span>';
+        return (
+          '<div class="p-4 space-y-2 ' +
+          (idx % 2 ? 'bg-surface-container-low/40' : '') +
+          '">' +
+          '<div class="flex justify-between items-start gap-2"><span class="text-[10px] font-mono text-on-surface-variant">' +
+          escapeHtml(formatDate(e.created_at || e.timestamp)) +
+          '</span>' +
+          badge +
+          '</div><p class="text-sm font-bold">' +
+          escapeHtml(e.email || '-') +
+          '</p><p class="text-xs text-on-surface-variant">' +
+          escapeHtml(mapAction(e.event_type, e.status) + ' · ' + (e.role || '-')) +
+          '</p></div>'
+        );
+      })
+      .join('');
+
+    count.textContent = 'Showing ' + events.length + ' entries';
+  }
+
+  async function loadEvents() {
+    if (!window.SentinelAPI || !window.userSession) return;
+
+    var user = userSession.getCurrentUser();
+    if (!user || !isAdminRole(user.role)) {
+      window.location.href = user && user.role === 'DEPT_USER' ? 'department-dashboard.html' : 'audit dashboard.html';
+      return;
+    }
+
+    var params = {};
+    var status = document.getElementById('auth-status-filter')?.value || '';
+    var eventType = document.getElementById('auth-event-filter')?.value || '';
+    if (status) params.status = status;
+    if (eventType) params.eventType = eventType;
+
+    var res = await SentinelAPI.auth.events(params);
+    var events = res.events || [];
+    var q = (document.getElementById('auth-search')?.value || '').trim().toLowerCase();
+    if (q) {
+      events = events.filter(function (e) {
+        return (
+          String(e.email || '').toLowerCase().includes(q) ||
+          String(e.details || '').toLowerCase().includes(q)
+        );
+      });
+    }
+
+    renderStats(events);
+    renderTable(events);
+  }
+
+  function bindFilters() {
+    ['auth-status-filter', 'auth-event-filter'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('change', function () { loadEvents().catch(handleError); });
+    });
+    var search = document.getElementById('auth-search');
+    if (search) {
+      search.addEventListener('input', function () {
+        loadEvents().catch(handleError);
+      });
+    }
+  }
+
+  function handleError(error) {
+    var table = document.getElementById('auth-events-table');
+    var message = 'Unable to load auth events.';
+    if (error && error.status === 403) message = 'Only admins can view auth events.';
+    if (table) {
+      table.innerHTML = '<tr><td class="px-6 py-4 text-sm text-error" colspan="5">' + escapeHtml(message) + '</td></tr>';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    bindFilters();
+    loadEvents().catch(handleError);
+  });
+})();

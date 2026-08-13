@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Create Internal Audit Plan | Sentinel Enterprise</title>
+      <!-- Tailwind CSS with Forms & Container Queries Plugins -->  
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>  
+
+    <!-- Fonts: Manrope (headlines) + Inter (body) -->  
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>  
+    <!-- Material Symbols Outlined -->  
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>  
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#003354",
+                        "primary-container": "#004a77",
+                        secondary: "#1b6d24",
+                        tertiary: "#680007",
+                        "tertiary-container": "#93000e",
+                        error: "#ba1a1a",
+                        surface: "#f9f9fd",
+                        "surface-container-low": "#f3f3f7",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e2e2e6",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#41474f",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#c1c7d0"
+                    },
+                    fontFamily: { headline: ["Manrope"], body: ["Inter"] }
+                }
+            }
+        };
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24 }
+        body { font-family: 'Inter', sans-serif }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif }
+    </style>
+    <!-- Linked JavaScript processing file -->
+    <script defer src="Internal_Audit_Work_Plan.js"></script>
+</head>
+<body class="bg-surface text-on-surface flex flex-col md:flex-row min-h-screen">
+
+  <!-- Sidebar Shell Navigation -->  
+    <aside class="flex flex-col h-screen w-64 fixed left-0 top-0 bg-slate-100 dark:bg-slate-950 py-6 z-[60] border-r border-outline-variant/10">  
+        <div class="px-6 mb-10 flex items-start justify-between gap-2">  
+            <div class="flex items-center gap-3">  
+                <div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center">  
+                    <span class="material-symbols-outlined text-white" style="font-variation-settings:'FILL' 1">security</span>  
+                </div>  
+                <div>  
+                    <div class="text-lg font-black text-sky-900 dark:text-sky-50">Sentinel</div>  
+                    <div class="text-xs text-slate-500 uppercase tracking-widest">Enterprise Audit</div>  
+                </div>  
+            </div>  
+        </div>  
+        <nav class="flex-1 space-y-1">  
+    <!-- Existing Core Dashboard Links -->
+      
+    <a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="audit-universe.html">  
+        <span class="material-symbols-outlined mr-3">public</span>  
+        <span class="font-medium">Audit Universe</span>  
+    </a>  
+    <a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="risk-assessment.html">  
+        <span class="material-symbols-outlined mr-3">list_alt</span>  
+        <span class="font-medium">Risk Register</span>  
+    </a>  
+<a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="internal_Audit_Work_Plan.html">  
+        <span class="material-symbols-outlined mr-3">dashboard</span>  
+        <span class="font-medium"> internal_Audit_Work_Plan</span>  
+    </a>
+    <!-- Performing & Reporting Phase Header / Separator Label -->
+    <div class="px-6 pt-4 pb-1 text-[10px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase select-none">
+        Performing & Reporting
+    </div>
+
+    <!-- STAGE 1: Audit Plan & Program Link -->
+    <!-- [Active Treatment for plan_program.html] Use these Tailwind active classes when on plan_program.html: "text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10" -->
+    <a class="flex items-center px-6 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="Audit_Plan&Program.html">  
+        <span class="material-symbols-outlined mr-3" style="font-variation-settings: 'FILL' 1;">description</span>  
+        <span class="font-medium text-sm">Stage 1: Audit Plan</span>  
+    </a>  
+
+    <!-- STAGE 2: Draft Audit Report Link -->
+    <!-- [Active Treatment for draft_report.html] Use these Tailwind active classes when on draft_report.html: "text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10" -->
+    <a class="flex items-center px-6 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="Draft_Audit_Report.html">  
+        <span class="material-symbols-outlined mr-3">edit_document</span>  
+        <span class="font-medium text-sm">Stage 2: Draft Report</span>  
+    </a>  
+
+    <!-- STAGE 3: Final Audit Report Link -->
+    <!-- [Active Treatment for final_report.html] Use these Tailwind active classes when on final_report.html: "text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10" -->
+    <a class="flex items-center px-6 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="Final_Audit_Report.html">  
+        <span class="material-symbols-outlined mr-3">verified_user</span>  
+        <span class="font-medium text-sm">Stage 3: Final Report</span>  
+    </a>  
+</nav> 
+ 
+    </aside>
+    <!-- Main Content Area -->
+    <main id="app-main" class="flex-1 md:ml-64 min-h-screen flex flex-col">
+        <!-- Top Navbar Header -->
+        <header class="bg-slate-50/80 backdrop-blur-xl flex justify-between items-center px-4 md:px-6 py-3 sticky top-0 z-50 shadow-sm">
+            <h1 class="text-lg font-bold text-sky-900">Planning Phase</h1>
+            <span class="text-sm font-semibold text-sky-900">Chief Internal Auditor</span>
+        </header>
+
+        <!-- Form Layout Container -->
+        <div class="p-4 md:p-8 space-y-6 max-w-[95vw] mx-auto w-full">
+            <section>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-primary">Internal Audit Work Plan Scheduler</h2>
+                <p class="text-on-surface-variant mt-1">Schedule and assign tasks directly to records received from the Risk Register.</p>
+            </section>
+
+            <!-- Success Banner -->
+            <div id="form-alert" class="hidden p-4 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">
+                Work Plan engagement items committed and saved successfully!
+            </div>
+
+            <!-- Main Form -->
+            <form id="audit-plan-form" class="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 shadow-sm space-y-8">
+                
+                <!-- SECTION 1 & 2: Horizon-Grid Matrix Rows -->
+              <!-- SECTION 1: Master All-In-One Horizontal Scroll Work Matrix -->
+                <div>
+                    <h3 class="text-base font-bold text-primary border-b border-outline-variant/20 pb-2 mb-4">1. Master Work Plan Scheduling Matrix</h3>
+                    
+                    <div class="overflow-x-auto border border-outline-variant/20 rounded-xl bg-surface-container-low">
+                        <table class="min-w-[2400px] w-full text-left border-collapse text-xs">
+                            <thead>
+                                <!-- Top Grouping Headers Row -->
+                                <tr class="bg-slate-50 border-b border-outline-variant/20 text-on-surface-variant font-bold text-[10px] uppercase tracking-widest text-center">
+                                    <th colspan="5" class="p-2 border-r border-outline-variant/20 bg-slate-100/50">Core Risk Target Identity</th>
+                                    <th colspan="5" class="p-2 border-r border-outline-variant/20 bg-sky-50/50 text-sky-900">Objectives &amp; Timelines</th>
+                                    <th colspan="3" class="p-2 border-r border-outline-variant/20 bg-emerald-50/50 text-emerald-900">Audit Resources</th>
+                                    <th colspan="3" class="p-2 border-r border-outline-variant/20 bg-indigo-50/50 text-indigo-900">Assignment of Auditors</th>
+                                    <th colspan="2" class="p-2 bg-amber-50/50 text-amber-900">Plan Approval Tracking</th>
+                                </tr>
+                                <!-- Granular Attribute Column Headers Row -->
+                                <tr class="bg-slate-100 border-b border-outline-variant/30 text-on-surface-variant font-bold uppercase tracking-wider">
+                                    <th class="p-3 w-16">S/No</th>
+                                    <th class="p-3 w-36">Ref Number</th>
+                                    <th class="p-3 w-28">Risk Level</th>
+                                    <th class="p-3 w-56">Audit Area / Title Replica</th>
+                                    <th class="p-3 w-64 border-r border-outline-variant/20">Risk Description</th>
+                                    
+                                    <th class="p-3 w-64">Audit Objectives</th>
+                                    <th class="p-3 w-64">Audit Scope Boundaries</th>
+                                    <th class="p-3 w-28">Scale</th>
+                                    <th class="p-3 w-36">Start Date</th>
+                                    <th class="p-3 w-36 border-r border-outline-variant/20">End Date</th>
+                                    
+                                    <th class="p-3 w-40 text-emerald-900">Budget (KSh)</th>
+                                    <th class="p-3 w-28 text-emerald-900">No. of Auditors</th>
+                                    <th class="p-3 w-52 text-emerald-900 border-r border-outline-variant/20">Physical &amp; IT Resources</th>
+                                    
+                                    <th class="p-3 w-44 text-indigo-900">Lead Auditor</th>
+                                    <th class="p-3 w-44 text-indigo-900">Auditor 1</th>
+                                    <th class="p-3 w-44 text-indigo-900 border-r border-outline-variant/20">Auditor 2</th>
+                                    
+                                    <th class="p-3 w-36 text-amber-900">Approval Date</th>
+                                    <th class="p-3 w-44 text-amber-900">Minute Number Ref</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-plan-rows-container">
+                                
+                                <!-- DUMMY HORIZONTAL RECORD ROW 1 (ALL METRICS IN ONE SINGLE ROW) -->
+                                <tr class="border-b border-outline-variant/10 bg-white hover:bg-slate-50/50 transition-colors">
+                                    <!-- 1. Serial Number -->
+                                    <td class="p-3 font-semibold text-slate-700">
+                                        <input type="number" name="plan[0][serial_no]" value="1" required class="w-full text-xs border-0 bg-transparent p-0 focus:ring-0">
+                                    </td>
+                                    <!-- 2. Reference Number -->
+                                    <td class="p-3">
+                                        <input type="text" name="plan[0][ref_no]" value="AUD-2026-IT01" required class="w-full text-xs font-mono font-bold text-slate-700 border-0 bg-transparent p-0 focus:ring-0">
+                                    </td>
+                                    <!-- 3. Level of Risk -->
+                                    <td class="p-3">
+                                        <span class="px-2 py-0.5 rounded font-bold text-[10px] bg-rose-50 text-rose-700 border border-rose-200">HIGH (H)</span>
+                                        <input type="hidden" name="plan[0][risk_level]" value="H">
+                                    </td>
+                                    <!-- 4. Audit Area / Title -->
+                                    <td class="p-3">
+                                        <input type="text" name="plan[0][audit_area]" value="Production Server Ransomware Vector" readonly class="w-full text-xs font-semibold text-primary border-0 bg-transparent p-0 focus:ring-0 outline-none">
+                                    </td>
+                                    <!-- 5. Risk Description -->
+                                    <td class="p-3 border-r border-outline-variant/20">
+                                        <textarea name="plan[0][risk_desc]" rows="2" readonly class="w-full text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 resize-y outline-none">Potential deployment of malicious payloads encrypting core production databases.</textarea>
+                                    </td>
+                                    
+                                    <!-- 6. Audit Objectives -->
+                                    <td class="p-3">
+                                        <textarea name="plan[0][audit_objectives]" rows="2" required placeholder="Target objectives..." class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none focus:border-primary resize-y">Verify patch schedules, access controls on RDP channels, and baseline isolation depth.</textarea>
+                                    </td>
+                                    <!-- 7. Audit Scope -->
+                                    <td class="p-3">
+                                        <textarea name="plan[0][audit_scope]" rows="2" required placeholder="Boundaries..." class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none focus:border-primary resize-y">Limited to critical production assets hosted on primary local subnets.</textarea>
+                                    </td>
+                                    <!-- 8. Scale -->
+                                    <td class="p-3">
+                                        <select name="plan[0][duration_scale]" class="w-full text-xs rounded border border-outline-variant/40 bg-surface py-1 focus:ring-0 outline-none">
+                                            <option value="Weeks" selected>Weeks</option>
+                                            <option value="Months">Months</option>
+                                        </select>
+                                    </td>
+                                    <!-- 9. Start Date -->
+                                    <td class="p-3">
+                                        <input type="date" name="plan[0][start_time]" value="2026-08-10" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">
+                                    </td>
+                                    <!-- 10. End Date -->
+                                    <td class="p-3 border-r border-outline-variant/20">
+                                        <input type="date" name="plan[0][end_time]" value="2026-08-24" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">
+                                    </td>
+                                    
+                                    <!-- 11. Budget Allocation -->
+                                    <td class="p-3">
+                                        <input type="number" name="plan[0][budget_ksh]" value="10000" min="0" required class="budget-row-input w-full text-xs rounded border border-outline-variant/40 bg-emerald-50/30 px-2 py-1 text-right font-mono font-bold text-emerald-900 focus:ring-1 focus:ring-primary outline-none">
+                                    </td>
+                                    <!-- 12. No. Of Auditors -->
+                                    <td class="p-3">
+                                        <input type="number" name="plan[0][no_of_auditors]" value="3" min="1" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none text-center">
+                                    </td>
+                                    <!-- 13. Physical & IT Resources -->
+                                    <td class="p-3 border-r border-outline-variant/20">
+                                        <input type="text" name="plan[0][physical_resources]" value="xxx" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">
+                                    </td>
+                                    
+                                    <!-- 14. Assignment: Lead Auditor -->
+                                    <td class="p-3">
+                                        <input type="text" name="plan[0][role_lead]" value="Sarah Jenkins: Name" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">
+                                    </td>
+                                    <!-- 15. Assignment: Auditor 1 -->
+                                    <td class="p-3">
+                                        <input type="text" name="plan[0][role_auditor1]" value="Alex Kamau: Name" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">
+                                    </td>
+                                    <!-- 16. Assignment: Auditor 2 -->
+                                    <td class="p-3 border-r border-outline-variant/20">
+                                        <input type="text" name="plan[0][role_auditor2]" value="David Vance: Name" class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">
+                                    </td>
+                                    
+                                    <!-- 17. Plan Approval: Date -->
+                                    <td class="p-3">
+                                        <input type="date" name="plan[0][approval_date]" value="2026-08-07" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">
+                                    </td>
+                                    <!-- 18. Plan Approval: Minute Number Reference -->
+                                    <td class="p-3">
+                                        <input type="text" name="plan[0][minute_number]" value="MIN-IA-2026/04-B" required class="w-full text-xs font-mono rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">
+                                    </td>
+                                </tr>
+                                <!-- DUMMY HORIZONTAL RECORD ROW 2 -->  
+<tr class="border-b border-outline-variant/10 bg-white hover:bg-slate-50/50 transition-colors">  
+    <!-- 1. Serial Number -->  
+    <td class="p-3 font-semibold text-slate-700">  
+        <input type="number" name="plan[1][serial_no]" value="2" required class="w-full text-xs border-0 bg-transparent p-0 focus:ring-0">  
+    </td>  
+    <!-- 2. Reference Number -->  
+    <td class="p-3">  
+        <input type="text" name="plan[1][ref_no]" value="AUD-2026-FIN02" required class="w-full text-xs font-mono font-bold text-slate-700 border-0 bg-transparent p-0 focus:ring-0">  
+    </td>  
+    <!-- 3. Level of Risk -->  
+    <td class="p-3">  
+        <span class="px-2 py-0.5 rounded font-bold text-[10px] bg-amber-50 text-amber-700 border border-amber-200">MEDIUM (M)</span>  
+        <input type="hidden" name="plan[1][risk_level]" value="M">  
+    </td>  
+    <!-- 4. Audit Area / Title -->  
+    <td class="p-3">  
+        <input type="text" name="plan[1][audit_area]" value="Procurement Invoicing Discrepancies" readonly class="w-full text-xs font-semibold text-primary border-0 bg-transparent p-0 focus:ring-0 outline-none">  
+    </td>  
+    <!-- 5. Risk Description -->  
+    <td class="p-3 border-r border-outline-variant/20">  
+        <textarea name="plan[1][risk_desc]" rows="2" readonly class="w-full text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 resize-y outline-none">Duplicate invoices and unapproved vendor payments detected across finance modules.</textarea>  
+    </td>  
+
+    <!-- 6. Audit Objectives -->  
+    <td class="p-3">  
+        <textarea name="plan[1][audit_objectives]" rows="2" required placeholder="Target objectives..." class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none focus:border-primary resize-y">Validate three-way matching, approval workflows, and vendor master data integrity.</textarea>  
+    </td>  
+    <!-- 7. Audit Scope -->  
+    <td class="p-3">  
+        <textarea name="plan[1][audit_scope]" rows="2" required placeholder="Boundaries..." class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none focus:border-primary resize-y">All purchase requisitions and vendor invoices processed in Q1-Q2 FY2026.</textarea>  
+    </td>  
+    <!-- 8. Scale -->  
+    <td class="p-3">  
+        <select name="plan[1][duration_scale]" class="w-full text-xs rounded border border-outline-variant/40 bg-surface py-1 focus:ring-0 outline-none">  
+            <option value="Weeks">Weeks</option>  
+            <option value="Months" selected>Months</option>  
+        </select>  
+    </td>  
+    <!-- 9. Start Date -->  
+    <td class="p-3">  
+        <input type="date" name="plan[1][start_time]" value="2026-09-01" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+    <!-- 10. End Date -->  
+    <td class="p-3 border-r border-outline-variant/20">  
+        <input type="date" name="plan[1][end_time]" value="2026-10-15" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+
+    <!-- 11. Budget Allocation -->  
+    <td class="p-3">  
+        <input type="number" name="plan[1][budget_ksh]" value="55000" min="0" required class="budget-row-input w-full text-xs rounded border border-outline-variant/40 bg-emerald-50/30 px-2 py-1 text-right font-mono font-bold text-emerald-900 focus:ring-1 focus:ring-primary outline-none">  
+    </td>  
+    <!-- 12. No. Of Auditors -->  
+    <td class="p-3">  
+        <input type="number" name="plan[1][no_of_auditors]" value="2" min="1" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none text-center">  
+    </td>  
+    <!-- 13. Physical & IT Resources -->  
+    <td class="p-3 border-r border-outline-variant/20">  
+        <input type="text" name="plan[1][physical_resources]" value="ERP Access, Vendor Ledgers" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+
+    <!-- 14. Assignment: Lead Auditor -->  
+    <td class="p-3">  
+        <input type="text" name="plan[1][role_lead]" value="Grace Ochieng: Name" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+    <!-- 15. Assignment: Auditor 1 -->  
+    <td class="p-3">  
+        <input type="text" name="plan[1][role_auditor1]" value="Michael Tan: Name" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+    <!-- 16. Assignment: Auditor 2 -->  
+    <td class="p-3 border-r border-outline-variant/20">  
+        <input type="text" name="plan[1][role_auditor2]" value="" class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+
+    <!-- 17. Plan Approval: Date -->  
+    <td class="p-3">  
+        <input type="date" name="plan[1][approval_date]" value="2026-08-30" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+    <!-- 18. Plan Approval: Minute Number Reference -->  
+    <td class="p-3">  
+        <input type="text" name="plan[1][minute_number]" value="MIN-IA-2026/05-C" required class="w-full text-xs font-mono rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+</tr>  
+
+<!-- DUMMY HORIZONTAL RECORD ROW 3 -->  
+<tr class="border-b border-outline-variant/10 bg-white hover:bg-slate-50/50 transition-colors">  
+    <!-- 1. Serial Number -->  
+    <td class="p-3 font-semibold text-slate-700">  
+        <input type="number" name="plan[2][serial_no]" value="3" required class="w-full text-xs border-0 bg-transparent p-0 focus:ring-0">  
+    </td>  
+    <!-- 2. Reference Number -->  
+    <td class="p-3">  
+        <input type="text" name="plan[2][ref_no]" value="AUD-2026-HR03" required class="w-full text-xs font-mono font-bold text-slate-700 border-0 bg-transparent p-0 focus:ring-0">  
+    </td>  
+    <!-- 3. Level of Risk -->  
+    <td class="p-3">  
+        <span class="px-2 py-0.5 rounded font-bold text-[10px] bg-rose-50 text-rose-700 border border-rose-200">HIGH (H)</span>  
+        <input type="hidden" name="plan[2][risk_level]" value="H">  
+    </td>  
+    <!-- 4. Audit Area / Title -->  
+    <td class="p-3">  
+        <input type="text" name="plan[2][audit_area]" value="Payroll Master Data Segregation" readonly class="w-full text-xs font-semibold text-primary border-0 bg-transparent p-0 focus:ring-0 outline-none">  
+    </td>  
+    <!-- 5. Risk Description -->  
+    <td class="p-3 border-r border-outline-variant/20">  
+        <textarea name="plan[2][risk_desc]" rows="2" readonly class="w-full text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 resize-y outline-none">Ghost employees and unauthorized salary adjustments suspected in payroll cycle accounting.</textarea>  
+    </td>  
+
+    <!-- 6. Audit Objectives -->  
+    <td class="p-3">  
+        <textarea name="plan[2][audit_objectives]" rows="2" required placeholder="Target objectives..." class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none focus:border-primary resize-y">Reconcile HR roster against payroll run, verify sign-off controls and change logs.</textarea>  
+    </td>  
+    <!-- 7. Audit Scope -->  
+    <td class="p-3">  
+        <textarea name="plan[2][audit_scope]" rows="2" required placeholder="Boundaries..." class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none focus:border-primary resize-y">All active employees across three regional offices, payroll period Jan-Jul 2026.</textarea>  
+    </td>  
+    <!-- 8. Scale -->  
+    <td class="p-3">  
+        <select name="plan[2][duration_scale]" class="w-full text-xs rounded border border-outline-variant/40 bg-surface py-1 focus:ring-0 outline-none">  
+            <option value="Weeks" selected>Weeks</option>  
+            <option value="Months">Months</option>  
+        </select>  
+    </td>  
+    <!-- 9. Start Date -->  
+    <td class="p-3">  
+        <input type="date" name="plan[2][start_time]" value="2026-08-20" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+    <!-- 10. End Date -->  
+    <td class="p-3 border-r border-outline-variant/20">  
+        <input type="date" name="plan[2][end_time]" value="2026-09-10" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+
+    <!-- 11. Budget Allocation -->  
+    <td class="p-3">  
+        <input type="number" name="plan[2][budget_ksh]" value="32000" min="0" required class="budget-row-input w-full text-xs rounded border border-outline-variant/40 bg-emerald-50/30 px-2 py-1 text-right font-mono font-bold text-emerald-900 focus:ring-1 focus:ring-primary outline-none">  
+    </td>  
+    <!-- 12. No. Of Auditors -->  
+    <td class="p-3">  
+        <input type="number" name="plan[2][no_of_auditors]" value="3" min="1" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none text-center">  
+    </td>  
+    <!-- 13. Physical & IT Resources -->  
+    <td class="p-3 border-r border-outline-variant/20">  
+        <input type="text" name="plan[2][physical_resources]" value="HRIS Access, Payroll Reports" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+
+    <!-- 14. Assignment: Lead Auditor -->  
+    <td class="p-3">  
+        <input type="text" name="plan[2][role_lead]" value="Brian Mwangi: Name" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+    <!-- 15. Assignment: Auditor 1 -->  
+    <td class="p-3">  
+        <input type="text" name="plan[2][role_auditor1]" value="Linda Wanjiru: Name" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+    <!-- 16. Assignment: Auditor 2 -->  
+    <td class="p-3 border-r border-outline-variant/20">  
+        <input type="text" name="plan[2][role_auditor2]" value="Peter Njogu: Name" class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+
+    <!-- 17. Plan Approval: Date -->  
+    <td class="p-3">  
+        <input type="date" name="plan[2][approval_date]" value="2026-08-18" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+    <!-- 18. Plan Approval: Minute Number Reference -->  
+    <td class="p-3">  
+        <input type="text" name="plan[2][minute_number]" value="MIN-IA-2026/06-A" required class="w-full text-xs font-mono rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+</tr>  
+
+<!-- DUMMY HORIZONTAL RECORD ROW 4 -->  
+<tr class="border-b border-outline-variant/10 bg-white hover:bg-slate-50/50 transition-colors">  
+    <!-- 1. Serial Number -->  
+    <td class="p-3 font-semibold text-slate-700">  
+        <input type="number" name="plan[3][serial_no]" value="4" required class="w-full text-xs border-0 bg-transparent p-0 focus:ring-0">  
+    </td>  
+    <!-- 2. Reference Number -->  
+    <td class="p-3">  
+        <input type="text" name="plan[3][ref_no]" value="AUD-2026-OPS04" required class="w-full text-xs font-mono font-bold text-slate-700 border-0 bg-transparent p-0 focus:ring-0">  
+    </td>  
+    <!-- 3. Level of Risk -->  
+    <td class="p-3">  
+        <span class="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200">LOW (L)</span>  
+        <input type="hidden" name="plan[3][risk_level]" value="L">  
+    </td>  
+    <!-- 4. Audit Area / Title -->  
+    <td class="p-3">  
+        <input type="text" name="plan[3][audit_area]" value="Warehouse Stock Count Accuracy" readonly class="w-full text-xs font-semibold text-primary border-0 bg-transparent p-0 focus:ring-0 outline-none">  
+    </td>  
+    <!-- 5. Risk Description -->  
+    <td class="p-3 border-r border-outline-variant/20">  
+        <textarea name="plan[3][risk_desc]" rows="2" readonly class="w-full text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1 resize-y outline-none">Inventory records showing minor variance against physical stock in main distribution center.</textarea>  
+    </td>  
+
+    <!-- 6. Audit Objectives -->  
+    <td class="p-3">  
+        <textarea name="plan[3][audit_objectives]" rows="2" required placeholder="Target objectives..." class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none focus:border-primary resize-y">Confirm cycle-count procedures, and validate stock valuation methodology alignment to policy.</textarea>  
+    </td>  
+    <!-- 7. Audit Scope -->  
+    <td class="p-3">  
+        <textarea name="plan[3][audit_scope]" rows="2" required placeholder="Boundaries..." class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none focus:border-primary resize-y">Fast-moving SKUs and high-value spares in Nairobi distribution warehouse only.</textarea>  
+    </td>  
+    <!-- 8. Scale -->  
+    <td class="p-3">  
+        <select name="plan[3][duration_scale]" class="w-full text-xs rounded border border-outline-variant/40 bg-surface py-1 focus:ring-0 outline-none">  
+            <option value="Weeks" selected>Weeks</option>  
+            <option value="Months">Months</option>  
+        </select>  
+    </td>  
+    <!-- 9. Start Date -->  
+    <td class="p-3">  
+        <input type="date" name="plan[3][start_time]" value="2026-10-05" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+    <!-- 10. End Date -->  
+    <td class="p-3 border-r border-outline-variant/20">  
+        <input type="date" name="plan[3][end_time]" value="2026-10-16" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+
+    <!-- 11. Budget Allocation -->  
+    <td class="p-3">  
+        <input type="number" name="plan[3][budget_ksh]" value="18000" min="0" required class="budget-row-input w-full text-xs rounded border border-outline-variant/40 bg-emerald-50/30 px-2 py-1 text-right font-mono font-bold text-emerald-900 focus:ring-1 focus:ring-primary outline-none">  
+    </td>  
+    <!-- 12. No. Of Auditors -->  
+    <td class="p-3">  
+        <input type="number" name="plan[3][no_of_auditors]" value="2" min="1" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none text-center">  
+    </td>  
+    <!-- 13. Physical & IT Resources -->  
+    <td class="p-3 border-r border-outline-variant/20">  
+        <input type="text" name="plan[3][physical_resources]" value="WMS Access, Barcode Scanners" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+
+    <!-- 14. Assignment: Lead Auditor -->  
+    <td class="p-3">  
+        <input type="text" name="plan[3][role_lead]" value="Cynthia Otieno: Name" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+    <!-- 15. Assignment: Auditor 1 -->  
+    <td class="p-3">  
+        <input type="text" name="plan[3][role_auditor1]" value="James Kariuki: Name" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+    <!-- 16. Assignment: Auditor 2 -->  
+    <td class="p-3 border-r border-outline-variant/20">  
+        <input type="text" name="plan[3][role_auditor2]" value="" class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+
+    <!-- 17. Plan Approval: Date -->  
+    <td class="p-3">  
+        <input type="date" name="plan[3][approval_date]" value="2026-09-28" required class="w-full text-xs rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+    <!-- 18. Plan Approval: Minute Number Reference -->  
+    <td class="p-3">  
+        <input type="text" name="plan[3][minute_number]" value="MIN-IA-2026/07-B" required class="w-full text-xs font-mono rounded border border-outline-variant/40 bg-surface px-2 py-1 outline-none">  
+    </td>  
+</tr>  
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Cumulative Total Budget Component Box -->
+                <div class="bg-primary text-white rounded-xl p-4 flex items-center justify-between shadow-md">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1">payments</span>
+                        <div>
+                            <p class="text-xs uppercase tracking-wider opacity-75 font-semibold">Running Cumulative Budget Allocation</p>
+                            <p class="text-xs font-medium opacity-60">Calculates across logged workspace workflow records</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-2xl font-black" id="running-total-budget">KES 10,000.00</span>
+                    </div>
+                </div>
+
+                <!-- Action Button Footers -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-outline-variant/30">
+                    <button type="reset" class="px-5 py-2.5 rounded-lg border border-outline-variant font-semibold text-sm text-on-surface hover:bg-surface-container-low transition-colors">
+                        Clear Fields
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 rounded-lg bg-primary font-semibold text-sm text-white hover:bg-primary-container transition-colors flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">assignment_turned_in</span>
+                        <span>Authorize Work Plan Item</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

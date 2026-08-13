@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Settings | Sentinel Enterprise</title>
+<script src="theme.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-low": "#f3f3f7",
+                        "on-tertiary-fixed-variant": "#93000e",
+                        "on-secondary-fixed": "#002204",
+                        "primary-fixed": "#cfe5ff",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d9dadd",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#296290",
+                        "surface-variant": "#e2e2e6",
+                        "on-background": "#191c1e",
+                        "primary-container": "#004a77",
+                        "secondary-fixed-dim": "#88d982",
+                        "on-primary-container": "#86baed",
+                        "secondary-fixed": "#a3f69c",
+                        "on-surface": "#191c1e",
+                        "inverse-on-surface": "#f0f0f4",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#98cbff",
+                        "tertiary": "#680007",
+                        "on-tertiary-fixed": "#410003",
+                        "tertiary-fixed-dim": "#ffb4ac",
+                        "on-secondary-fixed-variant": "#005312",
+                        "outline": "#727880",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#41474f",
+                        "surface-container-highest": "#e2e2e6",
+                        "surface-container": "#edeef1",
+                        "outline-variant": "#c1c7d0",
+                        "surface": "#f9f9fd",
+                        "surface-bright": "#f9f9fd",
+                        "secondary": "#1b6d24",
+                        "background": "#f9f9fd",
+                        "surface-container-high": "#e7e8eb",
+                        "on-tertiary-container": "#ff9990",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#217128",
+                        "inverse-surface": "#2e3133",
+                        "on-primary-fixed-variant": "#004a77",
+                        "tertiary-container": "#93000e",
+                        "primary-fixed-dim": "#98cbff",
+                        "tertiary-fixed": "#ffdad6",
+                        "primary": "#003354",
+                        "on-primary-fixed": "#001d33",
+                        "secondary-container": "#a0f399"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<script defer="" src="nav.js"></script>
+</head>
+<body class="bg-surface text-on-surface flex flex-col md:flex-row min-h-screen" data-app-shell="md">
+<div id="app-sidebar-backdrop" class="fixed inset-0 z-[55] bg-slate-900/40 dark:bg-black/60 opacity-0 pointer-events-none transition-opacity" aria-hidden="true"></div>
+<aside id="app-sidebar" class="flex flex-col h-screen w-64 fixed left-0 top-0 bg-slate-100 dark:bg-slate-950 text-sky-900 dark:text-sky-100 py-6 z-[60]">
+<div class="px-6 mb-10 flex items-start justify-between gap-2">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div class="min-w-0">
+<div class="text-lg font-black text-sky-900 dark:text-sky-50 leading-tight">Sentinel</div>
+<div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest">Enterprise Audit</div>
+</div>
+</div>
+<button type="button" class="md:hidden shrink-0 p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50" data-sidebar-close="" aria-label="Close menu">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center px-6 py-3 text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10 transition-all duration-200 ease-in-out" href="#" data-nav="dashboard">
+<span class="material-symbols-outlined mr-3" data-icon="dashboard">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10 rounded-l-xl transition-colors" href="#" data-nav="auditunivers">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">public</span>
+<span class="font-medium font-label">Audit Universe</span>
+</a>
+<a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all duration-200 ease-in-out" href="#" data-nav="auditLog">
+<span class="material-symbols-outlined mr-3" data-icon="history_edu">history_edu</span>
+<span class="font-medium">Audit Log</span>
+</a>
+<a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all duration-200 ease-in-out" href="#" data-nav="riskRegister">
+<span class="material-symbols-outlined mr-3" data-icon="list_alt">list_alt</span>
+<span class="font-medium">Risk Register</span>
+</a>
+<a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all duration-200 ease-in-out" href="#" data-nav="riskMatrix">
+<span class="material-symbols-outlined mr-3" data-icon="grid_view">grid_view</span>
+<span class="font-medium">Risk Matrix</span>
+</a>
+<a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all duration-200 ease-in-out" href="#" data-nav="messages">
+<span class="material-symbols-outlined mr-3" data-icon="chat">chat</span>
+<span class="font-medium">Messages</span>
+</a>
+<a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all duration-200 ease-in-out" href="#" data-nav="reports">
+<span class="material-symbols-outlined mr-3" data-icon="description">description</span>
+<span class="font-medium">Reports</span>
+</a>
+<a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all duration-200 ease-in-out" href="#" data-nav="deptDashboard" style="display:none">
+<span class="material-symbols-outlined mr-3" data-icon="apartment">apartment</span>
+<span class="font-medium">My Department</span>
+</a>
+<a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all duration-200 ease-in-out" href="#" data-nav="settings">
+<span class="material-symbols-outlined mr-3" data-icon="settings">settings</span>
+<span class="font-medium">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<div class="p-4 bg-surface-container-highest rounded-xl">
+<p class="text-xs font-bold text-primary mb-2">Workspace</p>
+<p class="text-[10px] text-on-surface-variant">Production · EU-Central-1</p>
+</div>
+</div>
+</aside>
+<main id="app-main" class="flex-1 md:ml-64 min-h-screen flex flex-col pb-20 md:pb-0 transition-[margin] duration-200 ease-out">
+<header class="bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl flex justify-between items-center px-4 md:px-8 py-3 w-full sticky top-0 z-40 shadow-sm dark:shadow-none">
+<div class="flex items-center gap-2 md:gap-6 min-w-0">
+<button type="button" class="flex p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 shrink-0" data-sidebar-toggle="" aria-label="Open or hide navigation">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+<div class="md:hidden w-8 h-8 bg-primary-container rounded-lg flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary-container text-sm" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<h1 class="text-base md:text-xl font-bold tracking-tight text-sky-900 dark:text-sky-50 truncate">Settings</h1>
+</div>
+<button type="button" class="hidden sm:flex p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-full transition-colors" aria-label="Help">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</header>
+<div class="p-4 md:p-8 space-y-6 md:space-y-8 max-w-5xl w-full">
+<section>
+<p class="text-primary font-bold tracking-widest text-xs uppercase mb-2">Control plane</p>
+<h2 class="text-2xl md:text-3xl font-extrabold text-primary leading-tight">Workspace preferences</h2>
+<p class="text-on-surface-variant text-sm md:text-base mt-2">Manage your profile, regional defaults, notifications, and security for Sentinel Enterprise.</p>
+</section>
+<div id="settingsToast" class="hidden rounded-xl border border-secondary/40 bg-secondary-container/30 px-4 py-3 text-sm font-semibold text-on-secondary-container" role="status"></div>
+<div class="sticky top-[52px] z-30 -mx-4 md:mx-0 mb-2 rounded-2xl border border-outline-variant/15 bg-surface-container-low/90 dark:bg-slate-900/80 backdrop-blur-md overflow-hidden">
+<button type="button" id="settingsModuleNavToggle" class="md:hidden w-full flex items-center justify-between gap-2 px-4 py-3 text-left" aria-expanded="false" aria-controls="settingsModuleNav">
+<span class="text-xs font-bold uppercase tracking-wide text-primary">Page sections</span>
+<span class="material-symbols-outlined text-primary transition-transform settings-chips-chevron" data-icon="expand_more">expand_more</span>
+</button>
+<nav id="settingsModuleNav" class="settings-module-chips hidden md:flex flex-wrap gap-1 px-3 pb-3 md:px-3 md:py-3 md:pb-3 border-t border-outline-variant/10 md:border-t-0">
+<a class="shrink-0 px-3 py-2 rounded-full text-xs font-bold uppercase tracking-wide text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-slate-800 transition-colors" href="#profile">Profile</a>
+<a class="shrink-0 px-3 py-2 rounded-full text-xs font-bold uppercase tracking-wide text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-slate-800 transition-colors" href="#regional">Regional</a>
+<a class="shrink-0 px-3 py-2 rounded-full text-xs font-bold uppercase tracking-wide text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-slate-800 transition-colors" href="#notifications">Alerts</a>
+<a class="shrink-0 px-3 py-2 rounded-full text-xs font-bold uppercase tracking-wide text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-slate-800 transition-colors" href="#security">Security</a>
+<a class="shrink-0 px-3 py-2 rounded-full text-xs font-bold uppercase tracking-wide text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-slate-800 transition-colors" href="#appearance">Appearance</a>
+</nav>
+</div>
+<!-- Profile -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6 md:p-8 shadow-sm scroll-mt-24" id="profile">
+<div class="flex flex-col lg:flex-row lg:items-start gap-6 pb-6 border-b border-outline-variant/10">
+<div class="flex flex-col sm:flex-row sm:items-center gap-4 flex-1 min-w-0">
+<div class="relative shrink-0">
+<img alt="Profile photo" class="w-24 h-24 md:w-28 md:h-28 rounded-2xl object-cover ring-2 ring-white shadow-lg" id="profileAvatarPreview" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNv57lVv_-U1Yyt_mPzDmmRrVzxMJaymImmd0GDiKW9IB3EqJyjp324MDsqtvap0ORBDrwedtEAxPUaV8Yvortf0ynXdpe6Qo79RZLVBgASckbrKvRh9ytlhZfTNRvxWEi4FogCkp4p7OuyxtlwTjcUqd6BF29YCH5MjsSdwJ7ksu5yYdVwueuTzzXLq2xrNaMlPtRj3RoHyeq6kltNIR8PeogccRtuAPiXUyhV9LB0jCGAcgOcWB_kldDgLLn53EsGrGbdq3LEjY"/>
+<label class="mt-3 flex items-center gap-2 text-xs font-bold text-primary cursor-pointer hover:underline w-fit">
+<span class="material-symbols-outlined text-base" data-icon="photo_camera">photo_camera</span>
+<input accept="image/*" class="sr-only" id="profilePhotoFile" type="file"/>
+<span>Upload photo</span>
+</label>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="text-xl font-bold text-on-surface" id="profileSummaryName"> </h3>
+<p class="text-sm text-on-surface-variant mt-1" id="profileSummaryLine"></p>
+<p class="text-xs text-on-surface-variant mt-2 font-mono">User ID <span id="profileUserId" class="select-all"></span> <span class="text-[10px] uppercase tracking-wider text-outline">read-only</span></p>
+<p class="text-[11px] text-on-surface-variant mt-3 leading-relaxed"> <strong class="text-on-surface">Save profile</strong> to persist; other devices will not sync until a backend is connected.</p>
+</div>
+</div>
+<form class="space-y-6 pt-6" id="profileForm">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+<div class="md:col-span-2">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="profilePhotoUrl">Profile photo URL <span class="font-normal normal-case text-outline">(optional)</span></label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400" id="profilePhotoUrl" type="url" placeholder="https://…"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="displayName">Legal / display name <span class="text-error">*</span></label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20" id="displayName" name="displayName" required type="text" autocomplete="name"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="preferredName">Preferred name</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20" id="preferredName" type="text" placeholder="How you appear in comments" autocomplete="nickname"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="workEmail">Work email <span class="text-error">*</span></label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20" id="workEmail" required type="email" autocomplete="email"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="workPhone">Phone</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20" id="workPhone" type="tel" autocomplete="tel" placeholder="+254 …"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="jobTitle">Job title</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20" id="jobTitle" type="text" placeholder="Lead Auditor"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="department">Department / cost centre</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20" id="department" type="text" placeholder="Internal Audit"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="employeeId">Employee ID</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20" id="employeeId" type="text" placeholder="EMP-0000"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="officeLocation">Office / location</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20" id="officeLocation" type="text" placeholder="Nairobi · Hybrid"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="pronouns">Pronouns <span class="font-normal normal-case text-outline">(optional)</span></label>
+<select class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 text-on-surface" id="pronouns">
+<option value="">Prefer not to say</option>
+<option value="she/her">She / her</option>
+<option value="he/him">He / him</option>
+<option value="they/them">They / them</option>
+<option value="other">Other / ask me</option>
+</select>
+</div>
+<div class="md:col-span-2">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="bio">Professional bio</label>
+<textarea class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 min-h-[120px] resize-y placeholder:text-slate-400" id="bio" maxlength="500" placeholder="Short summary for audit handoffs, attestations, and directory cards."></textarea>
+<p class="text-[10px] text-on-surface-variant mt-1.5">Max 500 characters recommended for directory sync.</p>
+</div>
+</div>
+<div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-outline-variant/10">
+<p class="text-xs text-on-surface-variant" id="profileLastSaved"></p>
+<div class="flex flex-wrap gap-3">
+<button class="px-5 py-3 rounded-full border border-outline-variant/50 text-primary font-bold text-sm hover:bg-surface-container-low transition-colors" id="profileDiscard" type="button">Discard changes</button>
+<button class="px-6 py-3 rounded-full bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold text-sm shadow-lg shadow-primary/15 hover:scale-[0.98] transition-transform" type="submit">Save profile</button>
+</div>
+</div>
+</form>
+</div>
+<!-- Regional -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6 md:p-8 shadow-sm scroll-mt-24" id="regional">
+<div class="flex items-start gap-3 mb-6">
+<span class="material-symbols-outlined text-primary text-2xl shrink-0" data-icon="public">public</span>
+<div>
+<h3 class="font-bold text-lg text-on-surface">Regional &amp; formats</h3>
+<p class="text-xs text-on-surface-variant mt-1">Locale, time, and how dates appear in exports and the audit log.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="timezone">Timezone</label>
+<select class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 text-on-surface" id="timezone">
+<option value="Africa/Nairobi">Africa/Nairobi (UTC+3)</option>
+<option value="UTC">UTC</option>
+<option value="Europe/London">Europe/London</option>
+<option value="America/New_York">America/New_York</option>
+<option value="Asia/Dubai">Asia/Dubai</option>
+</select>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="locale">Language &amp; locale</label>
+<select class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 text-on-surface" id="locale">
+<option value="en-KE">English (Kenya)</option>
+<option value="en-GB">English (UK)</option>
+<option value="en-US">English (US)</option>
+</select>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="dateFormat">Date format</label>
+<select class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 text-on-surface" id="dateFormat">
+<option value="DD/MM/YYYY">DD/MM/YYYY</option>
+<option value="MM/DD/YYYY">MM/DD/YYYY</option>
+<option value="YYYY-MM-DD">ISO 8601 (YYYY-MM-DD)</option>
+</select>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2" for="weekStartsOn">First day of week</label>
+<select class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 text-on-surface" id="weekStartsOn">
+<option value="monday">Monday</option>
+<option value="sunday">Sunday</option>
+</select>
+</div>
+</div>
+<div class="mt-6 flex justify-end">
+<button class="px-6 py-3 rounded-full bg-surface-container-high text-primary font-bold text-sm hover:bg-surface-variant transition-colors" id="saveRegional" type="button">Save regional settings</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 overflow-hidden shadow-sm scroll-mt-24" id="notifications">
+<div class="px-6 py-4 bg-surface-container-highest/40 border-b border-outline-variant/10">
+<h3 class="font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="notifications">notifications</span>
+Notifications
+</h3>
+<p class="text-xs text-on-surface-variant mt-1">Choose how Sentinel reaches you for audits and escalations.</p>
+</div>
+<ul class="divide-y divide-outline-variant/10">
+<li class="flex items-center justify-between gap-4 px-6 py-4">
+<div>
+<p class="text-sm font-semibold">Critical risk alerts</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Email + in-app when score exceeds policy threshold</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input checked class="sr-only peer" type="checkbox"/>
+<span class="relative w-11 h-6 bg-surface-variant peer-focus:ring-2 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></span>
+</label>
+</li>
+<li class="flex items-center justify-between gap-4 px-6 py-4">
+<div>
+<p class="text-sm font-semibold">Weekly digest</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Summary of open findings and matrix drift</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input checked class="sr-only peer" type="checkbox"/>
+<span class="relative w-11 h-6 bg-surface-variant peer-focus:ring-2 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></span>
+</label>
+</li>
+<li class="flex items-center justify-between gap-4 px-6 py-4">
+<div>
+<p class="text-sm font-semibold">Audit log exports</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Notify when bulk CSV export completes</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input class="sr-only peer" type="checkbox"/>
+<span class="relative w-11 h-6 bg-surface-variant peer-focus:ring-2 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></span>
+</label>
+</li>
+</ul>
+<div class="px-6 py-4 bg-surface-container-low/50 border-t border-outline-variant/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+<div>
+<p class="text-sm font-semibold text-on-surface">Quiet hours</p>
+<p class="text-xs text-on-surface-variant">Suppress non-critical alerts between these times (local timezone).</p>
+</div>
+<div class="flex flex-wrap items-center gap-2">
+<input class="bg-surface-container-lowest border-none rounded-lg px-3 py-2 text-sm" id="quietHoursStart" type="time" value="22:00"/>
+<span class="text-on-surface-variant text-xs">to</span>
+<input class="bg-surface-container-lowest border-none rounded-lg px-3 py-2 text-sm" id="quietHoursEnd" type="time" value="07:00"/>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 overflow-hidden shadow-sm scroll-mt-24" id="security">
+<div class="px-6 py-4 bg-surface-container-highest/40 border-b border-outline-variant/10">
+<h3 class="font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="lock">lock</span>
+Security
+</h3>
+<p class="text-xs text-on-surface-variant mt-1">Hardening options for your Sentinel session.</p>
+</div>
+<ul class="divide-y divide-outline-variant/10">
+<li class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-4">
+<div>
+<p class="text-sm font-semibold">Two-factor authentication</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Authenticator app · Last verified 2 days ago</p>
+</div>
+<button type="button" class="px-4 py-2 rounded-full bg-surface-container-high text-primary font-bold text-xs hover:bg-surface-variant transition-colors shrink-0">Manage 2FA</button>
+</li>
+<li class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-4">
+<div>
+<p class="text-sm font-semibold">Session timeout</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Idle duration before automatic sign-out</p>
+</div>
+<select class="bg-surface-container-low border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 shrink-0 sm:w-44" id="sessionTimeout">
+<option value="30">30 minutes</option>
+<option value="60">1 hour</option>
+<option value="240">4 hours</option>
+</select>
+</li>
+<li class="px-6 py-4 space-y-3">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+<div>
+<p class="text-sm font-semibold">Login notifications</p>
+<p class="text-xs text-on-surface-variant">Email me when a new device signs in to Sentinel.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input class="sr-only peer" id="notifyNewDevice" type="checkbox"/>
+<span class="relative w-11 h-6 bg-surface-variant peer-focus:ring-2 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></span>
+</label>
+</div>
+</li>
+</ul>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6 md:p-8 shadow-sm scroll-mt-24" id="appearance">
+<h3 class="font-bold text-on-surface flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="dark_mode">dark_mode</span>
+Appearance
+</h3>
+<p class="text-xs text-on-surface-variant mb-4">Match system theme or force dark surfaces across the app shell.</p>
+<div class="flex items-center justify-between gap-4">
+<span class="text-sm font-medium">Dark mode</span>
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input class="sr-only peer" id="darkModeToggle" type="checkbox"/>
+<span class="relative w-11 h-6 bg-surface-variant peer-focus:ring-2 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></span>
+</label>
+</div>
+<div class="mt-6 flex justify-end">
+<button class="px-6 py-3 rounded-full bg-surface-container-high text-primary font-bold text-sm hover:bg-surface-variant transition-colors" id="saveAppearanceSecurity" type="button">Save security &amp; appearance</button>
+</div>
+</div>
+<div class="bg-error-container/15 rounded-2xl border border-error/20 p-6 md:p-8 scroll-mt-24" id="signout">
+<h3 class="font-bold text-error flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+Sign out
+</h3>
+<p class="text-sm text-on-surface-variant mb-4">End your session on this device. Unsaved drafts in risk forms may be lost.</p>
+<a class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-error text-on-error font-bold text-sm hover:opacity-90 transition-opacity" href="#" data-nav="login">Sign out of Sentinel</a>
+</div>
+</div>
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex justify-around items-center py-3 z-50">
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#" data-nav="dashboard">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-bold">HOME</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#" data-nav="auditLog">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+<span class="text-[10px]">LOG</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#" data-nav="newRisk">
+<div class="w-10 h-10 -mt-8 bg-primary rounded-full flex items-center justify-center text-on-primary shadow-lg">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</div>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#" data-nav="riskMatrix">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="text-[10px]">MATRIX</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary font-bold" href="#" data-nav="settings">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[10px]">SETTINGS</span>
+</a>
+</nav>
+</main>
+<script src="settings.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+       {
+    "type": "chrome",
+    "request": "launch",
+    "name": "Launch Chrome (localhost:8080)",
+    "url": "http://localhost:8080/login.html", 
+    "webRoot": "${workspaceFolder}",
+    "preLaunchTask": "Serve site on port 8080"
+},
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Chrome only (server must be running)",
+            "url": "http://localhost:8080/login.html",
+            "webRoot": "${workspaceFolder}"
+        }
+    ]
+}

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>  
+    <meta charset="utf-8"/>  
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>  
+    <title>Draft Audit Report | Sentinel Enterprise</title>  
+
+   <!-- Tailwind CSS with Forms & Container Queries Plugins -->  
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>  
+
+    <!-- Fonts: Manrope (headlines) + Inter (body) -->  
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>  
+    <!-- Material Symbols Outlined -->  
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>  
+
+    <script id="tailwind-config">  
+        tailwind.config = {  
+            darkMode: "class",  
+            theme: {  
+                extend: {  
+                    colors: {  
+                        primary: "#003354",  
+                        "primary-container": "#004a77",  
+                        secondary: "#1b6d24",  
+                        tertiary: "#680007",  
+                        "tertiary-container": "#93000e",  
+                        error: "#ba1a1a",  
+                        surface: "#f9f9fd",  
+                        "surface-container-low": "#f3f3f7",  
+                        "surface-container-lowest": "#ffffff",  
+                        "surface-container-highest": "#e2e2e6",  
+                        "on-surface": "#191c1e",  
+                        "on-surface-variant": "#41474f",  
+                        "on-primary": "#ffffff",  
+                        "outline-variant": "#c1c7d0"
+                    },  
+                    fontFamily: {  
+                        headline: ["Manrope"],  
+                        body: ["Inter"]  
+                    }  
+                }  
+            }  
+        };  
+    </script>  
+    <style>  
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24 }  
+        body { font-family: 'Inter', sans-serif }  
+        h1, h2, h3 { font-family: 'Manrope', sans-serif }  
+    </style>  
+
+    <!-- Shared Brain Data Layer -->  
+    <script defer src="shared_store.js"></script>  
+</head>  
+<body class="bg-surface dark:bg-[#111315] text-on-surface dark:text-slate-100 flex flex-col md:flex-row min-h-screen">  
+
+   <!-- Sidebar Shell Navigation -->  
+    <aside class="flex flex-col h-screen w-64 fixed left-0 top-0 bg-slate-100 dark:bg-slate-950 py-6 z-[60] border-r border-outline-variant/10">  
+        <div class="px-6 mb-10 flex items-start justify-between gap-2">  
+            <div class="flex items-center gap-3">  
+                <div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center">  
+                    <span class="material-symbols-outlined text-white" style="font-variation-settings:'FILL' 1">security</span>  
+                </div>  
+                <div>  
+                    <div class="text-lg font-black text-sky-900 dark:text-sky-50">Sentinel</div>  
+                    <div class="text-xs text-slate-500 uppercase tracking-widest">Enterprise Audit</div>  
+                </div>  
+            </div>  
+        </div>  
+        <nav class="flex-1 space-y-1">  
+    <!-- Existing Core Dashboard Links -->
+      
+    <a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="audit-universe.html">  
+        <span class="material-symbols-outlined mr-3">public</span>  
+        <span class="font-medium">Audit Universe</span>  
+    </a>  
+    <a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="risk-assessment.html">  
+        <span class="material-symbols-outlined mr-3">list_alt</span>  
+        <span class="font-medium">Risk Register</span>  
+    </a>  
+<a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="internal_Audit_Work_Plan.html">  
+        <span class="material-symbols-outlined mr-3">dashboard</span>  
+        <span class="font-medium"> internal_Audit_Work_Plan</span>  
+    </a>
+    <!-- Performing & Reporting Phase Header / Separator Label -->
+    <div class="px-6 pt-4 pb-1 text-[10px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase select-none">
+        Performing & Reporting
+    </div>
+
+    <!-- STAGE 1: Audit Plan & Program Link -->
+    <!-- [Active Treatment for plan_program.html] Use these Tailwind active classes when on plan_program.html: "text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10" -->
+    <a class="flex items-center px-6 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="Audit_Plan&Program.html">  
+        <span class="material-symbols-outlined mr-3" style="font-variation-settings: 'FILL' 1;">description</span>  
+        <span class="font-medium text-sm">Stage 1: Audit Plan</span>  
+    </a>  
+
+    <!-- STAGE 2: Draft Audit Report Link -->
+    <!-- [Active Treatment for draft_report.html] Use these Tailwind active classes when on draft_report.html: "text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10" -->
+    <a class="flex items-center px-6 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="Draft_Audit_Report.html">  
+        <span class="material-symbols-outlined mr-3">edit_document</span>  
+        <span class="font-medium text-sm">Stage 2: Draft Report</span>  
+    </a>  
+
+    <!-- STAGE 3: Final Audit Report Link -->
+    <!-- [Active Treatment for final_report.html] Use these Tailwind active classes when on final_report.html: "text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10" -->
+    <a class="flex items-center px-6 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="Final_Audit_Report.html">  
+        <span class="material-symbols-outlined mr-3">verified_user</span>  
+        <span class="font-medium text-sm">Stage 3: Final Report</span>  
+    </a>  
+</nav> 
+ 
+    </aside>
+    <!-- Main Workspace Content Frame -->  
+    <main class="flex-1 md:pl-64 min-w-0 flex flex-col">  
+        
+        <!-- Top Sticky Header Control Panel -->  
+        <header class="sticky top-0 bg-surface/80 dark:bg-[#111315]/80 backdrop-blur-md z-40 border-b border-outline-variant/30 dark:border-slate-800/50 px-8 py-4 flex items-center justify-between">  
+            <div>  
+                Loading Entity...</h1>  
+                <p class="text-sm font-medium text-on-surface-variant dark:text-slate-400 uppercase tracking-wider mt-0.5">Performing & Reporting Phase — Stage 2</p>  
+            </div>  
+            <div class="flex items-center gap-3">  
+                <a href="plan_program.html" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-on-surface dark:text-slate-200 text-sm font-semibold rounded-xl border border-outline-variant/40 dark:border-slate-700 hover:bg-outline-variant/10 transition-all">  
+                    <span class="material-symbols-outlined text-lg">arrow_back</span> Back to Plan  
+                </a>  
+                <button onclick="saveDraftProgress()" class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container-highest dark:bg-slate-800 text-on-surface dark:text-slate-200 text-sm font-semibold rounded-xl border border-outline-variant/40 dark:border-slate-700 hover:bg-outline-variant/30 transition-all">  
+                    <span class="material-symbols-outlined text-lg">save</span> Save Progress  
+                </button>  
+                <button onclick="proceedToFinal()" class="inline-flex items-center gap-2 px-5 py-2 bg-secondary text-white text-sm font-semibold rounded-xl shadow-md hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 transition-all">  
+                    Continue to Final Report <span class="material-symbols-outlined text-lg">arrow_forward</span>  
+                </button>  
+            </div>  
+        </header>  
+
+        <!-- Primary Form/Document Workspace Container -->  
+        <div class="flex-1 p-8 space-y-8 max-w-7xl w-full mx-auto">  
+
+            <!-- Top Pulled Meta Information Banner Block -->  
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-5 bg-white dark:bg-[#1a1c1e] rounded-2xl border border-outline-variant/20 dark:border-slate-800 shadow-sm">  
+                <div class="space-y-1">  
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Audit Area & Ref</span>  
+                    <div class="text-base font-bold text-primary dark:text-sky-300" id="ui-ref-area">—</div>  
+                </div>  
+                <div class="space-y-1">  
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Risk Exposure Level</span>  
+                    <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black uppercase bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300" id="ui-risk-level">—</div>  
+                </div>  
+                <div class="space-y-1">  
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Auditee Directorate</span>  
+                    <div class="text-base font-medium text-on-surface dark:text-slate-200" id="ui-auditee-dept">—</div>  
+                </div>  
+                <div class="space-y-1">  
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Audit Schedule Span</span>  
+                    <div class="text-base font-medium text-on-surface dark:text-slate-200" id="ui-audit-dates">—</div>  
+                </div>  
+            </div>  
+
+           <!-- Section 1: Executive Summary Workspace -->  
+            <section class="bg-white dark:bg-[#1a1c1e] rounded-2xl border border-outline-variant/20 dark:border-slate-800 p-6 space-y-4 shadow-sm">  
+                <div class="border-b border-outline-variant/20 dark:border-slate-800 pb-4">  
+                    <h2 class="text-lg font-extrabold text-primary dark:text-sky-400 flex items-center gap-2">  
+                        <span class="material-symbols-outlined text-xl">summarize</span> 1. Executive Summary  
+                    </h2>  
+                </div>  
+                <div class="space-y-2">  
+                    <label class="block text-xs font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider">Report Synthesis Block</label>  
+                    <div class="p-3 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900 rounded-xl text-xs text-slate-600 dark:text-slate-400 mb-2 leading-relaxed">  
+                        💡 <strong>Guided Structure Lead:</strong> Your narrative summary should include: (a) Introduction & background context, (b) Audit Objectives & bounding scope, (c) High-level compilation summary of findings, and (d) Final structured conclusion.  
+                    </div>  
+                    <textarea id="executiveSummary" rows="6" placeholder="Draft the comprehensive corporate executive summary narrative here..." class="w-full bg-surface dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 rounded-xl focus:ring-primary focus:border-primary text-sm p-3"></textarea>  
+                </div>  
+            </section>  
+
+            <!-- Carried Parameters Summary Matrix Box -->
+            <section class="bg-white dark:bg-[#1a1c1e] rounded-2xl border border-outline-variant/20 dark:border-slate-800 p-6 space-y-6 shadow-sm">  
+                <div class="border-b border-outline-variant/20 dark:border-slate-800 pb-4 flex items-center justify-between">  
+                    <h2 class="text-lg font-extrabold text-primary dark:text-sky-400 flex items-center gap-2">  
+                        <span class="material-symbols-outlined text-xl">visibility</span> Summary of Parameters Carried from Plan  
+                    </h2>  
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 bg-surface-container-low dark:bg-slate-900 px-3 py-1 rounded-full border border-outline-variant/20 dark:border-slate-800 uppercase">Read-Only Baseline</span>  
+                </div>  
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">  
+                    <div class="space-y-1">  
+                        <h4 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">2. Background Information</h4>  
+                        <div id="ro-background" class="p-3 bg-surface-container-low dark:bg-slate-900 rounded-xl text-sm font-medium text-on-surface-variant dark:text-slate-300 min-h-[3.5rem] whitespace-pre-wrap">—</div>  
+                    </div>  
+                    <div class="space-y-1">  
+                        <h4 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">3. Evaluated Risk Framework</h4>  
+                        <div id="ro-risks" class="p-3 bg-surface-container-low dark:bg-slate-900 rounded-xl text-sm font-medium text-on-surface-variant dark:text-slate-300 min-h-[3.5rem] whitespace-pre-wrap">—</div>  
+                    </div>  
+                    <div class="space-y-1">  
+                        <h4 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">4. Audit Objectives Profile</h4>  
+                        <div id="ro-objectives" class="p-3 bg-surface-container-low dark:bg-slate-900 rounded-xl text-sm font-medium text-on-surface-variant dark:text-slate-300 min-h-[3.5rem] whitespace-pre-wrap">—</div>  
+                    </div>  
+                    <div class="space-y-1">  
+                        <h4 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">5. Operational Bounds (Scope)</h4>  
+                        <div id="ro-scope" class="p-3 bg-surface-container-low dark:bg-slate-900 rounded-xl text-sm font-medium text-on-surface-variant dark:text-slate-300 min-h-[3.5rem] whitespace-pre-wrap">—</div>  
+                    </div>  
+                </div>  
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-outline-variant/10 dark:border-slate-800/40 pt-4">  
+                    <div class="space-y-1">  
+                        <h4 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">6. Methodology Applied</h4>  
+                        <div id="ro-methodology" class="p-3 bg-surface-container-low dark:bg-slate-900 rounded-xl text-xs font-medium text-on-surface-variant dark:text-slate-400 min-h-[4rem] whitespace-pre-wrap">—</div>  
+                    </div>  
+                    <div class="space-y-1">  
+                        <h4 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">7. Evaluation Criteria</h4>  
+                        <div id="ro-criteria" class="p-3 bg-surface-container-low dark:bg-slate-900 rounded-xl text-xs font-medium text-on-surface-variant dark:text-slate-400 min-h-[4rem] whitespace-pre-wrap">—</div>  
+                    </div>  
+                    <div class="space-y-1">  
+                        <h4 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">8. Duration Metrics</h4>  
+                        <div id="ro-duration" class="p-3 bg-surface-container-low dark:bg-slate-900 rounded-xl text-xs font-medium text-on-surface-variant dark:text-slate-400 min-h-[4rem] whitespace-pre-wrap">—</div>  
+                    </div>  
+                </div>  
+            </section>  
+
+            <!-- 9. Findings & Recommendations Table -->
+            <section class="bg-white dark:bg-[#1a1c1e] rounded-2xl border border-outline-variant/20 dark:border-slate-800 p-6 space-y-4 shadow-sm overflow-hidden">  
+                <div class="flex items-center justify-between border-b border-outline-variant/20 dark:border-slate-800 pb-4">  
+                    <h2 class="text-lg font-extrabold text-primary dark:text-sky-400 flex items-center gap-2">  
+                        <span class="material-symbols-outlined text-xl">rule_folder</span> 9. Audit Findings, Recommendations & Responses  
+                    </h2>  
+                    <button onclick="addNewFindingRow()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-xl shadow hover:bg-primary-container transition-all">  
+                        <span class="material-symbols-outlined text-sm">add_circle</span> Add Detailed Finding  
+                    </button>  
+                </div>  
+
+                <div class="overflow-x-auto w-full border border-outline-variant/20 dark:border-slate-800 rounded-xl">  
+                    <table class="w-full min-w-[1100px] border-collapse text-left table-fixed">  
+                        <thead>  
+                            <tr class="bg-surface-container-low dark:bg-slate-900 border-b border-outline-variant/40 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-on-surface-variant dark:text-slate-400">  
+                                <th class="p-3 w-12 text-center">S/No</th>  
+                                <th class="p-3 w-1/4">Evaluated Core Objective</th>  
+                                <th class="p-3 w-5/12">Audit Findings Breakdown Structure</th>  
+                                <th class="p-3 w-1/4">Audit Recommendations Instructions</th>  
+                                <th class="p-3 w-48">Management Response</th>  
+                                <th class="p-3 w-12 text-center">Actions</th>  
+                            </tr>  
+                        </thead>  
+                        <tbody id="tbl-findings-body">  
+                            <!-- Dynamic Layout Rows Built via JavaScript Hooks -->  
+                        </tbody>  
+                    </table>  
+                </div>  
+            </section>  
+
+           <!-- 10. Document Appendices Workspace -->
+            <section class="bg-white dark:bg-[#1a1c1e] rounded-2xl border border-outline-variant/20 dark:border-slate-800 p-6 space-y-4 shadow-sm">  
+                <div class="flex items-center justify-between border-b border-outline-variant/20 dark:border-slate-800 pb-4">  
+                    <h2 class="text-lg font-extrabold text-primary dark:text-sky-400 flex items-center gap-2">  
+                        <span class="material-symbols-outlined text-xl">attachment</span> 10. Dynamic Document Appendices  
+                    </h2>  
+                    <button onclick="addNewAppendixField()" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-on-surface dark:text-slate-200 text-xs font-bold rounded-lg border border-outline-variant/30 dark:border-slate-700 transition-all">  
+                        <span class="material-symbols-outlined text-xs">add</span> Add Appendix Entry  
+                    </button>  
+                </div>  
+                <div id="appendices-wrapper" class="space-y-3">  
+                    <!-- Input items dynamically injected here -->  
+                </div>  
+            </section>  
+
+            <!-- 11. Review & Verification Chains Matrix -->
+            <section class="bg-white dark:bg-[#1a1c1e] rounded-2xl border border-outline-variant/20 dark:border-slate-800 p-6 space-y-6 shadow-sm">  
+                <div class="border-b border-outline-variant/20 dark:border-slate-800 pb-4">  
+                    <h2 class="text-lg font-extrabold text-primary dark:text-sky-400 flex items-center gap-2">  
+                        <span class="material-symbols-outlined text-xl">rate_review</span> 11. Draft Report Verification & Review Chain  
+                    </h2>  
+                </div>  
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">  
+                    <!-- Box 1: Reviewer 1 -->  
+                    <div class="p-4 bg-surface-container-low dark:bg-slate-900/50 rounded-xl border border-outline-variant/30 dark:border-slate-800 space-y-3">  
+                        <div class="text-xs font-black uppercase text-secondary tracking-wider border-b border-outline-variant/20 dark:border-slate-800 pb-1">Reviewer Officer 1:</div>  
+                        <input type="text" id="draft-r1-name" placeholder="Full Reviewer Name" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-primary focus:outline-none">  
+                        <input type="text" id="draft-r1-desig" placeholder="Designation (e.g. Senior Auditor)" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-primary focus:outline-none">  
+                        <div class="grid grid-cols-2 gap-2">  
+                            <input type="text" id="draft-r1-sign" placeholder="Signature Code" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-primary focus:outline-none">  
+                            <input type="text" id="draft-r1-date" placeholder="DD/MM/YYYY" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-primary focus:outline-none">  
+                        </div>  
+                    </div>  
+
+                    <!-- Box 2: Reviewer 2 -->  
+                    <div class="p-4 bg-surface-container-low dark:bg-slate-900/50 rounded-xl border border-outline-variant/30 dark:border-slate-800 space-y-3">  
+                        <div class="text-xs font-black uppercase text-secondary tracking-wider border-b border-outline-variant/20 dark:border-slate-800 pb-1">Reviewer Officer 2:</div>  
+                        <input type="text" id="draft-r2-name" placeholder="Full Reviewer Name" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-primary focus:outline-none">  
+                        <input type="text" id="draft-r2-desig" placeholder="Designation (e.g. Principal Manager)" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-primary focus:outline-none">  
+                        <div class="grid grid-cols-2 gap-2">  
+                            <input type="text" id="draft-r2-sign" placeholder="Signature Code" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-primary focus:outline-none">  
+                            <input type="text" id="draft-r2-date" placeholder="DD/MM/YYYY" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-primary focus:outline-none">  
+                        </div>  
+                    </div>  
+
+                    <!-- Box 3: Approver -->  
+                    <div class="p-4 bg-surface-container-low dark:bg-slate-900/50 rounded-xl border border-outline-variant/30 dark:border-slate-800 space-y-3">  
+                        <div class="text-xs font-black uppercase text-tertiary-container tracking-wider border-b border-outline-variant/20 dark:border-slate-800 pb-1">Authorizing Approver:</div>  
+                        <input type="text" id="draft-a-name" placeholder="Full Director Name" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-primary focus:outline-none">  
+                        <input type="text" id="draft-a-desig" placeholder="Designation (e.g. Chief Internal Auditor)" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-primary focus:outline-none">  
+                        <div class="grid grid-cols-2 gap-2">  
+                            <input type="text" id="draft-a-sign" placeholder="Signature Code" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-primary focus:outline-none">  
+                            <input type="text" id="draft-a-date" placeholder="DD/MM/YYYY" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-primary focus:outline-none">  
+                        </div>  
+                    </div>  
+                </div>  
+            </section>  
+
+            <div class="flex items-center justify-between pt-4 border-t border-outline-variant/20 dark:border-slate-800">  
+                <div class="text-xs font-medium text-on-surface-variant dark:text-slate-500">  
+                    Sentinel Core Platform — Secure Audit Sandbox Layer  
+                </div>  
+            </div>  
+
+        </div>  
+    </main>  
+
+   <script>  
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.Theme) {
+                window.Theme.init();
+            }
+            renderDraftWorkspaceData();
+        });
+
+        function renderDraftWorkspaceData() {
+            const store = window.AuditStore;
+            if (!store || !store.current) return;
+
+            const p = store.current.planning;
+            const m = store.current.program;
+            const d = store.current.draft;
+
+            document.getElementById("ui-entity-header").textContent = p.entityName || "Kenya Revenue Authority (KRA)";
+            document.getElementById("ui-ref-area").textContent = `${p.auditRefNumber || 'AUD-2026-000'} — ${p.auditArea || 'Unassigned Area'}`;
+            document.getElementById("ui-risk-level").textContent = p.riskLevel || "LOW (L)";
+            document.getElementById("ui-auditee-dept").textContent = p.auditeeDepartment || "General Administration";
+            document.getElementById("ui-audit-dates").textContent = `${p.auditStartDate || '—'} to ${p.auditEndDate || '—'}`;
+
+            document.getElementById("ro-background").textContent = m.introductionBackground || "—";
+            document.getElementById("ro-risks").textContent = store.combinePulled(p.riskDescription, m.risksAdditions);
+            document.getElementById("ro-objectives").textContent = store.combinePulled("To evaluate governance structures, risk mitigation control frameworks, and strict compliance rules.", m.auditObjectivesAdditions);
+            document.getElementById("ro-scope").textContent = store.combinePulled("Transactions, governance structures, asset controls, and workflows for the active operational period.", m.auditScopeAdditions);
+            
+            document.getElementById("ro-methodology").textContent = m.methodology || "—";
+            document.getElementById("ro-criteria").textContent = m.evaluationCriteria || "—";
+            document.getElementById("ro-duration").textContent = m.auditDuration || "—";
+
+            document.getElementById("executiveSummary").value = d.executiveSummary || "";
+
+            const sigs = store.current.draftApproval;
+            if (sigs) {
+                setDraftSigFields("draft-r1", sigs.reviewer1);
+                setDraftSigFields("draft-r2", sigs.reviewer2);
+                setDraftSigFields("draft-a", sigs.approver);
+            }
+
+            const appWrapper = document.getElementById("appendices-wrapper");
+            appWrapper.innerHTML = "";
+            const dynamicAppendices = store.current.appendices || ["Appendix 1: "];
+            dynamicAppendices.forEach((appText, index) => {
+                injectAppendixInputMarkup(index + 1, appText);
+            });
+
+            const tbody = document.getElementById("tbl-findings-body");
+            tbody.innerHTML = "";
+            if (d.findingsRows && d.findingsRows.length > 0) {
+                d.findingsRows.forEach((row, index) => {
+                    injectFindingRowMarkup(index + 1, row);
+                });
+            } else {
+                addNewFindingRow(); 
+            }
+        }
+
+        function setDraftSigFields(prefix, targetObj) {
+            if (!targetObj) return;
+            document.getElementById(`${prefix}-name`).value = targetObj.name || "";
+            document.getElementById(`${prefix}-desig`).value = targetObj.designation || "";
+            document.getElementById(`${prefix}-sign`).value = targetObj.sign || "";
+            document.getElementById(`${prefix}-date`).value = targetObj.date || "";
+        }
+
+        function injectFindingRowMarkup(sno, data = {}) {
+            const tbody = document.getElementById("tbl-findings-body");
+            const tr = document.createElement("tr");
+            tr.className = "border-b border-outline-variant/30 dark:border-slate-800 last:border-0 hover:bg-surface-container-low dark:hover:bg-slate-900/40 align-top transition-colors";
+            
+            tr.innerHTML = `
+                <td class="p-3 text-center text-xs font-bold text-on-surface-variant dark:text-slate-400 bg-surface-container-low/40 dark:bg-slate-900/20" data-sno>${sno}</td>
+                <td class="p-2">
+                    <textarea name="objective" rows="5" placeholder="e.g. Verify adherence to core firewall update timelines." class="w-full bg-transparent border-0 resize-none text-xs focus:ring-0 p-1">${window.escapeAttr(data.objective || '')}</textarea>
+                </td>
+                <td class="p-2 space-y-1.5 bg-surface-container-low/20 dark:bg-slate-900/10">
+                    <div class="flex items-center gap-1.5"><span class="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 w-20 text-center select-none">Observation</span><input type="text" name="f_obs" value="${window.escapeAttr(data.obs || '')}" placeholder="What was observed?" class="w-full bg-transparent border-0 border-b border-outline-variant/20 focus:ring-0 text-xs py-0 px-1"></div>
+                    <div class="flex items-center gap-1.5"><span class="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 w-20 text-center select-none">Standard</span><input type="text" name="f_std" value="${window.escapeAttr(data.std || '')}" placeholder="What is the requirement/policy?" class="w-full bg-transparent border-0 border-b border-outline-variant/20 focus:ring-0 text-xs py-0 px-1"></div>
+                    <div class="flex items-center gap-1.5"><span class="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 w-20 text-center select-none">Practice</span><input type="text" name="f_prac" value="${window.escapeAttr(data.prac || '')}" placeholder="What is the current operation standard?" class="w-full bg-transparent border-0 border-b border-outline-variant/20 focus:ring-0 text-xs py-0 px-1"></div>
+                    <div class="flex items-center gap-1.5"><span class="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300 w-20 text-center select-none">Root-Cause</span><input type="text" name="f_root" value="${window.escapeAttr(data.root || '')}" placeholder="Why did it happen?" class="w-full bg-transparent border-0 border-b border-outline-variant/20 focus:ring-0 text-xs py-0 px-1"></div>
+                    <div class="flex items-center gap-1.5"><span class="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-300 w-20 text-center select-none">Implication</span><input type="text" name="f_imp" value="${window.escapeAttr(data.imp || '')}" placeholder="What is the financial/risk impact?" class="w-full bg-transparent border-0 focus:ring-0 text-xs py-0 px-1"></div>
+                </td>
+                <td class="p-2">
+                    <textarea name="recommendations" rows="5" placeholder="e.g. Deploy systematic patch routines instantly." class="w-full bg-transparent border-0 resize-none text-xs focus:ring-0 p-1">${window.escapeAttr(data.recommendations || '')}</textarea>
+                </td>
+                <td class="p-2 vertical-middle bg-surface-container-low/40 dark:bg-slate-900/20 select-none text-xs font-semibold text-slate-400 dark:text-slate-500 italic p-3 text-center">
+                     🔒 Locked — Formally Entered by Management in Stage 3
+                </td>
+                <td class="p-3 text-center">
+                    <button onclick="window.RowManager.deleteRow(this); syncFindingsTableToStore();" class="text-error hover:text-red-700 dark:hover:text-red-400 inline-flex items-center justify-center p-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30">
+                        <span class="material-symbols-outlined text-lg">delete</span>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function addNewFindingRow() {
+            const tbody = document.getElementById("tbl-findings-body");
+            injectFindingRowMarkup(tbody.rows.length + 1);
+            syncFindingsTableToStore();
+        }
+
+        function injectAppendixInputMarkup(sno, textValue = "") {
+            const wrapper = document.getElementById("appendices-wrapper");
+            const div = document.createElement("div");
+            div.className = "flex items-center gap-3 item-appendix-row";
+            div.innerHTML = `
+                <span class="text-xs font-bold text-slate-400 dark:text-slate-500 min-w-[5rem]">Appendix ${sno}:</span>
+                <input type="text" value="${window.escapeAttr(textValue.replace(/^Appendix \d+:\s*/, ''))}" placeholder="Enter item document name, reference link details, metadata log parameters..." class="flex-1 bg-surface dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-1 focus:ring-primary focus:outline-none">
+                <button onclick="removeAppendixRow(this)" class="text-on-surface-variant hover:text-error p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <span class="material-symbols-outlined text-base">close</span>
+                </button>
+            `;
+            wrapper.appendChild(div);
+        }
+
+       function addNewAppendixField() {
+            const count = document.querySelectorAll(".item-appendix-row").length;
+            injectAppendixInputMarkup(count + 1);
+            syncAppendicesToStore();
+        }
+
+        function removeAppendixRow(btn) {
+            btn.closest(".item-appendix-row").remove();
+            document.querySelectorAll(".item-appendix-row").forEach((div, i) => {
+                div.querySelector("span").textContent = `Appendix ${i + 1}:`;
+            });
+            syncAppendicesToStore();
+        }
+
+        function syncAppendicesToStore() {
+            const store = window.AuditStore;
+            if (!store) return;
+            const appList = [];
+            document.querySelectorAll(".item-appendix-row").forEach((div, i) => {
+                const val = div.querySelector("input").value;
+                appList.push(`Appendix ${i + 1}: ${val}`);
+            });
+            store.current.appendices = appList;
+        }
+
+        function syncFindingsTableToStore() {
+            const store = window.AuditStore;
+            if (!store) return;
+
+            const rows = [];
+            document.querySelectorAll("#tbl-findings-body tr").forEach(tr => {
+                const objective = tr.querySelector('textarea[name="objective"]')?.value || "";
+                const recommendations = tr.querySelector('textarea[name="recommendations"]')?.value || "";
+                
+                const obs = tr.querySelector('input[name="f_obs"]')?.value || "";
+                const std = tr.querySelector('input[name="f_std"]')?.value || "";
+                const prac = tr.querySelector('input[name="f_prac"]')?.value || "";
+                const root = tr.querySelector('input[name="f_root"]')?.value || "";
+                const imp = tr.querySelector('input[name="f_imp"]')?.value || "";
+
+                const combinedFindingsParagraph = `Observation: ${obs}. Standard: ${std}. Practice: ${prac}. Root-cause: ${root}. Implications: ${imp}.`;
+
+                rows.push({
+                    objective: objective,
+                    findings: combinedFindingsParagraph, 
+                    obs: obs,
+                    std: std,
+                    prac: prac,
+                    root: root,
+                    imp: imp,
+                    recommendations: recommendations,
+                    managementResponse: "" 
+                });
+            });
+            store.current.draft.findingsRows = rows;
+        }
+
+        function collectDraftSigFields(prefix) {
+            return {
+                name: document.getElementById(`${prefix}-name`).value,
+                designation: document.getElementById(`${prefix}-desig`).value,
+                sign: document.getElementById(`${prefix}-sign`).value,
+                date: document.getElementById(`${prefix}-date`).value
+            };
+        }
+
+        function saveDraftProgress() {
+            const store = window.AuditStore;
+            if (!store || !store.current) return;
+
+            store.current.draft.executiveSummary = document.getElementById("executiveSummary").value;
+
+            syncFindingsTableToStore();
+            syncAppendicesToStore();
+
+            store.current.draftApproval = {
+                reviewer1: collectDraftSigFields("draft-r1"),
+                reviewer2: collectDraftSigFields("draft-r2"),
+                approver: collectDraftSigFields("draft-a")
+            };
+
+            store.save();
+            alert("Draft Report parameters successfully recorded to local layer state context! 📝");
+        }
+
+        function proceedToFinal() {
+            saveDraftProgress();
+            window.AuditStore.carryToFinal();
+            window.location.href = "final_report.html";
+        }
+    </script>  
+</body>
+</html>

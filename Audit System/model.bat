@@ -1,0 +1,1 @@
+ .\llamafile.exe --server --model gemma-4-12B-Queen-it-qat-q4_0-unquantized.i1-IQ1_M.gguf
