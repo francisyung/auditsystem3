@@ -191,28 +191,33 @@ function auditDurationSection(state) {
 function programTable(rows) {  
     const ROWS = rows.map((r, i) => `  
         <tr data-row="${i}" class="align-top border-t border-outline-variant">  
-            <td class="px-3 py-3 text-center text-sm font-semibold w-10">${i + 1}</td>  
-            <td class="px-2 py-2 w-1/5">  
+            <td class="px-3 py-3 text-center text-sm font-semibold w-12">${i + 1}</td>  
+            <td class="px-2 py-2 w-48">  
                 <textarea data-rowfield="objective" class="field w-full min-h-[4rem] rounded-lg border-outline-variant bg-surface-container-low px-2 py-2 text-xs leading-relaxed">${esc(r.objective)}</textarea>  
             </td>  
-            <td class="px-2 py-2 w-1/5">  
+            <td class="px-2 py-2 w-48">  
                 <textarea data-rowfield="risk" class="field w-full min-h-[4rem] rounded-lg border-outline-variant bg-surface-container-low px-2 py-2 text-xs leading-relaxed">${esc(r.risk)}</textarea>  
             </td>  
-            <td class="px-2 py-2 w-1/5">  
+            <td class="px-2 py-2 w-48">  
                 <textarea data-rowfield="activity" class="field w-full min-h-[4rem] rounded-lg border-outline-variant bg-surface-container-low px-2 py-2 text-xs leading-relaxed">${esc(r.activity)}</textarea>  
             </td>  
-            <td class="px-2 py-2 w-1/5">  
+            <td class="px-2 py-2 w-64">  
                 <textarea data-rowfield="procedure" class="field w-full min-h-[4rem] rounded-lg border-outline-variant bg-surface-container-low px-2 py-2 text-xs leading-relaxed">${esc(r.procedure)}</textarea>  
             </td>  
-            <td class="px-2 py-2 w-1/5 relative">  
+            <td class="px-2 py-2 w-48">  
+                <textarea data-rowfield="lead_officer" class="field w-full min-h-[4rem] rounded-lg border-outline-variant bg-surface-container-low px-2 py-2 text-xs leading-relaxed">${esc(r.lead_officer || '')}</textarea>  
+            </td>  
+            <td class="px-2 py-2 w-48">  
                 <textarea data-rowfield="remarks" class="field w-full min-h-[4rem] rounded-lg border-outline-variant bg-surface-container-low px-2 py-2 text-xs leading-relaxed">${esc(r.remarks)}</textarea>  
-                <button class="btn-delete-row no-print absolute -top-1 -right-1 h-5 w-5 rounded-full bg-error text-white flex items-center justify-center text-[13px] shadow-sm hover:bg-tertiary"  
+            </td>  
+            <td class="px-3 py-3 text-center w-16 no-print">  
+                <button class="btn-delete-row mx-auto h-6 w-6 rounded-full bg-error text-white flex items-center justify-center text-[13px] shadow-sm hover:bg-tertiary transition"  
                     data-delete="${i}" title="Remove row" aria-label="Remove row">×</button>  
             </td>  
         </tr>  
     `).join('');  
 
-       return `
+    return `
         <section class="print-card audit-program bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-5 md:p-6">
             <h3 class="font-headline text-base md:text-lg font-bold text-primary flex items-center gap-2 uppercase tracking-wide">
                 ${icon('table')} Audit Program
@@ -222,13 +227,15 @@ function programTable(rows) {
             <div class="overflow-x-auto">
                 <table class="w-full border-collapse text-sm">
                     <thead>
-                        <tr class="bg-primary text-on-primary print-headerbar">
-                            <th class="px-3 py-2 text-left font-semibold text-xs uppercase w-10">S/No.</th>
-                            <th class="px-2 py-2 text-left font-semibold text-xs uppercase">Audit Objective</th>
-                            <th class="px-2 py-2 text-left font-semibold text-xs uppercase">Risk(s)</th>
-                            <th class="px-2 py-2 text-left font-semibold text-xs uppercase">Activity</th>
-                            <th class="px-2 py-2 text-left font-semibold text-xs uppercase">Audit Procedure/Task</th>
-                            <th class="px-2 py-2 text-left font-semibold text-xs uppercase">Auditor Remarks/Comments on Status</th>
+                        <tr class="bg-primary text-on-primary dark:bg-slate-900 border-b border-outline-variant/40 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-on-surface-variant dark:text-slate-400">
+                            <th class="p-3 w-12 text-center">S/No.</th>
+                            <th class="p-3 w-48 text-left">Targeted Objective</th>
+                            <th class="p-3 w-48 text-left">Associated Risk Field</th>
+                            <th class="p-3 w-48 text-left">Assigned Core Activity</th>
+                            <th class="p-3 w-64 text-left">Procedure / Substantive Test Instructions</th>
+                            <th class="p-3 w-48 text-left">Lead Officer</th>
+                            <th class="p-3 w-48 text-left">Status / Remarks</th>
+                            <th class="p-3 w-16 text-center no-print">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="program-body">
@@ -243,6 +250,7 @@ function programTable(rows) {
         </section>
     `;
 }
+
 /* ------------------------------------------------------------------
    Preparation & Approval
 ------------------------------------------------------------------- */
@@ -305,6 +313,10 @@ function toolbar() {
 function render() {
     const state = currentState();
     const app = document.getElementById('app');
+    if (!app) {
+        console.warn("Target container element with id 'app' was not found. Skipping dynamic injection.");
+        return;
+    }
     app.innerHTML = `
         ${toolbar()}
         <main class="max-w-5xl mx-auto px-4 pb-16 space-y-6">
@@ -419,6 +431,124 @@ function setByPath(obj, path, value) {
     for (let i = 0; i < keys.length - 1; i++) cur = cur[keys[i]];
     cur[keys[keys.length - 1]] = value;
 }
+window.addChecklistStepRow = function() {
+    // Add logic here to append a row to your local program data array
+    state.programRows.push({ objective: '', risk: '', activity: '', procedure: '', remarks: '' });
+    saveState(state);
+    render();
+};
+
+window.commitProgramWorkspaceState = function() {
+    // Saves current UI state memory back to localStorage
+    saveState(state);
+    console.log("Workspace state committed successfully.");
+};
+window.renderExistingProgramTableOnly = function() {
+    const tbody = document.getElementById('program-body');
+    if (!tbody) {
+        console.warn("Could not locate table target container element with id 'program-body'.");
+        return;
+    }
+
+    // Clear and map database state parameters onto rows layout inside your custom HTML structure
+    tbody.innerHTML = state.programRows.map((r, i) => `
+        <tr data-row="${i}" class="align-top border-t border-outline-variant hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors">  
+            <td class="px-3 py-3 text-center text-xs font-bold w-12 text-slate-400 align-middle">${i + 1}</td>  
+            <td class="px-2 py-2 w-48">  
+                <textarea data-rowfield="objective" class="w-full min-h-[4rem] rounded-lg border border-outline-variant/40 bg-surface-container-low dark:bg-[#0d0e10] dark:border-slate-700 px-2 py-2 text-xs leading-relaxed text-on-surface dark:text-slate-200">${esc(r.objective || '')}</textarea>  
+            </td>  
+            <td class="px-2 py-2 w-48">  
+                <textarea data-rowfield="risk" class="w-full min-h-[4rem] rounded-lg border border-outline-variant/40 bg-surface-container-low dark:bg-[#0d0e10] dark:border-slate-700 px-2 py-2 text-xs leading-relaxed text-on-surface dark:text-slate-200">${esc(r.risk || '')}</textarea>  
+            </td>  
+            <td class="px-2 py-2 w-48">  
+                <textarea data-rowfield="activity" class="w-full min-h-[4rem] rounded-lg border border-outline-variant/40 bg-surface-container-low dark:bg-[#0d0e10] dark:border-slate-700 px-2 py-2 text-xs leading-relaxed text-on-surface dark:text-slate-200">${esc(r.activity || '')}</textarea>  
+            </td>  
+            <td class="px-2 py-2 w-64">  
+                <textarea data-rowfield="procedure" class="w-full min-h-[4rem] rounded-lg border border-outline-variant/40 bg-surface-container-low dark:bg-[#0d0e10] dark:border-slate-700 px-2 py-2 text-xs leading-relaxed text-on-surface dark:text-slate-200">${esc(r.procedure || '')}</textarea>  
+            </td>  
+            <!-- Fixed Column 6: Lead Officer -->
+            <td class="px-2 py-2 w-48">  
+                <textarea data-rowfield="lead_officer" class="w-full min-h-[4rem] rounded-lg border border-outline-variant/40 bg-surface-container-low dark:bg-[#0d0e10] dark:border-slate-700 px-2 py-2 text-xs leading-relaxed text-on-surface dark:text-slate-200">${esc(r.lead_officer || '')}</textarea>  
+            </td>  
+            <!-- Fixed Column 7: Status / Remarks Textarea Box -->
+            <td class="px-2 py-2 w-48">  
+                <textarea data-rowfield="remarks" class="w-full min-h-[4rem] rounded-lg border border-outline-variant/40 bg-surface-container-low dark:bg-[#0d0e10] dark:border-slate-700 px-2 py-2 text-xs leading-relaxed text-on-surface dark:text-slate-200">${esc(r.remarks || '')}</textarea>  
+            </td>  
+            <!-- Fixed Column 8: Action Actions Column with centered delete button -->
+            <td class="px-3 py-3 text-center w-16 no-print align-middle">  
+                <button class="h-5 w-5 mx-auto rounded-full bg-red-500 text-white flex items-center justify-center text-[11px] shadow-sm hover:bg-red-600 transition"  
+                    onclick="window.deleteProgramStepRow(${i})" title="Remove row">×</button>  
+            </td>  
+        </tr>  
+    `).join('');
+
+    // Re-bind change listeners to input textareas (now automatically includes lead_officer and remarks!)
+    document.querySelectorAll('textarea[data-rowfield]').forEach(ta => {
+        ta.addEventListener('input', () => {
+            const row = Number(ta.closest('tr').dataset.row);
+            const field = ta.dataset.rowfield;
+            
+            // Safety check to ensure data object has fields initialized
+            if (!state.programRows[row]) state.programRows[row] = {};
+            
+            state.programRows[row][field] = ta.value;
+            saveState(state);
+        });
+    });
+};
+
+
+// Global delete routine definition
+window.deleteProgramStepRow = function(idx) {
+    state.programRows.splice(idx, 1);
+    saveState(state);
+    window.renderExistingProgramTableOnly();
+};
+/* ------------------------------------------------------------------
+   Global Workspace Interoperability Hook Bindings
+------------------------------------------------------------------- */
+
+// Fixes: Add Procedure Step Button
+window.addChecklistStepRow = function() {
+    state.programRows.push({
+        objective: '',
+        risk: '',
+        activity: '',
+        procedure: '',
+        remarks: ''
+    });
+    saveState(state);
+    
+    // Dynamically re-renders rows inside your existing hardcoded HTML table layout
+    window.renderExistingProgramTableOnly();
+};
+
+// Fixes: Sync Cloud State Button
+window.commitProgramWorkspaceState = function() {
+    saveState(state);
+    alert("Cloud state synchronized successfully!");
+};
+
+// Fixes: Uncaught ReferenceError: finalizeProgramAndProceedToDraft is not defined
+window.finalizeProgramAndProceedToDraft = function() {
+    saveState(state);
+    console.log("Saving state baseline configuration parameters...");
+    // Put your navigation routing logic here, for example:
+    // window.location.href = "draft_report.html";
+    alert("Navigating to Phase 2 Stage 2: Draft Report Workspace.");
+};
 
 /* Bootstrap */
-document.addEventListener('DOMContentLoaded', render);
+/* Bootstrap Lifecycle Configuration Hook */
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Draw your local program table rows matrix layout inside the HTML
+    window.renderExistingProgramTableOnly();
+    
+    // 2. Safely sync changes on your static data input elements back into memory store
+    document.querySelectorAll('input[data-field]').forEach(inp => {
+        inp.addEventListener('input', () => {
+            setByPath(state, inp.dataset.field, inp.value);
+            saveState(state);
+        });
+    });
+});

@@ -1,11 +1,10 @@
-<!DOCTYPE html>  
-<html class="light" lang="en">  
-<head>  
-    <meta charset="utf-8"/>  
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>  
-    <title>Audit Universe | Sentinel Enterprise</title>  
-
-    <!-- Tailwind CSS with Forms & Container Queries Plugins -->  
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-surface">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Universe | Sentinel Enterprise</title>
+   <!-- Tailwind CSS with Forms & Container Queries Plugins -->  
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>  
 
     <!-- Fonts: Manrope (headlines) + Inter (body) -->  
@@ -13,259 +12,227 @@
     <!-- Material Symbols Outlined -->  
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>  
 
-    <script id="tailwind-config">  
-        tailwind.config = {  
-            darkMode: "class",  
-            theme: {  
-                extend: {  
-                    colors: {  
-                        primary: "#003354",  
-                        "primary-container": "#004a77",  
-                        secondary: "#1b6d24",  
-                        tertiary: "#680007",  
-                        "tertiary-container": "#93000e",  
-                        error: "#ba1a1a",  
-                        surface: "#f9f9fd",  
-                        "surface-container-low": "#f3f3f7",  
-                        "surface-container-lowest": "#ffffff",  
-                        "surface-container-highest": "#e2e2e6",  
-                        "on-surface": "#191c1e",  
-                        "on-surface-variant": "#41474f",  
-                        "on-primary": "#ffffff",  
-                        "outline-variant": "#c1c7d0"  
-                    },  
-                    fontFamily: {  
-                        headline: ["Manrope"],  
-                        body: ["Inter"]  
-                    }  
-                }  
-            }  
-        };  
-    </script>  
-    <style>  
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24 }  
-        body { font-family: 'Inter', sans-serif }  
-        h1, h2, h3 { font-family: 'Manrope', sans-serif }  
-    </style>  
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f172a',
+                        'primary-dark': '#020617',
+                        surface: '#f8fafc',
+                        'surface-container-low': '#f1f5f9',
+                        'on-surface': '#0f172a',
+                        'on-surface-variant': '#475569',
+                        'outline-variant': '#cbd5e1'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+    </style>
+</head>
+<body class="h-full flex bg-surface text-on-surface transition-colors duration-200 dark:bg-[#0d0e10] dark:text-slate-100">
 
-    <!-- Linked JavaScript processing file (filtering, selection, dummy data, later Firebase) -->  
-    <script defer src="audit-universe.js"></script>  
-</head>  
-<body class="bg-surface text-on-surface flex flex-col md:flex-row min-h-screen">  
+    <!-- Universal Corporate Navigation Bar Component -->
+    <aside class="w-72 bg-white dark:bg-[#1a1c1e] border-r border-outline-variant/20 dark:border-slate-800 flex flex-col no-print">
+        <div class="p-6 border-b border-outline-variant/10 dark:border-slate-800/60 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-primary dark:bg-sky-500 flex items-center justify-center text-white">
+                <span class="material-symbols-outlined text-lg">security</span>
+            </div>
+            <div>
+                <h1 class="text-sm font-black uppercase tracking-wider text-primary dark:text-sky-400">Sentinel</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enterprise Audit</p>
+            </div>
+        </div>
 
-    <!-- Sidebar Shell Navigation -->  
-    <aside class="flex flex-col h-screen w-64 fixed left-0 top-0 bg-slate-100 dark:bg-slate-950 py-6 z-[60] border-r border-outline-variant/10">  
-        <div class="px-6 mb-10 flex items-start justify-between gap-2">  
-            <div class="flex items-center gap-3">  
-                <div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center">  
-                    <span class="material-symbols-outlined text-white" style="font-variation-settings:'FILL' 1">security</span>  
-                </div>  
-                <div>  
-                    <div class="text-lg font-black text-sky-900 dark:text-sky-50">Sentinel</div>  
-                    <div class="text-xs text-slate-500 uppercase tracking-widest">Enterprise Audit</div>  
-                </div>  
-            </div>  
-        </div>  
-        <nav class="flex-1 space-y-1">  
-    <!-- Existing Core Dashboard Links -->
-      
-    <a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="audit-universe.html">  
-        <span class="material-symbols-outlined mr-3">public</span>  
-        <span class="font-medium">Audit Universe</span>  
-    </a>  
-    <a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="risk-assessment.html">  
-        <span class="material-symbols-outlined mr-3">list_alt</span>  
-        <span class="font-medium">Risk Register</span>  
-    </a>  
-<a class="flex items-center px-6 py-3 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="internal_Audit_Work_Plan.html">  
-        <span class="material-symbols-outlined mr-3">dashboard</span>  
-        <span class="font-medium"> internal_Audit_Work_Plan</span>  
-    </a>
-    <!-- Performing & Reporting Phase Header / Separator Label -->
-    <div class="px-6 pt-4 pb-1 text-[10px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase select-none">
-        Performing & Reporting
-    </div>
+        <!-- Sidebar Navigation Element Links Wrapper Menu -->
+        <nav class="flex-1 space-y-1 p-4">  
+            <div class="px-3 py-2 text-[10px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase select-none">Planning Phase</div>
+            <a class="flex items-center px-4 py-2.5 text-primary dark:text-sky-300 font-bold border-r-4 border-primary bg-slate-50 dark:bg-slate-900/40 rounded transition-colors" href="audit-universe.html">  
+                <span class="material-symbols-outlined mr-3">public</span>  
+                <span class="font-medium text-sm">Stage 1: Audit Universe</span>  
+            </a>  
+            <a class="flex items-center px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="risk-assessment.html">  
+                <span class="material-symbols-outlined mr-3">list_alt</span>  
+                <span class="font-medium text-sm">Stage 2: Risk Register</span>  
+            </a>  
+            <a class="flex items-center px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="internal_Audit_Work_Plan.html">  
+                <span class="material-symbols-outlined mr-3">dashboard</span>  
+                <span class="font-medium text-sm">Stage 3: Work Plan Scheduler</span>  
+            </a>  
+        </nav>
 
-    <!-- STAGE 1: Audit Plan & Program Link -->
-    <!-- [Active Treatment for plan_program.html] Use these Tailwind active classes when on plan_program.html: "text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10" -->
-    <a class="flex items-center px-6 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="Audit_Plan&Program.html">  
-        <span class="material-symbols-outlined mr-3" style="font-variation-settings: 'FILL' 1;">description</span>  
-        <span class="font-medium text-sm">Stage 1: Audit Plan</span>  
-    </a>  
+        <div class="p-4 border-t border-outline-variant/10 dark:border-slate-800">
+            <button onclick="window.Theme.toggle()" class="w-full flex items-center justify-center gap-2 p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold rounded-xl transition-all">
+                <span class="material-symbols-outlined text-sm" data-theme-icon>dark_mode</span> Interface Theme Mode
+            </button>
+        </div>
+    </aside>
 
-    <!-- STAGE 2: Draft Audit Report Link -->
-    <!-- [Active Treatment for draft_report.html] Use these Tailwind active classes when on draft_report.html: "text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10" -->
-    <a class="flex items-center px-6 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="Draft_Audit_Report.html">  
-        <span class="material-symbols-outlined mr-3">edit_document</span>  
-        <span class="font-medium text-sm">Stage 2: Draft Report</span>  
-    </a>  
+    <!-- Primary Layout Content View Container -->
+    <main class="flex-1 flex flex-col overflow-y-auto bg-surface dark:bg-[#0d0e10]">
+        
+        <!-- Document Workspace Floating Sub Header Banner Matrix -->
+        <header class="bg-white dark:bg-[#1a1c1e] border-b border-outline-variant/10 dark:border-slate-800/60 p-6 flex items-center justify-between no-print">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-2xl text-primary dark:text-sky-400">lan</span>
+                <div>
+                    Kenya Revenue Authority (KRA)</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phase 1 — Workspace Setup Blueprint</p>
+                </div>
+            </div>
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 py-1 bg-surface-container-low dark:bg-slate-900 border border-outline-variant/30 rounded-full">Internal Auditor Profile</span>
+        </header>
 
-    <!-- STAGE 3: Final Audit Report Link -->
-    <!-- [Active Treatment for final_report.html] Use these Tailwind active classes when on final_report.html: "text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10" -->
-    <a class="flex items-center px-6 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="Final_Audit_Report.html">  
-        <span class="material-symbols-outlined mr-3">verified_user</span>  
-        <span class="font-medium text-sm">Stage 3: Final Report</span>  
-    </a>  
-</nav> 
- 
-    </aside>  
+        <!-- Document Form Workspace Canvas Body Section Wrapper -->
+        <div class="p-8 space-y-6 max-w-[1500px] w-full mx-auto">
+            
+            <section class="bg-white dark:bg-[#1a1c1e] rounded-2xl border border-outline-variant/20 dark:border-slate-800 p-6 space-y-6 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-outline-variant/10 dark:border-slate-800/60 pb-4 gap-4">
+                    <div>
+                        <h2 class="text-base font-black text-primary dark:text-sky-400 uppercase tracking-wider flex items-center gap-2">
+                            <span class="material-symbols-outlined text-xl">view_agenda</span> Corporate Audit Universe Register
+                        </h2>
+                        <p class="text-xs text-on-surface-variant dark:text-slate-400 mt-1">Browse, filter, and allocate scope subjects to advance into deeper vulnerability risk score assessment tracks.</p>
+                    </div>
+                    <button onclick="openNewEntryModal()" class="inline-flex items-center justify-center gap-2 bg-primary text-white hover:bg-primary-dark dark:bg-sky-500 dark:hover:bg-sky-600 px-4 py-2.5 text-xs font-black uppercase tracking-wider rounded-xl shadow transition-all">
+                        <span class="material-symbols-outlined text-sm">add_box</span> Add New Scope Asset
+                    </button>
+                </div>
 
-    <!-- Main Content Area -->  
-    <main class="flex-1 md:ml-64 min-h-screen flex flex-col">  
-        <!-- Top Navbar Header -->  
-        <header class="bg-slate-50/80 backdrop-blur-xl flex justify-between items-center px-4 md:px-6 py-3 sticky top-0 z-50 shadow-sm">  
-            <div class="flex items-center gap-2">  
-                <h1 class="text-lg font-bold text-sky-900">Audit Universe</h1>  
-            </div>  
-            <div class="flex items-center gap-2">  
-                <span class="text-sm font-semibold text-sky-900">Internal Auditor</span>  
-            </div>  
-        </header>  
+                <!-- Live Interface Interactive Search and Dropdowns Filter Container Row Block -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-surface-container-low/60 dark:bg-slate-900/40 rounded-xl border border-outline-variant/10">
+                    <div class="space-y-1">
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Search Key Match</label>
+                        <div class="relative flex items-center">
+                            <span class="material-symbols-outlined text-sm absolute left-3 text-slate-400">search</span>
+                            <input type="text" id="txt-search" placeholder="Filter Area or Ref ID..." class="w-full bg-white dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg pl-9 p-2 focus:ring-1 focus:ring-primary focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Historical Audit Condition</label>
+                        <select id="sel-audited" class="w-full bg-white dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-primary focus:outline-none">
+                            <option value="All">All Historical Items</option>
+                            <option value="Yes">Yes — Audited Prior</option>
+                            <option value="No">No — Fresh Entry Target</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Process Owner Division</label>
+                        <select id="sel-owner" class="w-full bg-white dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2 focus:ring-primary focus:outline-none">
+                            <option value="All Owners">All Owners</option>
+                        </select>
+                    </div>
+                </div>
 
-        <!-- Page Content Container -->  
-        <div class="p-4 md:p-8 max-w-7xl space-y-6 w-full">  
-
-            <!-- Page Heading + Add Entry Button -->  
-            <section class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">  
-                <div>  
-                    <h2 class="text-2xl md:text-3xl font-extrabold text-primary">Audit Universe Register</h2>  
-                    <p class="text-on-surface-variant mt-1">Browse, filter and select audit areas to carry forward into deeper assessment.</p>  
-                </div>  
-                <!-- "Add New Entry" affordance (illusion only, not persisted yet) -->  
-                <button type="button" id="btn-add-entry"  
-                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary font-semibold text-sm text-white hover:bg-primary-container transition-colors">  
-                    <span class="material-symbols-outlined text-sm">add</span>  
-                    Add New Entry  
-                </button>  
-            </section>  
-
-            <!-- Filter Toolbar -->  
-            <section class="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-4 md:p-5 shadow-sm space-y-4">  
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">  
-
-                    <!-- Search: Serial Number or Area Name -->  
-                    <div class="lg:col-span-1">  
-                        <label for="filter-search" class="block text-sm font-semibold text-on-surface mb-1">Search</label>  
-                        <div class="relative">  
-                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>  
-                            <input type="text" id="filter-search" placeholder="Serial # or Area name..."  
-                                class="w-full rounded-lg border border-outline-variant bg-surface pl-10 pr-4 py-2.5 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none">  
-                        </div>  
-                    </div>  
-
-                    <!-- Audited Before Filter -->  
-                    <div>  
-                        <label for="filter-audited" class="block text-sm font-semibold text-on-surface mb-1">Audited Before</label>  
-                        <select id="filter-audited"  
-                            class="w-full rounded-lg border border-outline-variant bg-surface px-4 py-2.5 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none">  
-                            <option value="all">All</option>  
-                            <option value="yes">Yes</option>  
-                            <option value="no">No</option>  
-                        </select>  
-                    </div>  
-
-                    <!-- Process Owner Filter -->  
-                    <div>  
-                        <label for="filter-owner" class="block text-sm font-semibold text-on-surface mb-1">Process Owner</label>  
-                        <select id="filter-owner"  
-                            class="w-full rounded-lg border border-outline-variant bg-surface px-4 py-2.5 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none">  
-                            <option value="all">All Owners</option>  
-                            <!-- Owner options populated by JS from dummy data -->  
-                        </select>  
-                    </div>  
-
-                    <!-- Reference Number Filter -->  
-                    <div>  
-                        <label for="filter-ref" class="block text-sm font-semibold text-on-surface mb-1">Reference Number</label>  
-                        <input type="text" id="filter-ref" placeholder="e.g., IA-2025-REF-14"  
-                            class="w-full rounded-lg border border-outline-variant bg-surface px-4 py-2.5 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none">  
-                    </div>  
-                </div>  
-
-                <!-- Filter status line + clear button -->  
-                <div class="flex items-center justify-between flex-wrap gap-2">  
-                    <p class="text-xs text-on-surface-variant">  
-                        Showing <span id="result-count" class="font-semibold text-on-surface">0</span> of  
-                        <span id="total-count" class="font-semibold text-on-surface">0</span> entries  
-                    </p>  
-                    <button type="button" id="btn-clear-filters" class="text-xs font-semibold text-primary hover:underline">  
-                        Clear all filters  
-                    </button>  
-                </div>  
-            </section>  
-
-            <!-- Selection Summary + Proceed Action -->  
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">  
-                <div>  
-                    <p class="text-sm font-medium">  
-                        <span id="selected-count" class="font-extrabold text-primary">0</span> audit area(s) selected  
-                    </p>  
-                </div>  
-                <button type="button" id="btn-proceed"  
-                    class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-secondary font-semibold text-sm text-white hover:opacity-90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">  
-                    Proceed to Risk Assessment  
-                    <span class="material-symbols-outlined text-sm">arrow_forward</span>  
-                </button>  
-            </div>  
-
-            <!-- Data Table -->  
-            <section class="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl shadow-sm overflow-hidden">  
-                <!-- Table Header -->  
-                <div class="flex items-center justify-between px-5 py-3 border-b border-outline-variant/30">  
-                    <h3 class="text-sm font-bold text-on-surface uppercase tracking-wide">Registered Audit Areas</h3>  
-                    <!-- Select-all toggle for currently visible rows -->  
-                    <label class="inline-flex items-center gap-2 text-sm font-medium cursor-pointer select-none">  
-                        <input type="checkbox" id="select-all-visible" class="text-primary focus:ring-primary border-outline-variant rounded">  
-                        <span>Select all visible</span>  
-                    </label>  
-                </div>  
-
-                               <!-- Scrollable Table Wrapper -->
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm divide-y divide-outline-variant/30">
-                        <thead class="bg-surface-container-low text-left">
-                            <tr>
-                                <th class="px-4 py-3 w-10">
-                                    <!-- Header checkbox is optional; per-row selection handled via JS -->
+                <!-- Master Spreadsheet View Data Grid Elements Container Layer -->
+                <div class="overflow-x-auto w-full border border-outline-variant/20 dark:border-slate-800 rounded-xl">
+                    <table class="w-full min-w-[1100px] border-collapse text-left table-fixed">
+                        <thead>
+                            <tr class="bg-surface-container-low dark:bg-slate-900 border-b border-outline-variant/40 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-on-surface-variant dark:text-slate-400">
+                                <th class="p-4 w-16 text-center">
+                                    <input type="checkbox" onchange="toggleSelectAllVisible(this)" class="rounded border-outline-variant/40 text-primary focus:ring-primary h-4 w-4 bg-transparent cursor-pointer" title="Select All Visible">
                                 </th>
-                                <th class="px-4 py-3 font-semibold text-on-surface">Serial / Ref ID</th>
-                                <th class="px-4 py-3 font-semibold text-on-surface">Audit Area / Subject</th>
-                                <th class="px-4 py-3 font-semibold text-on-surface">Process Owner(s)</th>
-                                <th class="px-4 py-3 font-semibold text-on-surface">Audited Before</th>
-                                <th class="px-4 py-3 font-semibold text-on-surface">Reference Number(s)</th>
-                                <th class="px-4 py-3 font-semibold text-on-surface">Remarks</th>
+                                <th class="p-4 w-44">Serial / Ref ID</th>
+                                <th class="p-4 w-1/4">Audit Area / Subject</th>
+                                <th class="p-4 w-1/5">Process Owner(s)</th>
+                                <th class="p-4 w-40 text-center">Audited Before</th>
+                                <th class="p-4 w-48">Reference Number(s)</th>
+                                <th class="p-4 w-1/4">Remarks</th>
                             </tr>
                         </thead>
-                        <!-- Table body is populated by audit-universe.js from dummy data (and later Firebase) -->
-                        <tbody id="audit-table-body" class="bg-surface-container-lowest divide-y divide-outline-variant/20">
-                            <!-- Example row structure the JS will generate:
-                            <tr class="hover:bg-surface-container-low transition-colors">
-                                <td class="px-4 py-3 text-center">
-                                    <input type="checkbox" class="row-checkbox text-primary focus:ring-primary border-outline-variant rounded" value="AU-2026-001">
-                                </td>
-                                <td class="px-4 py-3 font-semibold text-primary whitespace-nowrap">AU-2026-001</td>
-                                <td class="px-4 py-3">Core Banking Infrastructure</td>
-                                <td class="px-4 py-3">Director IT, Head of Network Engineering</td>
-                                <td class="px-4 py-3">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Yes</span>
-                                </td>
-                                <td class="px-4 py-3">IA-2024-REF-09, IA-2025-REF-14</td>
-                                <td class="px-4 py-3 text-on-surface-variant">Critical baseline observations noted.</td>
-                            </tr>
-                            -->
+                        <tbody id="tbl-universe-body">
+                            <!-- Dynamic Content Rows Built via Cloud Snapshot Callbacks -->
                         </tbody>
                     </table>
+                    <div id="empty-state-row" class="p-12 text-center flex flex-col items-center justify-center space-y-2 text-slate-400 dark:text-slate-500 hidden">
+                        <span class="material-symbols-outlined text-4xl">search_off</span>
+                        <p class="text-xs font-bold uppercase tracking-wider">No audit areas found inside your organization's environment registry.</p>
+                    </div>
                 </div>
 
-                <!-- Empty State (shown when no rows match filters or no data) -->
-                <div id="empty-state" class="hidden flex-col items-center justify-center py-16 text-center px-4">
-                    <span class="material-symbols-outlined text-5xl text-outline-variant mb-3">search_off</span>
-                    <p class="font-semibold text-on-surface">No audit areas found</p>
-                    <p class="text-sm text-on-surface-variant mt-1">Try adjusting your filters or clear them to see more entries.</p>
+                <div class="flex flex-col sm:flex-row items-center justify-between border-t border-outline-variant/10 dark:border-slate-800 pt-4 gap-4">
+                    <div class="text-xs font-semibold text-on-surface-variant dark:text-slate-400" id="lbl-entries-count">Showing 0 of 0 entries</div>
+                    
+                    <div class="flex items-center gap-4">
+                        <span id="lbl-selected-badge" class="px-3 py-1.5 text-xs font-black uppercase text-primary bg-slate-100 border rounded-lg dark:bg-slate-800 dark:border-slate-700 dark:text-sky-300">0 audit area(s) selected</span>
+                        <button id="btn-proceed" onclick="commitSelectionAndProceed()" class="inline-flex items-center justify-center gap-2 bg-primary dark:bg-sky-500 text-white px-5 py-2.5 text-xs font-black uppercase tracking-wider rounded-xl shadow opacity-40 pointer-events-none hover:bg-primary-dark transition-all">
+                            Proceed to Risk Assessment <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                        </button>
+                    </div>
                 </div>
             </section>
+        </div>
+                <!-- ========================================== -->
+        <!-- ADD THIS REGISTRATION MODAL MARKUP BLOCK   -->
+        <!-- ========================================== -->
+       <!-- ========================================================== -->
+<!-- CORRECTED, VISUALLY-ALIGNED SCOPE ASSET REGISTRATION MODAL -->
+<!-- ========================================================== -->
+<div id="modal-universe-asset" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden no-print">
+    <div class="bg-[#0f172a] text-white w-full max-w-lg rounded-2xl border border-slate-700/60 p-6 shadow-2xl space-y-5">
+        
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-sm font-black uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-base">add_box</span> Register New Scope Asset
+            </h3>
+            <button type="button" onclick="document.getElementById('modal-universe-asset').classList.add('hidden')" class="text-slate-400 hover:text-slate-200 material-symbols-outlined text-lg">close</button>
+        </div>
 
-        </div><!-- /Page Content Container -->
+        <form onsubmit="commitNewUniverseAsset(event)" class="space-y-4">
+            
+            <div class="space-y-1">
+                <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Audit Area / Scope Subject</label>
+                <input type="text" id="txt-new-area" placeholder="Enter target system or subject area..." class="w-full bg-[#1e293b] border border-slate-700/50 p-2.5 text-xs rounded-lg text-white focus:outline-none focus:border-sky-500" required>
+            </div>
+
+            <div class="space-y-1">
+                <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Process Owner Official Title</label>
+                <input type="text" id="txt-new-owner-title" placeholder="e.g. ICT Department / Finance Unit" class="w-full bg-[#1e293b] border border-slate-700/50 p-2.5 text-xs rounded-lg text-white focus:outline-none focus:border-sky-500" required>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Audited Historically?</label>
+                    <select id="sel-new-audited-prior" class="w-full bg-[#1e293b] border border-slate-700/50 p-2.5 text-xs rounded-lg text-white font-semibold focus:outline-none focus:border-sky-500">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Prior Ref Identification Code</label>
+                    <input type="text" id="txt-new-prior-ref" placeholder="e.g. AUD-001" class="w-full bg-[#1e293b] border border-slate-700/50 p-2.5 text-xs rounded-lg text-white focus:outline-none focus:border-sky-500">
+                </div>
+            </div>
+
+            <div class="space-y-1">
+                <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Strategic Narrative Remarks</label>
+                <textarea id="txt-new-remarks" rows="3" placeholder="Enter baseline observations or threat details..." class="w-full bg-[#1e293b] border border-slate-700/50 p-2.5 text-xs rounded-lg text-white focus:outline-none focus:border-sky-500" required></textarea>
+            </div>
+
+            <div class="flex justify-end items-center gap-4 pt-4 border-t border-slate-800">
+                <button type="button" onclick="document.getElementById('modal-universe-asset').classList.add('hidden')" class="text-xs font-bold text-slate-400 hover:text-white transition-colors">Cancel</button>
+                <button type="submit" class="px-5 py-2.5 text-xs font-black uppercase tracking-wide bg-sky-500 hover:bg-sky-600 text-white rounded-lg shadow-md transition-all">
+                    Register Asset
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
     </main>
+
+    <script type="module">
+        import "./shared_store.js";
+    </script>
+    <script src="audit_universe_controller.js"></script>
 </body>
 </html>
+

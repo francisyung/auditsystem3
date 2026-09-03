@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>  
+    <meta charset="utf-8"/>  
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>  
+    <title>Follow-up Audit Report | Sentinel Enterprise</title>  
+
+   
+   <!-- Tailwind CSS with Forms & Container Queries Plugins -->  
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>  
+
+    <!-- Fonts: Manrope (headlines) + Inter (body) -->  
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>  
+    <!-- Material Symbols Outlined -->  
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>  
+
+
+
+    <script id="tailwind-config">  
+        tailwind.config = {  
+            darkMode: "class",  
+            theme: {  
+                extend: {  
+                    colors: {  
+                        primary: "#003354",  
+                        "primary-container": "#004a77",  
+                        secondary: "#1b6d24",  
+                        tertiary: "#680007",  
+                        "tertiary-container": "#93000e",  
+                        error: "#ba1a1a",  
+                        surface: "#f9f9fd",  
+                        "surface-container-low": "#f3f3f7",  
+                        "surface-container-lowest": "#ffffff",  
+                        "surface-container-highest": "#e2e2e6",  
+                        "on-surface": "#191c1e",  
+                        "on-surface-variant": "#41474f",  
+                        "on-primary": "#ffffff",  
+                        "outline-variant": "#c1c7d0"
+                    },  
+                    fontFamily: {  
+                        headline: ["Manrope"],  
+                        body: ["Inter"]  
+                    }  
+                }  
+            }  
+        };  
+    </script>  
+    <style>  
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24 }  
+        body { font-family: 'Inter', sans-serif }  
+        h1, h2, h3 { font-family: 'Manrope', sans-serif }  
+
+        /* Native Corporate Print Override Stylesheet Layout */
+        @media print {
+            aside, header, button, .no-print, select, .file-uploader { display: none !important; }
+            main { padding-left: 0 !important; margin: 0 !important; background: #fff !important; color: #000 !important; }
+            .print-card { border: 1px solid #c1c7d0 !important; box-shadow: none !important; background: #fff !important; page-break-inside: avoid; }
+            textarea, input { border: none !important; background: transparent !important; padding: 0 !important; font-size: 11px !important; resize: none !important; }
+            table { page-break-inside: auto; width: 100% !important; border: 1px solid #000 !important; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            th, td { border: 1px solid #c1c7d0 !important; font-size: 10px !important; padding: 6px !important; color: #000 !important; }
+            .print-visible-text { display: block !important; font-weight: 600; font-size: 11px; }
+        }
+    </style>  
+
+    <!-- Linked Brain Database Layer Router -->  
+    <script defer src="shared_store.js"></script>  
+</head>  
+<body class="bg-surface dark:bg-[#111315] text-on-surface dark:text-slate-100 flex flex-col md:flex-row min-h-screen">  
+
+    <!-- Sidebar Shell Fixed Navigation Drawer Component -->  
+    <aside class="flex flex-col h-screen w-64 fixed left-0 top-0 bg-slate-100 dark:bg-slate-950 py-6 border-r border-outline-variant/10 dark:border-slate-800 z-50 no-print">  
+        <div class="px-6 mb-10 flex items-start justify-between gap-2">  
+            <div class="flex items-center gap-3">  
+                <div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center">  
+                    <span class="material-symbols-outlined text-white" style="font-variation-settings:'FILL' 1">security</span>  
+                </div>  
+                <div>  
+                    <div class="text-lg font-black text-sky-900 dark:text-sky-50">Sentinel</div>  
+                    <div class="text-xs text-slate-500 uppercase tracking-widest">Enterprise Audit</div>  
+                </div>  
+            </div>  
+        </div>  
+        <nav class="flex-1 space-y-1 p-4">  
+            <div class="px-3 py-2 text-[10px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase select-none">Performing & Reporting</div>
+            <a class="flex items-center px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="Audit_Plan&Program.html">  
+                <span class="material-symbols-outlined mr-3">description</span>  
+                <span class="font-medium text-sm">Stage 1: Audit Program Plan</span>  
+            </a>  
+            <a class="flex items-center px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="Draft_Audit_Report.html">  
+                <span class="material-symbols-outlined mr-3">edit_document</span>  
+                <span class="font-medium text-sm">Stage 2: Draft Report</span>  
+            </a>  
+            <a class="flex items-center px-4 py-2.5 text-primary dark:text-sky-300 font-bold border-r-4 border-primary bg-slate-50 dark:bg-slate-900/40 rounded transition-colors" href="Final_Audit_Report.html">  
+                <span class="material-symbols-outlined mr-3">verified</span>  
+                <span class="font-medium text-sm">Stage 3: Final Report</span>  
+            </a>  
+             <div class="px-6 pt-4 pb-1 text-[10px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase select-none">  
+                Remediation Phase  
+            </div>  
+            <a class="flex items-center px-6 py-2.5 text-sky-900 dark:text-sky-50 font-bold border-r-4 border-sky-700 bg-sky-50/50 dark:bg-sky-900/10 transition-colors" href="follow_up_report.html">  
+                <span class="material-symbols-outlined mr-3" style="font-variation-settings: 'FILL' 1;">published_with_changes</span>  
+                <span class="font-medium text-sm">Follow-up Audit</span>  
+            </a>
+        </nav> 
+
+        <div class="px-4 pt-4 border-t border-outline-variant/20 dark:border-slate-800">  
+            <button onclick="Theme.toggle()" class="flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-900 transition-all">  
+                <span class="flex items-center gap-3">  
+                    <span class="material-symbols-outlined" data-theme-icon>dark_mode</span>  
+                    <span>Interface Theme</span>  
+                </span>  
+            </button>  
+        </div>  
+    </aside>  
+
+    <!-- Main Workspace Content Frame -->  
+    <main class="flex-1 md:pl-64 min-w-0 flex flex-col">  
+        
+        <!-- Top Sticky Header Control Panel -->  
+        <header class="sticky top-0 bg-surface/80 dark:bg-[#111315]/80 backdrop-blur-md z-40 border-b border-outline-variant/30 dark:border-slate-800/50 px-8 py-4 flex items-center justify-between no-print">  
+            <div>  
+                <h1 class="text-2xl font-black text-primary dark:text-sky-400 tracking-tight">Follow-up Audit Lifecycle</h1>  
+                <p class="text-sm font-medium text-on-surface-variant dark:text-slate-400 uppercase tracking-wider mt-0.5">Remediation Phase — Tracking Framework</p>  
+            </div>  
+            <div class="flex items-center gap-3">  
+                <button onclick="saveFollowUpProgress()" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-on-surface dark:text-slate-200 text-sm font-semibold rounded-xl border border-outline-variant/40 dark:border-slate-700 hover:bg-outline-variant/10 transition-all">  
+                    <span class="material-symbols-outlined text-lg">save</span> Save Progress  
+                </button>  
+                <button onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2 bg-primary text-white text-sm font-semibold rounded-xl shadow-md hover:bg-primary-container transition-all">  
+                    <span class="material-symbols-outlined text-lg">print</span> Print / Save PDF  
+                </button>  
+            </div>  
+        </header>  
+
+               <!-- Primary Form Document Workspace Wrapper Container -->  
+       <div class="flex-1 p-8 space-y-8 max-w-[1600px] w-full mx-auto">
+
+    <!-- Top Level Live Performance KPI Scorecard Engine Row -->
+    
+
+    <!-- Top Pulled Meta Information Baseline Matrix Banner Block (Formatted to match Follow-Up Document Header) -->  
+    <div class="p-8 bg-white dark:bg-[#1a1c1e] rounded-2xl border border-outline-variant/20 dark:border-slate-800 shadow-sm flex flex-col items-center text-center space-y-1 font-serif print-card">  
+        
+        <div class="text-lg font-bold uppercase tracking-wide text-on-surface dark:text-white">
+            NAME OF THE ENTITY
+        </div>
+        
+        <div class="text-base font-bold uppercase tracking-wide text-red-600 dark:text-red-400">
+            FOLLOW-UP AUDIT REPORT
+        </div>
+        
+        <div class="text-base font-bold text-on-surface dark:text-white">
+            AUDIT AREA/TITLE: <span id="ui-ref-area" class="font-normal lowercase">—</span>
+        </div>
+        
+        <div class="text-base font-bold text-on-surface dark:text-white">
+            AUDITEE/DEPARTMENT/DIRECTORATE: <span id="ui-auditee-dept" class="font-normal lowercase">—</span>
+        </div>
+        
+        <div class="text-base font-bold text-on-surface dark:text-white">
+            Audit Period: <span id="ui-audit-dates" class="font-normal tracking-tight">—</span>
+        </div>
+
+        <!-- Hidden container block to retain DOM accessibility for your Risk Exposure script -->
+        <div id="ui-risk-level" class="hidden"></div>
+    </div>  
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 no-print">
+        <!-- Formula Expression Rule Display Card -->
+        <div class="bg-white dark:bg-[#1a1c1e] p-5 rounded-2xl border border-outline-variant/20 dark:border-slate-800 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                <span class="material-symbols-outlined text-2xl">functions</span>
+            </div>
+            <div>
+                <div class="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider">Governing Equation</div>
+                <div class="text-xs font-mono font-bold text-on-surface-variant dark:text-slate-300 mt-0.5">
+                    Status = [Closed / (Open + Closed)] × 100
+                </div>
+            </div>
+        </div>
+
+        <!-- Numerical Aggregation Metric Tracker Card -->
+        <div class="bg-white dark:bg-[#1a1c1e] p-5 rounded-2xl border border-outline-variant/20 dark:border-slate-800 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                <span class="material-symbols-outlined text-2xl">analytics</span>
+            </div>
+            <div>
+                <div class="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider">Remediation Counts</div>
+                <div class="text-sm font-bold text-on-surface dark:text-slate-200 mt-0.5" id="lbl-counts-ratio">
+                    0 / 0 Observations Solved
+                </div>
+            </div>
+        </div>
+
+        <!-- Computed System Progress Radial Gauge Result Card -->
+        <div class="bg-white dark:bg-[#1a1c1e] p-5 rounded-2xl border border-outline-variant/20 dark:border-slate-800 shadow-sm flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl">checklist_rtl</span>
+                </div>
+                <div>
+                    <div class="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider">Implementation Index (n%)</div>
+                    <div class="text-base font-black text-emerald-600 dark:text-emerald-400 mt-0.5" id="lbl-percentage-text">0.0% Complete</div>
+                </div>
+            </div>
+            <!-- Live Horizontal Micro Bar Tracker Progress visual hook -->
+            <div class="w-24 bg-slate-100 dark:bg-slate-800 h-3 rounded-full overflow-hidden border border-outline-variant/10">
+                <div id="bar-percentage-fill" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Master Follow-Up Spreadgrid Table Workspace Section -->
+    <section class="bg-white dark:bg-[#1a1c1e] rounded-2xl border border-outline-variant/20 dark:border-slate-800 p-6 space-y-4 shadow-sm overflow-hidden print-card">  
+        <div class="border-b border-outline-variant/20 dark:border-slate-800 pb-4">  
+            <h2 class="text-lg font-extrabold text-primary dark:text-sky-400 flex items-center gap-2">  
+                <span class="material-symbols-outlined text-xl">published_with_changes</span> Core Follow-Up Audit Tracking Matrix  
+            </h2>  
+        </div>  
+
+        <div class="overflow-x-auto w-full border border-outline-variant/20 dark:border-slate-800 rounded-xl">  
+            <table class="w-full min-w-[1550px] border-collapse text-left table-fixed">  
+                <thead>  
+                    <tr class="bg-surface-container-low dark:bg-slate-900 border-b border-outline-variant/40 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-on-surface-variant dark:text-slate-400">  
+                        <th class="p-3 w-12 text-center">S/No</th>  
+                        <th class="p-3 w-48">Core Objective</th>  
+                        <th class="p-3 w-72">Audit Findings Breakdown Structure</th>  
+                        <th class="p-3 w-56">Audit Recommendations</th>  
+                        <th class="p-3 w-64 bg-slate-50 dark:bg-slate-900/50">Management Response Reference (Stage 3)</th>  
+                        <th class="p-3 w-56 bg-sky-50/30 dark:bg-sky-950/10 text-primary dark:text-sky-400">Status of Implementation</th>  
+                        <th class="p-3 w-72">Evidence Log / Justification TextBox</th>  
+                        <th class="p-3 w-56">Audit Remarks & Timeline Actions</th>  
+                    </tr>  
+                </thead>  
+                <tbody id="tbl-followup-body">  
+                    <!-- Dynamic Content Rows Built via JavaScript Hooks -->  
+                </tbody>  
+            </table>  
+                </div>  
+            </section>
+ 
+
+            <!-- Final Authorization Release Signature Section -->
+            <section class="bg-white dark:bg-[#1a1c1e] rounded-2xl border border-outline-variant/20 dark:border-slate-800 p-6 space-y-6 shadow-sm print-card">  
+                <div class="border-b border-outline-variant/20 dark:border-slate-800 pb-4">  
+                    <h2 class="text-lg font-extrabold text-primary dark:text-sky-400 flex items-center gap-2">  
+                        <span class="material-symbols-outlined text-xl">assignment_turned_in</span> Follow-Up Verification & Closure Approval  
+                    </h2>  
+                </div>  
+                
+                <div class="max-w-xl p-5 bg-surface-container-low dark:bg-slate-900/50 rounded-xl border border-outline-variant/30 dark:border-slate-800 space-y-4 mx-auto">  
+                    <div class="text-xs font-black uppercase text-primary dark:text-sky-400 tracking-wider border-b border-outline-variant/20 dark:border-slate-800 pb-1 text-center">Follow-Up Audit Report Approved By:</div>  
+                    
+                    <div class="space-y-3">  
+                        <div class="space-y-1">  
+                            <label class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Approving Officer Name</label>  
+                            <input type="text" id="fu-auth-name" placeholder="Full Officer Name" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2.5 focus:ring-1 focus:ring-primary focus:outline-none">  
+                        </div>  
+                        <div class="space-y-1">  
+                            <label class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Official Designation Title</label>  
+                            <input type="text" id="fu-auth-desig" placeholder="Designation Title" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2.5 focus:ring-1 focus:ring-primary focus:outline-none">  
+                        </div>  
+                        <div class="grid grid-cols-2 gap-3">  
+                            <div class="space-y-1">  
+                                <label class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Secure Approval Token/Signature</label>  
+                                <input type="text" id="fu-auth-sign" placeholder="Signature Code" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2.5 focus:ring-1 focus:ring-primary focus:outline-none">  
+                            </div>  
+                            <div class="space-y-1">  
+                                <label class="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Sign-off Verification Date</label>  
+                                <input type="text" id="fu-auth-date" placeholder="DD/MM/YYYY" class="w-full bg-white dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-2.5 focus:ring-1 focus:ring-primary focus:outline-none">  
+                            </div>  
+                        </div>  
+                    </div>  
+                </div>  
+            </section>  
+
+            <div class="flex items-center justify-between pt-4 border-t border-outline-variant/20 dark:border-slate-800 no-print">  
+                <div class="text-xs font-medium text-on-surface-variant dark:text-slate-500">  
+                    Sentinel Core Platform — Secure Follow-Up Phase Tracking Layer  
+                </div>  
+            </div>  
+
+        </div>  
+    </main>  
+
+    <script>  
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.Theme) {
+                window.Theme.init();
+            }
+            renderFollowUpWorkspace();
+        });
+
+        function renderFollowUpWorkspace() {
+            const store = window.AuditStore;
+            if (!store || !store.current) return;
+
+            // Extract planning baseline elements
+            const p = store.current.planning;
+            document.getElementById("ui-entity-header").textContent = p.entityName || "Kenya Revenue Authority (KRA)";
+            document.getElementById("ui-ref-area").textContent = `${p.auditRefNumber || 'AUD-2026-000'} — ${p.auditArea || 'Unassigned Area'}`;
+            document.getElementById("ui-risk-level").textContent = p.riskLevel || "LOW (L)";
+            document.getElementById("ui-auditee-dept").textContent = p.auditeeDepartment || "General Administration";
+            document.getElementById("ui-audit-dates").textContent = `${p.auditStartDate || '—'} to ${p.auditEndDate || '—'}`;
+
+            // Initialize storage vectors if unallocated
+            if (!store.current.followUp) {
+                store.current.followUp = {
+                    rows: [],
+                    approval: { name: "", designation: "", sign: "", date: "" }
+                };
+            }
+
+            // Synchronize findings matrices back from Stage 3 
+            const finalRowsList = store.current.final.managementResponseRows || [];
+            const followUpRowsList = store.current.followUp.rows || [];
+
+            // Re-map rows to secure baseline data persistence structures
+            const synchronizedRows = finalRowsList.map((finalRow, index) => {
+                const existingFuRow = followUpRowsList[index] || {};
+                return {
+                    objective: finalRow.objective || "—",
+                    findings: finalRow.findings || "—",
+                    recommendations: finalRow.recommendations || "—",
+                    managementAction: finalRow.managementAction || "—",
+                    implementationTimeline: finalRow.implementationTimeline || "—",
+                    responsiblePerson: finalRow.responsiblePerson || "—",
+                    // Interactive configurations properties mapping
+                    statusOfImplementation: existingFuRow.statusOfImplementation || "Not Implemented",
+                    evidenceAttachmentName: existingFuRow.evidenceAttachmentName || "",
+                    justificationText: existingFuRow.justificationText || "",
+                    auditRemarks: existingFuRow.auditRemarks || "Open",
+                    extendedTimeline: existingFuRow.extendedTimeline || ""
+                };
+            });
+
+            store.current.followUp.rows = synchronizedRows;
+
+            // Render view layout matrices rows loop mapping
+            const tbody = document.getElementById("tbl-followup-body");
+            tbody.innerHTML = "";
+
+            synchronizedRows.forEach((row, index) => {
+                injectFollowUpRowMarkup(index, row);
+            });
+
+            // Re-populate signatures block parameters
+            const sigs = store.current.followUp.approval;
+            if (sigs) {
+                document.getElementById("fu-auth-name").value = sigs.name || "";
+                document.getElementById("fu-auth-desig").value = sigs.designation || "";
+                document.getElementById("fu-auth-sign").value = sigs.sign || "";
+                document.getElementById("fu-auth-date").value = sigs.date || "";
+            }
+
+            // Trigger equations engine check pass variables
+            recalculateImplementationFormula();
+        }
+
+        function injectFollowUpRowMarkup(idx, data = {}) {
+            const tbody = document.getElementById("tbl-followup-body");
+            const tr = document.createElement("tr");
+            tr.className = "border-b border-outline-variant/30 dark:border-slate-800 last:border-0 hover:bg-surface-container-low dark:hover:bg-slate-900/40 align-top transition-colors";
+            
+            // Layout status background color assignments rules definitions
+            let statusStyleBadge = "bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300";
+            if (data.statusOfImplementation === "Implemented") statusStyleBadge = "bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-300";
+            if (data.statusOfImplementation === "Partially Implemented") statusStyleBadge = "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300";
+
+            tr.innerHTML = `
+                <td class="p-3 text-center text-xs font-bold text-on-surface-variant dark:text-slate-400 bg-surface-container-low/40 dark:bg-slate-900/20">${idx + 1}</td>
+                <td class="p-3 text-xs font-medium text-on-surface-variant dark:text-slate-400 whitespace-pre-wrap">${window.escapeAttr(data.objective)}</td>
+                <td class="p-3 text-xs font-medium text-on-surface dark:text-slate-300 whitespace-pre-wrap">${window.escapeAttr(data.findings)}</td>
+                <td class="p-3 text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-pre-wrap">${window.escapeAttr(data.recommendations)}</td>
+                
+                <td class="p-3 text-xs space-y-1 bg-slate-50/50 dark:bg-slate-900/30">
+                    <div><span class="text-[9px] font-black uppercase text-slate-400">Action:</span> <span class="font-medium text-on-surface-variant dark:text-slate-300">${window.escapeAttr(data.managementAction)}</span></div>
+                    <div><span class="text-[9px] font-black uppercase text-slate-400">Timeline:</span> <span class="font-semibold text-slate-600 dark:text-slate-400">${window.escapeAttr(data.implementationTimeline)}</span></div>
+                    <div><span class="text-[9px] font-black uppercase text-slate-400">Owner:</span> <span class="font-medium text-slate-500">${window.escapeAttr(data.responsiblePerson)}</span></div>
+                </td>
+
+                <td class="p-2 bg-sky-50/10 dark:bg-sky-950/5">
+                    <select onchange="updateImplementationStatusField(${idx}, this.value)" class="w-full text-xs font-bold rounded-lg border-outline-variant/40 dark:border-slate-700 bg-white dark:bg-[#0d0e10] focus:ring-primary ${statusStyleBadge}">
+                        <option value="Not Implemented" ${data.statusOfImplementation === 'Not Implemented' ? 'selected' : ''}>❌ Not Implemented</option>
+                        <option value="Partially Implemented" ${data.statusOfImplementation === 'Partially Implemented' ? 'selected' : ''}>⚠️ Partially Implemented</option>
+                        <option value="Implemented" ${data.statusOfImplementation === 'Implemented' ? 'selected' : ''}>✅ Implemented</option>
+                    </select>
+                </td>
+
+                               <td class="p-2" id="conditional-cell-${idx}">
+                    <!-- Injected dynamically via script function below -->
+                </td>
+
+                <td class="p-2 space-y-2 text-center">
+                    <div class="flex items-center justify-center gap-1.5">
+                        <button onclick="toggleAuditRemarksField(${idx}, 'Closed')" class="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-l-md border transition-all ${data.auditRemarks === 'Closed' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white dark:bg-[#0d0e10] text-slate-400 border-outline-variant/30'}">Closed</button>
+                        <button onclick="toggleAuditRemarksField(${idx}, 'Open')" class="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-r-md border transition-all ${data.auditRemarks === 'Open' ? 'bg-rose-600 text-white border-rose-600' : 'bg-white dark:bg-[#0d0e10] text-slate-400 border-outline-variant/30'}">Open</button>
+                    </div>
+                    
+                    <div id="extension-wrapper-${idx}" class="space-y-1 ${data.auditRemarks === 'Closed' ? 'hidden' : ''}">
+                        <span class="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-left pl-1">Extension Target Date</span>
+                        <input type="text" name="extended_timeline" value="${window.escapeAttr(data.extendedTimeline)}" placeholder="e.g. 31/12/2026" class="w-full bg-surface dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-1.5 focus:ring-1 focus:ring-primary focus:outline-none">
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+
+            // Inject inner conditional items configuration logs
+            renderInnerConditionalCellElements(idx, data);
+        }
+
+        function renderInnerConditionalCellElements(idx, data) {
+            const container = document.getElementById(`conditional-cell-${idx}`);
+            if (!container) return;
+            container.innerHTML = "";
+
+            if (data.statusOfImplementation === "Implemented") {
+                container.innerHTML = `
+                    <div class="space-y-1.5">
+                        <span class="block text-[9px] font-black uppercase text-green-600 tracking-wider">Attachment Log Registry</span>
+                        <div class="flex items-center gap-2">
+                            <input type="text" name="evidence_val" value="${window.escapeAttr(data.evidenceAttachmentName)}" placeholder="e.g. Evidence_Document.pdf" class="flex-1 bg-surface dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-1.5 focus:ring-1 focus:ring-primary focus:outline-none font-mono">
+                            <button onclick="alert('Simulation: Core binary stream registry committed to browser document storage context! 📎')" class="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 no-print">
+                                <span class="material-symbols-outlined text-sm">upload_file</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="space-y-1">
+                        <span class="block text-[9px] font-black uppercase text-amber-600 tracking-wider">Remediation Delays Justification Text</span>
+                        <textarea name="justification_val" rows="2" placeholder="Provide reason for delayed parameter implementation..." class="w-full bg-surface dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 rounded-lg focus:ring-primary focus:border-primary text-xs p-1.5">${window.escapeAttr(data.justificationText)}</textarea>
+                    </div>
+                `;
+            }
+        }
+
+        function updateImplementationStatusField(idx, statusValue) {
+            const store = window.AuditStore;
+            if (!store) return;
+
+            syncFollowUpInputsToStore();
+            store.current.followUp.rows[idx].statusOfImplementation = statusValue;
+            
+            if (statusValue === "Implemented") {
+                store.current.followUp.rows[idx].auditRemarks = "Closed";
+            } else {
+                store.current.followUp.rows[idx].auditRemarks = "Open";
+            }
+
+            renderFollowUpWorkspace();
+        }
+
+        function toggleAuditRemarksField(idx, remarkValue) {
+            const store = window.AuditStore;
+            if (!store) return;
+
+            syncFollowUpInputsToStore();
+            store.current.followUp.rows[idx].auditRemarks = remarkValue;
+            renderFollowUpWorkspace();
+        }
+
+        function recalculateImplementationFormula() {
+            const store = window.AuditStore;
+            if (!store || !store.current) return;
+
+            const rows = store.current.followUp.rows || [];
+            const totalCount = rows.length;
+            
+            const closedCount = rows.filter(r => r.auditRemarks === "Closed").length;
+
+            document.getElementById("lbl-counts-ratio").textContent = `${closedCount} / ${totalCount} Observations Closed`;
+
+            let ratioPercentResult = 0;
+            if (totalCount > 0) {
+                ratioPercentResult = (closedCount / totalCount) * 100;
+            }
+
+            const cleanPercentageString = ratioPercentResult.toFixed(1);
+            document.getElementById("lbl-percentage-text").textContent = `${cleanPercentageString}% Remediation Index`;
+            document.getElementById("bar-percentage-fill").style.width = `${ratioPercentResult}%`;
+        }
+
+        function syncFollowUpInputsToStore() {
+            const store = window.AuditStore;
+            if (!store || !store.current) return;
+
+            document.querySelectorAll("#tbl-followup-body tr").forEach((tr, idx) => {
+                const rowRef = store.current.followUp.rows[idx];
+                if (!rowRef) return;
+
+                const fileInput = tr.querySelector('input[name="evidence_val"]');
+                if (fileInput) rowRef.evidenceAttachmentName = fileInput.value;
+
+                const textJustification = tr.querySelector('textarea[name="justification_val"]');
+                if (textJustification) rowRef.justificationText = textJustification.value;
+
+                const extendedInput = tr.querySelector('input[name="extended_timeline"]');
+                if (extendedInput) rowRef.extendedTimeline = extendedInput.value;
+            });
+
+            store.current.followUp.approval = {
+                name: document.getElementById("fu-auth-name").value,
+                designation: document.getElementById("fu-auth-desig").value,
+                sign: document.getElementById("fu-auth-sign").value,
+                date: document.getElementById("fu-auth-date").value
+            };
+        }
+
+        function saveFollowUpProgress() {
+            const store = window.AuditStore;
+            if (!store) return;
+
+            syncFollowUpInputsToStore();
+            store.save();
+            recalculateImplementationFormula();
+            alert("Follow-up spreadsheet tracking data matrices successfully committed to internal data persistence layers! 🔒");
+        }
+    </script>  
+</body>
+</html>
