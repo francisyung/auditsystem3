@@ -111,42 +111,42 @@
                 </div>
 
                 <!-- Master Scheduler Spreadsheet View Data Grid Elements Layer -->
-                <div class="overflow-x-auto w-full border border-outline-variant/20 dark:border-slate-800 rounded-xl">
-                   <table class="w-full min-w-[1750px] border-collapse text-left table-fixed">
-    <thead>
-        <tr class="bg-surface-container-low dark:bg-slate-900 border-b border-outline-variant/40 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-on-surface-variant dark:text-slate-400">
+<div class="overflow-x-auto w-full border border-outline-variant/20 dark:border-slate-800 rounded-xl">
+    <table class="w-full min-w-[1850px] border-collapse text-left table-fixed">
+        <thead>
+            <tr class="bg-surface-container-low dark:bg-slate-900 border-b border-outline-variant/40 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-on-surface-variant dark:text-slate-400">
             <th class="p-3 w-12 text-center">S/N</th>
             <th class="p-3 w-36">Reference No</th>
-            <th class="p-3 w-72">Audit Area & Mapped Risks</th>
+            <th class="p-3 w-56">Audit Area Particulars</th>
+            <th class="p-3 w-64">Risk Description</th>
             <th class="p-3 w-28 text-center">Level of Risk</th>
             <th class="p-3 w-80">Audit Objectives</th>
             <th class="p-3 w-80">Audit Scope Boundaries</th>
             <th class="p-3 w-52">Duration & Timestamps</th>
             <th class="p-3 w-64">Budget & Allocated Resources</th>
             <th class="p-3 w-60">Auditor Role Mapping</th>
+            <!-- Added Action Column Target -->
+            <th class="p-3 w-36 text-center">Execution Action</th>
         </tr>
-    </thead>
-    <tbody id="tbl-plan-body">
-        <!-- Injected programmatically by controller modules loop mapping -->
-    </tbody>
-</table>
+        </thead>
+        <tbody id="tbl-plan-body">
+            <!-- Injected programmatically by controller modules loop mapping -->
+        </tbody>
+        <tfoot>
+            <tr class="bg-surface-container-low/60 dark:bg-slate-900/60 font-black border-t border-outline-variant/40 dark:border-slate-800 text-xs text-on-surface dark:text-slate-200">
+                <!-- Incremented colspan to 7 to maintain tracking summary layout alignment -->
+                <td colspan="7" class="p-4 text-right uppercase tracking-wider font-extrabold text-on-surface-variant dark:text-slate-400">Cumulative Calculated Budget:</td>
+                <td id="lbl-table-sum" class="p-4 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-left">KES 0.00</td>
+                <td class="p-4"></td>
+            </tr>
+        </tfoot>
+    </table>
+    <div id="empty-plan-row" class="p-12 text-center flex flex-col items-center justify-center space-y-2 text-slate-400 dark:text-slate-500 hidden">
+        <span class="material-symbols-outlined text-4xl">calendar_today</span>
+        <p class="text-xs font-bold uppercase tracking-wider">No scheduling targets assigned. Commit checked components forward out of Stage 2 first.</p>
+    </div>
+</div>
 
-                        <tbody id="tbl-plan-body">
-                            <!-- Injected programmatically via controller data loops -->
-                        </tbody>
-                        <tfoot>
-                            <tr class="bg-surface-container-low/60 dark:bg-slate-900/60 font-black border-t border-outline-variant/40 dark:border-slate-800 text-xs text-on-surface dark:text-slate-200">
-                                <td colspan="6" class="p-4 text-right uppercase tracking-wider font-extrabold text-on-surface-variant dark:text-slate-400">Cumulative Calculated Budget:</td>
-                                <td id="lbl-table-sum" class="p-4 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-left">KES 0.00</td>
-                                <td class="p-4"></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                    <div id="empty-plan-row" class="p-12 text-center flex flex-col items-center justify-center space-y-2 text-slate-400 dark:text-slate-500 hidden">
-                        <span class="material-symbols-outlined text-4xl">calendar_today</span>
-                        <p class="text-xs font-bold uppercase tracking-wider">No scheduling targets assigned. Commit checked components forward out of Stage 2 first.</p>
-                    </div>
-                </div>
 
                 <!-- Official Executive Authorization Validation Reference Code Matrix Block -->
                 <div class="p-6 bg-surface-container-low/40 dark:bg-slate-900/20 rounded-2xl border border-outline-variant/20 dark:border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">

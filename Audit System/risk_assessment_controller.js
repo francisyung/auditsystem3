@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
  */
 function renderRiskAssessmentWorkspace(data) {
     const riskRows = data?.phase1_planning?.riskRegister || [];
+    const universeList = data?.phase1_planning?.universe || [];
     const tbody = document.getElementById("tbl-risk-body");
     if (!tbody) return;
 
@@ -42,10 +43,8 @@ function renderRiskAssessmentWorkspace(data) {
         };
     });
 
-    // Sort descending by risk score matrix
     mappedRisks.sort((a, b) => b.score - a.score);
 
-    // Render loop processing sorted entries
     mappedRisks.forEach(({ row, originalIdx, score }) => {
         const tr = document.createElement("tr");
         tr.className = "border-b border-outline-variant/30 dark:border-slate-800 last:border-0 hover:bg-surface-container-low dark:hover:bg-slate-900/40 align-top transition-colors";
@@ -53,7 +52,6 @@ function renderRiskAssessmentWorkspace(data) {
         const L = parseInt(row.likelihood || 1);
         const I = parseInt(row.impact || 1);
         
-        // --- COLOR CODE CONFIGURATIONS ---
         let scoreBadgeClass = "";
         let ratingText = "";
         
@@ -68,8 +66,22 @@ function renderRiskAssessmentWorkspace(data) {
             ratingText = "HIGH";
         }
 
+        // --- ENHANCED AUDIT AREA EXTRACTION LOGIC ---
+        let derivedAuditArea = "Unmapped Area";
+        
+        // Strategy A: Direct matching via universe index keys
+        const riskIdSuffix = row.riskId ? row.riskId.split('-').pop() : "";
+        const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === riskIdSuffix);
+        
+        if (matchedUniverseItem && matchedUniverseItem.auditArea) {
+            derivedAuditArea = matchedUniverseItem.auditArea;
+        } else if (row.riskDescription && row.riskDescription.includes("scope item:")) {
+            // Strategy B: Parse text out of existing description field string
+            derivedAuditArea = row.riskDescription.split("scope item:").pop().trim();
+        }
+
         tr.innerHTML = `
-            <!-- Selection Checkbox Column (Action Element) -->
+            <!-- Selection Checkbox Column -->
             <td class="p-3 text-center align-middle">
                 <input type="checkbox" 
                        onchange="toggleRiskInclusion(${originalIdx}, this.checked)" 
@@ -80,17 +92,22 @@ function renderRiskAssessmentWorkspace(data) {
             <!-- 1. Risk ID -->
             <td class="p-3 text-xs font-mono font-bold text-on-surface-variant dark:text-slate-400 align-middle">${window.escapeAttr(row.riskId)}</td>
             
-            <!-- 2. Risk Identification -->
+            <!-- 2. Audit Area (Now populated cleanly) -->
+            <td class="p-3 text-xs font-semibold text-on-surface dark:text-slate-200 align-middle" data-audit-area="${window.escapeAttr(derivedAuditArea)}">
+                ${window.escapeAttr(derivedAuditArea)}
+            </td>
+
+            <!-- 3. Risk Identification -->
             <td class="p-2">
                 <input type="text" value="${window.escapeAttr(row.riskIdentification || '')}" onchange="updateRiskField(${originalIdx}, 'riskIdentification', this.value)" placeholder="e.g. Data Breach Vector" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs font-bold rounded-lg p-1.5 focus:outline-none">
             </td>
             
-            <!-- 3. Risk Description -->
+            <!-- 4. Risk Description -->
             <td class="p-2">
                 <textarea onchange="updateRiskField(${originalIdx}, 'riskDescription', this.value)" rows="2" placeholder="Risk impacts statement..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">${window.escapeAttr(row.riskDescription || '')}</textarea>
             </td>
             
-            <!-- 4. Risk Causes/Triggers -->
+            <!-- 5. Risk Causes/Triggers -->
             <td class="p-2">
                 <textarea onchange="updateRiskField(${originalIdx}, 'riskCauses', this.value)" rows="2" placeholder="Triggers or root vectors..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">${window.escapeAttr(row.riskCauses || '')}</textarea>
             </td>
@@ -248,7 +265,10 @@ async function commitRisksAndAdvanceStage() {
     const store = window.AuditStore;
     if (!store || !store.current) return;
 
-        const fullRegister = store.current.phase1_planning.riskRegister || [];
+    const fullRegister = store.current.phase1_planning.riskRegister || [];
+    // Bring in universe collection to extract mapped names for the final workspace stage
+    const universeList = store.current.phase1_planning.universe || [];
+    
     const selectedRisks = fullRegister.filter(r => r.isCommittedToPlan);
 
     if (selectedRisks.length === 0) {
@@ -257,25 +277,33 @@ async function commitRisksAndAdvanceStage() {
     }
 
     // Map checked items into scheduling array entities
-    const initialWorkPlanRows = selectedRisks.map(risk => ({
-        refNumber: `AUD-2026-${risk.riskId.split('-').pop()}`,
-        riskLevel: risk.riskScore >= 7 ? "HIGH (H)" : (risk.riskScore >= 4 ? "MEDIUM (M)" : "LOW (L)"),
-        auditAreaReplica: risk.riskIdentification || "Untitled Mapped Title",
-        riskDescription: risk.riskDescription || "—",
-        auditObjectives: "",
-        auditScopeBoundaries: "",
-        scale: "Weeks",
-        startDate: "",
-        endDate: "",
-        budgetKsh: 0,
-        noOfAuditors: 1,
-        physicalItResources: "",
-        leadAuditor: "",
-        auditor1: "",
-        auditor2: "",
-        approvalDate: "",
-        minuteNumberRef: ""
-    }));
+    const initialWorkPlanRows = selectedRisks.map(risk => {
+        // Find matching universe node using suffix to read its true auditArea value
+        const riskIdSuffix = risk.riskId ? risk.riskId.split('-').pop() : "";
+        const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === riskIdSuffix);
+        const resolvedAuditArea = matchedUniverseItem ? matchedUniverseItem.auditArea : "Untitled Mapped Title";
+
+        return {
+            refNumber: `AUD-2026-${risk.riskId.split('-').pop()}`,
+            riskLevel: risk.riskScore >= 7 ? "HIGH (H)" : (risk.riskScore >= 4 ? "MEDIUM (M)" : "LOW (L)"),
+            // EXTRAS CHANGED HERE: Now fed exactly by the resolved Audit Area text 
+            auditAreaReplica: resolvedAuditArea,
+            riskDescription: risk.riskDescription || "—",
+            auditObjectives: "",
+            auditScopeBoundaries: "",
+            scale: "Weeks",
+            startDate: "",
+            endDate: "",
+            budgetKsh: 0,
+            noOfAuditors: 1,
+            physicalItResources: "",
+            leadAuditor: "",
+            auditor1: "",
+            auditor2: "",
+            approvalDate: "",
+            minuteNumberRef: ""
+        };
+    });
 
     try {
         await store.updateWorkPlan(initialWorkPlanRows, 0, "", "");
@@ -284,3 +312,4 @@ async function commitRisksAndAdvanceStage() {
         alert("Pipeline error. Failed to commit data mappings to cloud workspace scheduler.");
     }
 }
+

@@ -106,27 +106,30 @@
                 <!-- Main Risk Evaluation Spreadgrid Layout Framework Container -->
                 <div class="overflow-x-auto w-full border border-outline-variant/20 dark:border-slate-800 rounded-xl">
     <table class="w-full min-w-[1850px] border-collapse text-left table-fixed">
-        <thead>
-            <tr>
-        <th class="p-3 w-12 text-center">Sel</th> <!-- Active selector cell wrapper -->
-        <th class="p-3 w-32">1. Risk ID</th>
-        <th class="p-3 w-56">2. Risk Identification</th>
-        <th class="p-3 w-64">3. Risk Description</th>
-        <th class="p-3 w-64">4. Risk Causes/Triggers</th>
-        <th class="p-3 w-44">5. Risk Category</th>
-        <th class="p-3 w-64">6. Type of Existing Controls</th>
-        <th class="p-3 w-32">7. Likelihood</th>
-        <th class="p-3 w-32">8. Impact</th>
-        <th class="p-3 w-36 text-center">9 & 10. Rating / Colour</th>
-        <th class="p-3 w-48">11. Risk Owner</th>
-        <th class="p-3 w-48">12. Directorate/Department</th>
-        <th class="p-3 w-36 text-center">13. Risk Ranking</th>
-    </tr>
-        </thead>
-        <tbody id="tbl-risk-body">
-            <!-- Injected programmatically by controller modules loop mapping -->
-        </tbody>
-    </table>
+    <thead>
+        <tr>
+            <th class="p-3 w-12 text-center">Sel</th> <!-- Active selector cell wrapper -->
+            <th class="p-3 w-32"> Risk ID</th>
+            <!-- Added Audit Area Column Header -->
+            <th class="p-3 w-56"> Audit Area</th>
+            <th class="p-3 w-56"> Risk Identification</th>
+            <th class="p-3 w-64"> Risk Description</th>
+            <th class="p-3 w-64"> Risk Causes/Triggers</th>
+            <th class="p-3 w-44"> Risk Category</th>
+            <th class="p-3 w-64"> Type of Existing Controls</th>
+            <th class="p-3 w-32"> Likelihood</th>
+            <th class="p-3 w-32"> Impact</th>
+            <th class="p-3 w-36 text-center"> Rating / Colour</th>
+            <th class="p-3 w-48"> Risk Owner</th>
+            <th class="p-3 w-48"> Directorate/Department</th>
+            <th class="p-3 w-36 text-center"> Risk Ranking</th>
+        </tr>
+    </thead>
+    <tbody id="tbl-risk-body">
+        <!-- Injected programmatically by controller modules loop mapping -->
+    </tbody>
+</table>
+
     <div id="empty-risk-row" class="p-12 text-center flex flex-col items-center justify-center space-y-2 text-slate-400 dark:text-slate-500 hidden">
         <span class="material-symbols-outlined text-4xl">folder_off</span>
         <p class="text-xs font-bold uppercase tracking-wider">No risk assets found. Please select scope entries first in the Audit Universe.</p>

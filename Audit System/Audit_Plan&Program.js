@@ -233,7 +233,7 @@ function programTable(rows) {
                             <th class="p-3 w-48 text-left">Associated Risk Field</th>
                             <th class="p-3 w-48 text-left">Assigned Core Activity</th>
                             <th class="p-3 w-64 text-left">Procedure / Substantive Test Instructions</th>
-                            <th class="p-3 w-48 text-left">Lead Officer</th>
+                           
                             <th class="p-3 w-48 text-left">Status / Remarks</th>
                             <th class="p-3 w-16 text-center no-print">Actions</th>
                         </tr>
@@ -466,10 +466,7 @@ window.renderExistingProgramTableOnly = function() {
             <td class="px-2 py-2 w-64">  
                 <textarea data-rowfield="procedure" class="w-full min-h-[4rem] rounded-lg border border-outline-variant/40 bg-surface-container-low dark:bg-[#0d0e10] dark:border-slate-700 px-2 py-2 text-xs leading-relaxed text-on-surface dark:text-slate-200">${esc(r.procedure || '')}</textarea>  
             </td>  
-            <!-- Fixed Column 6: Lead Officer -->
-            <td class="px-2 py-2 w-48">  
-                <textarea data-rowfield="lead_officer" class="w-full min-h-[4rem] rounded-lg border border-outline-variant/40 bg-surface-container-low dark:bg-[#0d0e10] dark:border-slate-700 px-2 py-2 text-xs leading-relaxed text-on-surface dark:text-slate-200">${esc(r.lead_officer || '')}</textarea>  
-            </td>  
+           
             <!-- Fixed Column 7: Status / Remarks Textarea Box -->
             <td class="px-2 py-2 w-48">  
                 <textarea data-rowfield="remarks" class="w-full min-h-[4rem] rounded-lg border border-outline-variant/40 bg-surface-container-low dark:bg-[#0d0e10] dark:border-slate-700 px-2 py-2 text-xs leading-relaxed text-on-surface dark:text-slate-200">${esc(r.remarks || '')}</textarea>  
@@ -540,11 +537,22 @@ window.finalizeProgramAndProceedToDraft = function() {
 
 /* Bootstrap */
 /* Bootstrap Lifecycle Configuration Hook */
+/* Bootstrap Lifecycle Configuration Hook */
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Draw your local program table rows matrix layout inside the HTML
+    // 1. Draw your local program data checklist rows template matrix
     window.renderExistingProgramTableOnly();
     
-    // 2. Safely sync changes on your static data input elements back into memory store
+    // 2. Connect the live Cloud Hub stream listener to update metadata elements dynamically
+    if (window.AuditStore) {
+        window.AuditStore.subscribeToAudit((snapshotData) => {
+            console.log("🌌 Cloud data stream received in Program Stage:", snapshotData);
+            initializePhase2ProgramCanvas(snapshotData);
+        });
+    } else {
+        console.warn("AuditStore platform layer was not found. Falling back to local offline components.");
+    }
+    
+    // 3. Safely sync changes on your static data input elements back into local memory cache
     document.querySelectorAll('input[data-field]').forEach(inp => {
         inp.addEventListener('input', () => {
             setByPath(state, inp.dataset.field, inp.value);
@@ -552,3 +560,138 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+/**
+ * Bound callback handler for changing targeted risk lines inside header selector
+ */
+window.handleTargetRiskSwitch = async function(newIndexValue) {
+    const store = window.AuditStore;
+    if (!store || !store.current) return;
+
+    try {
+        // Persist index change tracking reference forward to cloud workspace document
+        if (!store.current.phase1_planning) store.current.phase1_planning = {};
+        store.current.phase1_planning.selectedExecutionId = parseInt(newIndexValue);
+        
+        // Force immediate render updates on the local framework canvas elements
+        initializePhase2ProgramCanvas(store.current);
+    } catch(err) {
+        console.error("Selection target mutation fault context trace:", err);
+    }
+};
+
+function initializePhase2ProgramCanvas(data) {
+    // 1. Data extraction and safety fallback wrappers
+    const planRows = data?.phase1_planning?.workPlan || [];
+    const universeList = data?.phase1_planning?.universe || [];
+    
+    // Resolve selected row pointer index key safely
+    let activeIdx = data?.phase1_planning?.selectedExecutionId;
+    
+    // Fallback: If index pointer is unassigned, check for dynamic context or default to row 0
+    if (activeIdx === undefined || activeIdx === null) {
+        activeIdx = 0;
+    }
+    
+    // Halt logic loop gracefully if no operational scheduled lines exist
+    if (planRows.length === 0) {
+        document.getElementById("empty-program-state")?.classList.remove("hidden");
+        document.getElementById("active-program-workspace")?.classList.add("hidden");
+        return;
+    }
+
+    document.getElementById("empty-program-state")?.classList.add("hidden");
+    document.getElementById("active-program-workspace")?.classList.remove("hidden");
+
+    // 2. Hydrate top-right select picker dropdown options element
+    const selectTarget = document.getElementById("sel-audit-target");
+    if (selectTarget) {
+        selectTarget.innerHTML = planRows.map((r, i) => `
+            <option value="${i}" ${Number(i) === Number(activeIdx) ? 'selected' : ''}>
+                ${window.escapeAttr(r.refNumber || 'UNTITLED')} - ${window.escapeAttr(r.auditAreaReplica || 'Unnamed Area')}
+            </option>
+        `).join('');
+    }
+
+    // Isolate our active work plan data row object dictionary parameters
+    const activeRow = planRows[activeIdx];
+    if (!activeRow) return;
+
+    // 3. Robust Relational Entity Mapping Computations
+    // Cleanly pull title parameter field text directly
+    const auditTitle = activeRow.auditAreaReplica || "Untitled Scope Area Assignment";
+
+    // Cross-reference department from universe, with an immediate fallback check string split extraction
+    let resolvedDepartment = "Operations / General Management";
+    
+    // Extract suffix digit from reference code (e.g., "AUD-2026-1" -> "1")
+    const rowRefSuffix = activeRow.refNumber ? activeRow.refNumber.split('-').pop() : "";
+    
+    // Double check and find index mapping reference inside the global assets array matrix
+    const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === rowRefSuffix);
+    
+    if (matchedUniverseItem && matchedUniverseItem.processOwner) {
+        resolvedDepartment = matchedUniverseItem.processOwner;
+    } else if (activeRow.leadAuditor) {
+        // Safe contextual string fallback if universe reference connection was missing
+        resolvedDepartment = "Assigned Internal Audit Team Sector";
+    }
+
+    // Structure a friendly, scan-optimized timeline layout text block string
+    const startStr = activeRow.startDate || "Not Scheduled";
+    const endStr = activeRow.endDate || "Not Scheduled";
+    const durationVal = activeRow.durationValue || 4;
+    const durationScale = activeRow.scale || 'Weeks';
+    const resolvedPeriodTimeline = `${startStr} to ${endStr} (${durationVal} ${durationScale})`;
+
+    // 4. Force DOM Insertion on matching elements using context values
+    const lblTitle = document.getElementById("lbl-pull-title");
+    if (lblTitle) {
+        lblTitle.innerText = auditTitle.toUpperCase();
+        lblTitle.textContent = auditTitle.toUpperCase();
+    }
+
+    const lblDept = document.getElementById("lbl-pull-department");
+    if (lblDept) {
+        lblDept.innerText = resolvedDepartment.toUpperCase();
+        lblDept.textContent = resolvedDepartment.toUpperCase();
+    }
+
+    const lblPeriod = document.getElementById("lbl-pull-period");
+    if (lblPeriod) {
+        lblPeriod.innerText = resolvedPeriodTimeline.toUpperCase();
+        lblPeriod.textContent = resolvedPeriodTimeline.toUpperCase();
+    }
+
+    // 5. Hydrate narrative content parameters text area cards
+    const txtObjectives = document.getElementById("txt-intro-bg"); // Double check mapping definitions
+    const txtScope = document.querySelector("[placeholder*='boundaries']");
+    const txtRisks = document.getElementById("lbl-pull-risks");
+
+    if (txtObjectives && !txtObjectives.matches(':focus')) {
+        txtObjectives.value = activeRow.auditObjectives || "";
+    }
+    if (txtScope && !txtScope.matches(':focus')) {
+        txtScope.value = activeRow.auditScopeBoundaries || "";
+    }
+    if (txtRisks) {
+        txtRisks.textContent = activeRow.riskDescription || "No mapped risk framework narrative definitions declared.";
+    }
+}
+
+
+/**
+ * Bound callback for dropdown changer triggers updating memory baseline state index 
+ */
+async function handleTargetRiskSwitch(newIndexValue) {
+    const store = window.AuditStore;
+    if (!store || !store.current) return;
+
+    try {
+        store.current.phase1_planning.selectedExecutionId = parseInt(newIndexValue);
+        // Force refresh via local trigger execution sequence mapping
+        initializePhase2ProgramCanvas(store.current);
+    } catch(err) {
+        console.error("Selection target mutation fault context trace:", err);
+    }
+}

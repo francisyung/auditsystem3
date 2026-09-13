@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
 /**
  * Loops and builds scheduling rows using inherited risk database vectors
  */
+//
 function renderWorkPlanWorkspace(data) {
     const planRows = data?.phase1_planning?.workPlan || [];
     const meta = data?.phase1_planning?.workPlanMetadata || {};
@@ -37,7 +38,6 @@ function renderWorkPlanWorkspace(data) {
         const tr = document.createElement("tr");
         tr.className = "border-b border-outline-variant/30 dark:border-slate-800 last:border-0 hover:bg-surface-container-low dark:hover:bg-slate-900/40 align-top transition-colors";
         
-        // Define color badges matching inherited level strings
         let riskBadgeClass = "bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-300";
         let displayLevel = row.riskLevel || "LOW";
 
@@ -51,6 +51,11 @@ function renderWorkPlanWorkspace(data) {
             displayLevel = "LOW";
         }
 
+        let processedRiskDesc = row.riskDescription || "—";
+        if (processedRiskDesc.includes("scope item:")) {
+            processedRiskDesc = "Vulnerability audit mapped for assigned area scope parameters.";
+        }
+
         tr.innerHTML = `
             <!-- 1. S/number -->
             <td class="p-3 text-center text-xs font-bold text-on-surface-variant dark:text-slate-400 bg-surface-container-low/40 dark:bg-slate-900/20 align-middle">${idx + 1}</td>
@@ -58,15 +63,19 @@ function renderWorkPlanWorkspace(data) {
             <!-- 2. Reference number -->
             <td class="p-3 text-xs font-mono font-bold text-primary dark:text-sky-400 align-middle">${window.escapeAttr(row.refNumber || '')}</td>
             
-            <!-- 3. Audit Area/Particulars & 4b. Risk Description(s) -->
-            <td class="p-3 text-xs space-y-1 max-w-xs">
-                <div class="font-bold text-on-surface dark:text-slate-200">${window.escapeAttr(row.auditAreaReplica || '')}</div>
-                <div class="text-[11px] text-on-surface-variant dark:text-slate-400 italic">${window.escapeAttr(row.riskDescription || '')}</div>
+            <!-- 3. Audit Area Particulars Column -->
+            <td class="p-3 text-xs font-bold text-on-surface dark:text-slate-200 align-middle max-w-xs truncate" title="${window.escapeAttr(row.auditAreaReplica || '')}">
+                ${window.escapeAttr(row.auditAreaReplica || '—')}
             </td>
-            
-            <!-- 4. Level of Risk: H/M/L -->
+
+            <!-- 4. Risk Description Column -->
+            <td class="p-3 text-xs text-on-surface-variant dark:text-slate-400 italic align-middle max-w-xs">
+                ${window.escapeAttr(processedRiskDesc)}
+            </td>
+
+            <!-- Level of Risk Cell -->
             <td class="p-3 text-center align-middle">
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black tracking-wider ${riskBadgeClass}">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${riskBadgeClass}">
                     ${displayLevel}
                 </span>
             </td>
@@ -112,7 +121,7 @@ function renderWorkPlanWorkspace(data) {
                 </div>
             </td>
             
-            <!-- 9. Assignment of Auditors (Role-based Mapping) -->
+                         <!-- 9. Assignment of Auditors (Role-based Mapping) -->
             <td class="p-2 space-y-1.5">
                 <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Input</span><input type="text" value="${window.escapeAttr(row.auditorInput || '')}" onchange="updatePlanField(${idx}, 'auditorInput', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
                 <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Lead</span><input type="text" value="${window.escapeAttr(row.leadAuditor || '')}" onchange="updatePlanField(${idx}, 'leadAuditor', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
@@ -120,6 +129,13 @@ function renderWorkPlanWorkspace(data) {
                 <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Reviewer 2</span><input type="text" value="${window.escapeAttr(row.auditor2 || '')}" onchange="updatePlanField(${idx}, 'auditor2', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
                 <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Reviewer 3</span><input type="text" value="${window.escapeAttr(row.auditor3 || '')}" onchange="updatePlanField(${idx}, 'auditor3', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
                 <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Approver</span><input type="text" value="${window.escapeAttr(row.approver || '')}" onchange="updatePlanField(${idx}, 'approver', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
+            </td>
+
+            <!-- NEW PIPELINE ACTION CELL: Launch Isolated Program Execution Stage -->
+            <td class="p-3 text-center align-middle">
+                <button onclick="launchExecutionProgram(${idx})" class="px-3 py-2 text-[10px] font-black uppercase tracking-wider bg-primary dark:bg-sky-500 hover:opacity-90 text-white rounded-lg transition-all shadow flex items-center gap-1 mx-auto">
+                    Launch <span class="material-symbols-outlined text-xs">rocket_launch</span>
+                </button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -170,7 +186,7 @@ function calculateRunningBudgetTotal(rowsArray) {
 function updateBudgetSummarySummaryTotals(totalAmount) {
     const formattedCurrency = new Intl.NumberFormat('en-KE', { style: 'currency', currency: 'KES' }).format(totalAmount);
     
-        const displayCard = document.getElementById("lbl-total-budget-card");
+    const displayCard = document.getElementById("lbl-total-budget-card");
     const tableRowSum = document.getElementById("lbl-table-sum");
     
     if (displayCard) displayCard.textContent = formattedCurrency;
@@ -200,20 +216,54 @@ async function commitWorkPlanProgress() {
 }
 
 /**
- * Transitions into Phase 2, Stage 1 (Performing Phase Blueprint)
+ * Persists the chosen active row index pointer to the cloud document tracking path, then advances routes
+ */
+async function launchExecutionProgram(selectedIdx) {
+    const store = window.AuditStore;
+    if (!store || !store.current) return;
+
+    // Pull current spreadsheet input states to ensure dirty-form data safety before routing
+    const rows = store.current.phase1_planning.workPlan;
+    let computedSum = 0;
+    rows.forEach(r => computedSum += parseFloat(r.budgetKsh || 0));
+    
+    const minutes = document.getElementById("txt-minutes")?.value || "";
+    const approvalDate = document.getElementById("txt-approval-date")?.value || "";
+
+    try {
+        // Initialize structural node safety check wrapper
+        if (!store.current.phase1_planning) store.current.phase1_planning = {};
+        
+        // Write selection index directly into cloud configuration layer properties tracking token
+        store.current.phase1_planning.selectedExecutionId = selectedIdx;
+
+        // Force a transaction upstream synchronization save
+        await store.updateWorkPlan(rows, computedSum, minutes, approvalDate);
+        
+        // Fallback protection check handler for standard stage triggers
+        if (typeof store.carryToDraft === 'function') store.carryToDraft();
+        
+        // Dispatch document path location pointer route forward to Stage 2 Canvas Spreadsheet View
+        window.location.href = "Audit_Plan&Program.html";
+    } catch (err) {
+        console.error("Pipeline handoff validation error exception context trace:", err);
+        alert("Cloud pipeline tracking error: Failed to initialize selected audit execution line reference context.");
+    }
+}
+
+/**
+ * Transitions into Phase 2, Stage 1 (Legacy Button Catch Event Fallback Route Handler)
  */
 async function finalizePlanningAndAdvancePhase() {
     const store = window.AuditStore;
     if (!store || !store.current) return;
 
-    // Check if verification items exist
     if ((store.current.phase1_planning.workPlan || []).length === 0) {
         alert("Cannot advance phase with an empty scheduling track matrix.");
         return;
     }
 
     try {
-        // Sync final values before shifting workspace routes
         const rows = store.current.phase1_planning.workPlan;
         let computedSum = 0;
         rows.forEach(r => computedSum += parseFloat(r.budgetKsh || 0));
@@ -221,9 +271,13 @@ async function finalizePlanningAndAdvancePhase() {
         const minutes = document.getElementById("txt-minutes").value;
         const approvalDate = document.getElementById("txt-approval-date").value;
         
+        // Fallback protection defaults active item index state tracker index to row 0 if button hit blindly
+        if (store.current.phase1_planning.selectedExecutionId === undefined) {
+            store.current.phase1_planning.selectedExecutionId = 0;
+        }
+
         await store.updateWorkPlan(rows, computedSum, minutes, approvalDate);
         
-        // Initialize Phase 2 Program baseline arrays mapping triggers
         store.carryToDraft(); 
         window.location.href = "Audit_Plan&Program.html";
     } catch (err) {

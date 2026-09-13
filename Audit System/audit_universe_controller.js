@@ -316,10 +316,6 @@ async function commitNewUniverseAsset(event) {
         alert("Failed to synchronize asset data entries up to cloud database.");
     }
 }
-
-
-
-
 /**
  * Pipelines selected data keys into Phase 1, Stage 2
  */
