@@ -78,43 +78,61 @@
     <main class="flex-1 flex flex-col overflow-y-auto bg-surface dark:bg-[#0d0e10]">
         
         <header class="bg-white dark:bg-[#1a1c1e] border-b border-outline-variant/10 dark:border-slate-800/60 p-6 flex items-center justify-between no-print">
-            <div class="flex items-center gap-4">
-                <span class="material-symbols-outlined text-2xl text-primary dark:text-sky-400">edit_document</span>
-                <div>
-                    <h2 class="text-sm font-black text-on-surface dark:text-slate-200 uppercase tracking-wider">Kenya Revenue Authority (KRA)</h2>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phase 2 — Draft Evaluation Findings Canvas</p>
+        <div class="flex items-center gap-4">
+            <span class="material-symbols-outlined text-2xl text-primary dark:text-sky-400">rate_review</span>
+            <div>
+                <!-- Formal Corporate Audit Header Section Entity Title Block -->
+                <div class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                    <span class="material-symbols-outlined text-xs">domain</span>
+                    NAME OF THE ENTITY: <span class="text-on-surface dark:text-slate-300 font-extrabold ml-1">Sentinel</span>
                 </div>
+                <h2 class="text-sm font-black text-on-surface dark:text-slate-200 uppercase tracking-wider mt-0.5">AUDIT PLAN AND PROGRAM</h2>
             </div>
-            
-            <div class="flex items-center gap-3">
-                <label class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Target Execution Risk Line:</label>
-                <select id="sel-audit-target" onchange="handleTargetRiskSwitch(this.value)" class="bg-surface-container-low dark:bg-slate-900 border border-outline-variant/40 dark:border-slate-700 text-xs rounded-xl p-2 font-bold focus:outline-none max-w-sm">
-                    <!-- Dropdown selections are dynamically injected programmatically -->
-                </select>
-            </div>
-        </header>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <label class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Target Execution Risk Line:</label>
+            <select id="sel-audit-target" onchange="handleTargetRiskSwitch(this.value)" class="bg-surface-container-low dark:bg-slate-900 border border-outline-variant/40 dark:border-slate-700 text-xs rounded-xl p-2 font-bold focus:outline-none max-w-sm">
+                <!-- Dropdown selections are dynamically injected programmatically -->
+            </select>
+        </div>
+    </header>
 
         <div id="empty-draft-state" class="p-24 text-center flex flex-col items-center justify-center space-y-3 text-slate-400 hidden">
-            <span class="material-symbols-outlined text-6xl">article_off</span>
-            <h3 class="text-sm font-black uppercase tracking-wider">No Active Target Work Plan Lines Inherited</h3>
-            <p class="text-xs max-w-md">Please complete and verify initialization parameters inside Phase 1 Stage 3 before attempting draft narrative synthesis steps.</p>
-        </div>
+        <span class="material-symbols-outlined text-6xl">running_with_errors</span>
+        <h3 class="text-sm font-black uppercase tracking-wider">No Active Target Work Plan Lines Inherited</h3>
+        <p class="text-xs max-w-md">Please complete and verify initialization parameters inside Phase 1 Stage 3 before attempting draft reporting narrative compilation steps.</p>
+    </div>
 
-        <div id="active-draft-workspace" class="p-8 space-y-6 max-w-[1700px] w-full mx-auto">
-            
-            <section class="bg-white dark:bg-[#1a1c1e] rounded-2xl border border-outline-variant/20 dark:border-slate-800 p-6 space-y-6 shadow-sm">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-outline-variant/10 dark:border-slate-800/60 pb-4 gap-4">
-                    <div class="space-y-1">
-                        <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">KRA Internal Audit Department Framework</div>
-                        <h3 class="text-lg font-black uppercase tracking-wide text-primary dark:text-sky-400" id="lbl-pull-title">—</h3>
+    <div id="active-draft-workspace" class="p-8 space-y-6 max-w-[1700px] w-full mx-auto">
+        
+        <section class="bg-white dark:bg-[#1a1c1e] rounded-2xl border border-outline-variant/20 dark:border-slate-800 p-6 space-y-6 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-outline-variant/10 dark:border-slate-800/60 pb-4 gap-4">
+                <div class="space-y-2">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Performing &amp; Reporting Phase • Stage 2 Draft Canvas</div>
+                    
+                    <!-- Dynamic Pulled Information Layout Deck -->
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-xs pt-1">
+                        <div class="text-on-surface-variant dark:text-slate-400 font-medium">
+                            AUDIT AREA / TITLE: 
+                            <strong id="lbl-pull-title" class="text-primary dark:text-sky-400 font-black block uppercase text-sm mt-0.5">—</strong>
+                        </div>
+                        <div class="text-on-surface-variant dark:text-slate-400 font-medium">
+                            AUDITEE / DEPARTMENT / DIRECTORATE: 
+                            <strong id="lbl-pull-department" class="text-on-surface dark:text-slate-200 font-extrabold block uppercase mt-0.5">—</strong>
+                        </div>
+                        <div class="text-on-surface-variant dark:text-slate-400 font-medium sm:col-span-2 mt-1">
+                            AUDIT PERIOD: 
+                            <strong id="lbl-pull-period" class="text-slate-700 dark:text-slate-300 font-mono font-bold block mt-0.5">—</strong>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2 no-print">
-                        <button onclick="routeBackToAuditProgram()" class="px-4 py-2.5 text-xs font-black uppercase bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-on-surface dark:text-slate-200 rounded-xl transition-all flex items-center gap-1"><span class="material-symbols-outlined text-sm">arrow_back</span> Back to Plan</button>
-                        <button onclick="commitDraftWorkspaceState()" class="px-4 py-2.5 text-xs font-black uppercase bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-on-surface dark:text-slate-200 rounded-xl transition-all">Sync Cloud State</button>
-                        <button onclick="finalizeDraftAndProceedToFinalReport()" class="px-5 py-2.5 text-xs font-black uppercase bg-primary dark:bg-sky-500 text-white rounded-xl shadow transition-all flex items-center gap-1">Continue to Final Report <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
-                    </div>
-                                </div>
-
+                </div>
+                <div class="flex items-center gap-2 no-print self-start sm:self-center">
+                    <button onclick="window.routeBackToAuditProgram()" class="px-4 py-2.5 text-xs font-black uppercase bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-on-surface dark:text-slate-200 rounded-xl transition-all flex items-center gap-1"><span class="material-symbols-outlined text-sm">arrow_back</span> Back to Program</button>
+                    <button onclick="commitDraftWorkspaceState()" class="px-4 py-2.5 text-xs font-black uppercase bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-on-surface dark:text-slate-200 rounded-xl transition-all">Sync Cloud State</button>
+                    <button onclick="finalizeDraftAndProceedToFinalReport()" class="px-5 py-2.5 text-xs font-black uppercase bg-primary dark:bg-sky-500 text-white rounded-xl shadow transition-all flex items-center gap-1">Continue to Final Report <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+                </div>
+            </div>
                <!-- Executive Summary Input Canvas Block -->
 <div class="p-5 bg-surface-container-low/30 dark:bg-slate-900/10 rounded-xl border border-outline-variant/10 space-y-4">
     <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1">
@@ -191,33 +209,34 @@
                 </div>
                 <!-- Detailed Findings Matrix Grid Module Layer -->
                 <div class="space-y-4 pt-4">
-    <div class="flex items-center justify-between border-b border-outline-variant/10 pb-2">
-        <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1">
-            <span class="material-symbols-outlined text-sm">rule_folder</span> 9. Audit Findings, Recommendations & Management Responses
-        </h4>
-        <button onclick="addFindingMatrixRow()" class="inline-flex items-center gap-1 bg-primary text-white dark:bg-sky-500 text-[11px] font-black uppercase px-3 py-1.5 rounded-lg shadow hover:bg-primary-dark transition-all no-print">
-            <span class="material-symbols-outlined text-xs">add_circle</span> Add Detailed Finding
-        </button>
-    </div>
+    <div class="space-y-3 mt-6">
+                <div class="flex items-center justify-between border-b border-outline-variant/10 pb-2">
+                    <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">rule_folder</span> 9. Audit Findings, Recommendations &amp; Management Responses
+                    </h4>
+                    <button onclick="window.addFindingMatrixRow()" class="no-print px-3 py-1.5 text-[10px] font-black uppercase tracking-wider bg-slate-900 text-white dark:bg-slate-800 dark:text-slate-200 hover:opacity-90 rounded-lg flex items-center gap-1 transition-all">
+                        <span class="material-symbols-outlined text-xs">add_circle</span> Add Objective Track
+                    </button>
+                </div>
 
-    <div class="overflow-x-auto w-full border border-outline-variant/20 dark:border-slate-800 rounded-xl">
-        <table class="w-full min-w-[1400px] border-collapse text-left table-fixed">
-            <thead>
-                <tr class="bg-surface-container-low dark:bg-slate-900 border-b border-outline-variant/40 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-on-surface-variant dark:text-slate-400">
-                    <th class="p-3 w-12 text-center">S/N</th>
-                    <th class="p-3 w-64">Objective</th>
-                    <th class="p-3 w-1/3">Audit Findings (Observations & Breakdown Leads)</th>
-                    <th class="p-3 w-1/4">Audit Recommendations</th>
-                    <th class="p-3 w-1/4">Management Response Context</th>
-                    <th class="p-3 w-24 text-center no-print">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="tbl-findings-body">
-                <!-- Dynamic rows injected programmatically by controller -->
-            </tbody>
-        </table>
-    </div>
-</div>
+                <div class="overflow-x-auto w-full border border-outline-variant/20 dark:border-slate-800 rounded-xl">
+                    <table class="w-full min-w-[1750px] border-collapse text-left table-fixed">
+                        <thead>
+                            <tr class="bg-surface-container-low dark:bg-slate-900 border-b border-outline-variant/40 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-on-surface-variant dark:text-slate-400">
+                                <th class="p-3 w-12 text-center">S/N</th>
+                                <th class="p-3 w-72">Targeted Objective</th>
+                                <th class="p-3 w-[450px]">Audit Findings (Observations &amp; Breakdown Leads)</th>
+                                <th class="p-3 w-72">Audit Recommendations</th>
+                                <th class="p-3 w-[400px]">Management Response Context (Tied Per Observation)</th>
+                                <th class="p-3 w-28 text-center no-print">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-findings-body">
+                            <!-- Injected programmatically via structured nested dynamic row render loop maps -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
 
                 <!-- Dynamic Document Appendices Matrix -->

@@ -45,16 +45,17 @@ function renderPlanProgramWorkspace(data) {
     document.getElementById("lbl-pull-title").textContent = targetRow.auditAreaReplica || "—";
     document.getElementById("lbl-pull-department").textContent = targetRow.physicalItResources || "Operations / Infrastructure";
     document.getElementById("lbl-pull-period").textContent = `${targetRow.startDate || '—'} to ${targetRow.endDate || '—'}`;
-    
-    document.getElementById("lbl-pull-risks").textContent = targetRow.riskDescription || "—";
-    document.getElementById("lbl-pull-objectives").textContent = targetRow.auditObjectives || "—";
-    document.getElementById("lbl-pull-scope").textContent = targetRow.auditScopeBoundaries || "—";
     document.getElementById("lbl-pull-duration").textContent = `${targetRow.durationValue || 4} ${targetRow.scale || 'Weeks'}`;
 
-    // Populate textboxes with additional user background modifications
-    setTextAreaValWithoutFocusLoss("txt-add-risks", programState.risksAdditions || "");
-    setTextAreaValWithoutFocusLoss("txt-add-objectives", programState.auditObjectivesAdditions || "");
-    setTextAreaValWithoutFocusLoss("txt-add-scope", programState.auditScopeAdditions || "");
+    // --- CONSOLIDATED EDITABLE LOGIC ---
+    // If the user has saved an addition, use it. Otherwise, populate the textarea with the inherited Phase 1 value as default fallback text.
+    const riskContent = programState.risksAdditions || targetRow.riskDescription || "";
+    const objectiveContent = programState.auditObjectivesAdditions || targetRow.auditObjectives || "";
+    const scopeContent = programState.auditScopeAdditions || targetRow.auditScopeBoundaries || "";
+
+    setTextAreaValWithoutFocusLoss("txt-add-risks", riskContent);
+    setTextAreaValWithoutFocusLoss("txt-add-objectives", objectiveContent);
+    setTextAreaValWithoutFocusLoss("txt-add-scope", scopeContent);
     
     setTextAreaValWithoutFocusLoss("txt-intro-bg", programState.introductionBackground || "");
     setTextAreaValWithoutFocusLoss("txt-methodology", programState.methodology || "");
@@ -145,7 +146,6 @@ function renderProgramChecklistStepsTable(stepsArray, targetRow) {
         const tr = document.createElement("tr");
         tr.className = "border-b border-outline-variant/30 dark:border-slate-800 last:border-0 hover:bg-surface-container-low dark:hover:bg-slate-900/40 align-middle transition-colors";
         
-        // Fixed syntax error: removed rogue 'foreigners' keyword from the lead column
         tr.innerHTML = `
             <td class="p-3 text-center text-xs font-mono font-bold text-on-surface-variant">${index + 1}</td>
             <td class="p-2">${window.cellInput(`step-${index}-obj`, "Target Objective", step.obj || "")}</td>
@@ -216,6 +216,8 @@ async function removeChecklistStepRow(index) {
         alert("Cloud deletion error.");
     }
 }
+
+
 
 function saveChecklistStepRowInlineData(index, trElement) {
     const store = getAuditStore();

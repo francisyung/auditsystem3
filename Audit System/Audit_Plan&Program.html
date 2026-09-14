@@ -143,46 +143,62 @@
                 </div>
 
                 <!-- Strategic Context Parameter Narrative Entry Containers Grid Layout -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Text fields grid continues exactly as normal here... -->
+               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Text fields grid continues exactly as normal here... -->
 
-                    <div class="space-y-4">
-                        <div class="p-5 bg-surface-container-low/30 dark:bg-slate-900/10 rounded-xl border border-outline-variant/10 space-y-2">
-                            <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1"><span class="material-symbols-outlined text-sm">notes</span> 1. Introduction & Background Context</h4>
-                            <textarea id="txt-intro-bg" rows="4" placeholder="Enter historical or context background details..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
-                        </div>
-                        
-                                               <div class="p-5 bg-surface-container-low/30 dark:bg-slate-900/10 rounded-xl border border-outline-variant/10 space-y-2">
-                            <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1"><span class="material-symbols-outlined text-sm">gpp_maybe</span> 2. Inherited Risk Context Map</h4>
-                            <div class="p-3 bg-slate-50 dark:bg-[#0d0e10] rounded-lg border text-xs text-on-surface-variant dark:text-slate-400 min-h-[4rem]" id="lbl-pull-risks">—</div>
-                            <textarea id="txt-add-risks" rows="2" placeholder="Append additional threat context vectors here if needed..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-2 focus:outline-none"></textarea>
-                        </div>
+    <div class="space-y-4">
+        <!-- 1. Introduction & Background Context -->
+        <div class="p-5 bg-surface-container-low/30 dark:bg-slate-900/10 rounded-xl border border-outline-variant/10 space-y-2">
+            <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">notes</span> 1. Introduction & Background Context
+            </h4>
+            <textarea id="txt-intro-bg" rows="4" placeholder="Enter historical or context background details..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
+        </div>
+        
+        <!-- 2. Inherited Risk Context Map -->
+        <div class="p-5 bg-surface-container-low/30 dark:bg-slate-900/10 rounded-xl border border-outline-variant/10 space-y-2">
+            <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">gpp_maybe</span> 2. Inherited Risk Context Map
+            </h4>
+            <textarea id="txt-add-risks" rows="4" placeholder="Enter threat context vectors and inherited risks here..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
+        </div>
 
-                        <div class="p-5 bg-surface-container-low/30 dark:bg-slate-900/10 rounded-xl border border-outline-variant/10 space-y-2">
-                            <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1"><span class="material-symbols-outlined text-sm">playlist_add_check</span> 3. Core Evaluated Objectives Mandate</h4>
-                            <div class="p-3 bg-slate-50 dark:bg-[#0d0e10] rounded-lg border text-xs text-on-surface-variant dark:text-slate-400 min-h-[4rem]" id="lbl-pull-objectives">—</div>
-                            <textarea id="txt-add-objectives" rows="2" placeholder="Append localized sub-objectives..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-2 focus:outline-none"></textarea>
-                        </div>
-                    </div>
+        <!-- 3. Core Evaluated Objectives Mandate -->
+        <div class="p-5 bg-surface-container-low/30 dark:bg-slate-900/10 rounded-xl border border-outline-variant/10 space-y-2">
+            <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">playlist_add_check</span> 3. Core Evaluated Objectives Mandate
+            </h4>
+            <textarea id="txt-add-objectives" rows="4" placeholder="Enter core evaluated objectives and localized sub-objectives..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
+        </div>
+    </div>
 
-                    <div class="space-y-4">
-                        <div class="p-5 bg-surface-container-low/30 dark:bg-slate-900/10 rounded-xl border border-outline-variant/10 space-y-2">
-                            <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1"><span class="material-symbols-outlined text-sm">fullscreen_exit</span> 4. Boundaries of Execution Scope</h4>
-                            <div class="p-3 bg-slate-50 dark:bg-[#0d0e10] rounded-lg border text-xs text-on-surface-variant dark:text-slate-400 min-h-[4rem]" id="lbl-pull-scope">—</div>
-                            <textarea id="txt-add-scope" rows="2" placeholder="Append target sample size counts or physical location limits..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-2 focus:outline-none"></textarea>
-                        </div>
+    <div class="space-y-4">
+        <!-- 4. Boundaries of Execution Scope -->
+        <div class="p-5 bg-surface-container-low/30 dark:bg-slate-900/10 rounded-xl border border-outline-variant/10 space-y-2">
+            <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">fullscreen_exit</span> 4. Boundaries of Execution Scope
+            </h4>
+            <textarea id="txt-add-scope" rows="4" placeholder="Enter execution scope boundaries, target sample sizes, or physical location limits..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
+        </div>
 
-                        <div class="p-5 bg-surface-container-low/30 dark:bg-slate-900/10 rounded-xl border border-outline-variant/10 space-y-2">
-                            <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1"><span class="material-symbols-outlined text-sm">biotech</span> 5. Audit Methodology Strategy</h4>
-                            <textarea id="txt-methodology" rows="3" placeholder="Specify technical steps e.g. Data extraction scripts, code audits..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
-                        </div>
+        <!-- 5. Audit Methodology Strategy -->
+        <div class="p-5 bg-surface-container-low/30 dark:bg-slate-900/10 rounded-xl border border-outline-variant/10 space-y-2">
+            <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">biotech</span> 5. Audit Methodology Strategy
+            </h4>
+            <textarea id="txt-methodology" rows="3" placeholder="Specify technical steps e.g. Data extraction scripts, code audits..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
+        </div>
 
-                        <div class="p-5 bg-surface-container-low/30 dark:bg-slate-900/10 rounded-xl border border-outline-variant/10 space-y-2">
-                            <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1"><span class="material-symbols-outlined text-sm">fact_check</span> 6. Benchmark Evaluation Criteria Standards</h4>
-                            <textarea id="txt-benchmarks" rows="3" placeholder="List regulatory controls, legislative frameworks, internal service levels..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
-                        </div>
-                    </div>
-                </div>
+        <!-- 6. Benchmark Evaluation Criteria Standards -->
+        <div class="p-5 bg-surface-container-low/30 dark:bg-slate-900/10 rounded-xl border border-outline-variant/10 space-y-2">
+            <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">fact_check</span> 6. Benchmark Evaluation Criteria Standards
+            </h4>
+            <textarea id="txt-benchmarks" rows="3" placeholder="List regulatory controls, legislative frameworks, internal service levels..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-primary"></textarea>
+        </div>
+    </div>
+</div>
+
 
                 <div class="space-y-4 pt-4">
                     <div class="flex items-center justify-between border-b border-outline-variant/10 pb-2">
@@ -248,6 +264,6 @@
     </main>
 
     <script type="module" src="shared_store.js"></script>
-    <script src="Audit_Plan&Program.js"></script>
+    <script src="plan_program_controller.js"></script>
 </body>
 </html>
