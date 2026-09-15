@@ -64,7 +64,7 @@
     </style>  
 
     <!-- Linked Brain Database Layer Router -->  
-    <script defer src="shared_store.js"></script>  
+    <script type="module" src="shared_store.js"></script>  
 </head>  
 <body class="bg-surface dark:bg-[#111315] text-on-surface dark:text-slate-100 flex flex-col md:flex-row min-h-screen">  
 
@@ -283,80 +283,82 @@
     </main>  
 
     <script>  
-        document.addEventListener("DOMContentLoaded", () => {
-            if (window.Theme) {
-                window.Theme.init();
-            }
-            renderFollowUpWorkspace();
-        });
-
-        function renderFollowUpWorkspace() {
-            const store = window.AuditStore;
-            if (!store || !store.current) return;
-
-            // Extract planning baseline elements
-            const p = store.current.planning;
-            document.getElementById("ui-entity-header").textContent = p.entityName || "Kenya Revenue Authority (KRA)";
-            document.getElementById("ui-ref-area").textContent = `${p.auditRefNumber || 'AUD-2026-000'} — ${p.auditArea || 'Unassigned Area'}`;
-            document.getElementById("ui-risk-level").textContent = p.riskLevel || "LOW (L)";
-            document.getElementById("ui-auditee-dept").textContent = p.auditeeDepartment || "General Administration";
-            document.getElementById("ui-audit-dates").textContent = `${p.auditStartDate || '—'} to ${p.auditEndDate || '—'}`;
-
-            // Initialize storage vectors if unallocated
-            if (!store.current.followUp) {
-                store.current.followUp = {
-                    rows: [],
-                    approval: { name: "", designation: "", sign: "", date: "" }
-                };
-            }
-
-            // Synchronize findings matrices back from Stage 3 
-            const finalRowsList = store.current.final.managementResponseRows || [];
-            const followUpRowsList = store.current.followUp.rows || [];
-
-            // Re-map rows to secure baseline data persistence structures
-            const synchronizedRows = finalRowsList.map((finalRow, index) => {
-                const existingFuRow = followUpRowsList[index] || {};
-                return {
-                    objective: finalRow.objective || "—",
-                    findings: finalRow.findings || "—",
-                    recommendations: finalRow.recommendations || "—",
-                    managementAction: finalRow.managementAction || "—",
-                    implementationTimeline: finalRow.implementationTimeline || "—",
-                    responsiblePerson: finalRow.responsiblePerson || "—",
-                    // Interactive configurations properties mapping
-                    statusOfImplementation: existingFuRow.statusOfImplementation || "Not Implemented",
-                    evidenceAttachmentName: existingFuRow.evidenceAttachmentName || "",
-                    justificationText: existingFuRow.justificationText || "",
-                    auditRemarks: existingFuRow.auditRemarks || "Open",
-                    extendedTimeline: existingFuRow.extendedTimeline || ""
-                };
-            });
-
-            store.current.followUp.rows = synchronizedRows;
-
-            // Render view layout matrices rows loop mapping
-            const tbody = document.getElementById("tbl-followup-body");
-            tbody.innerHTML = "";
-
-            synchronizedRows.forEach((row, index) => {
-                injectFollowUpRowMarkup(index, row);
-            });
-
-            // Re-populate signatures block parameters
-            const sigs = store.current.followUp.approval;
-            if (sigs) {
-                document.getElementById("fu-auth-name").value = sigs.name || "";
-                document.getElementById("fu-auth-desig").value = sigs.designation || "";
-                document.getElementById("fu-auth-sign").value = sigs.sign || "";
-                document.getElementById("fu-auth-date").value = sigs.date || "";
-            }
-
-            // Trigger equations engine check pass variables
-            recalculateImplementationFormula();
+         document.addEventListener("DOMContentLoaded", () => {
+        if (window.Theme) {
+            window.Theme.init();
         }
 
-        function injectFollowUpRowMarkup(idx, data = {}) {
+        // Live cloud listener hook subscription pipeline
+        if (window.AuditStore) {
+            window.AuditStore.subscribeToAudit((snapshotData) => {
+                if (snapshotData) {
+                    // Pull active targeted line item row index pointers
+                    let cloudIndex = snapshotData?.phase1_planning?.selectedExecutionId;
+                    if (cloudIndex !== undefined && cloudIndex !== null) {
+                        activeTargetIndex = parseInt(cloudIndex);
+                    }
+                    // Pass the fresh database snapshot layer downstream to build layout
+                    renderFollowUpWorkspace(snapshotData);
+                }
+            });
+        }
+    });
+
+      function renderFollowUpWorkspace(data) {
+        if (!data) return;
+
+        // Fallback tracking checks both the nested and direct document properties roots
+        const workPlanList = data?.phase1_planning?.workPlan || data?.workPlan || [];
+        const universeList = data?.phase1_planning?.universe || data?.universe || [];
+        
+        const draftState = data?.phase2_performing?.draftReport || data?.draftReport || {};
+        const followUpState = data?.phase2_performing?.followUpReport || data?.followUpReport || {};
+        
+        // Clear empty state layouts if items are safely matched
+        if (workPlanList.length === 0) {
+            document.getElementById("empty-followup-state")?.classList.remove("hidden");
+            document.getElementById("active-followup-workspace")?.classList.add("hidden");
+            return;
+        }
+        
+        document.getElementById("empty-followup-state")?.classList.add("hidden");
+        document.getElementById("active-followup-workspace")?.classList.remove("hidden");
+        
+        const targetRow = workPlanList[activeTargetIndex] || workPlanList[0];
+        if (!targetRow) return;
+
+        // --- PIPELINE INHERITANCE: RESOLVE DATA & CORRELATE STRINGS ---
+        const auditTitle = targetRow.auditAreaReplica || "Untitled Scope Area Assignment";
+        let resolvedDepartment = "Operations / General Management";
+        const rowRefSuffix = targetRow.refNumber ? targetRow.refNumber.split('-').pop() : "";
+        const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === rowRefSuffix);
+        if (matchedUniverseItem && matchedUniverseItem.processOwner) {
+            resolvedDepartment = matchedUniverseItem.processOwner;
+        }
+        const resolvedPeriodTimeline = `${targetRow.startDate || '—'} to ${targetRow.endDate || '—'} (${targetRow.durationValue || 4} ${targetRow.scale || 'Weeks'})`;
+
+        // --- FIX: MAP TO TARGET UI ATTRIBUTE LABELS ON THE NEW FORM PAGE ---
+        const uiTitle = document.getElementById("ui-ref-area");
+        if (uiTitle) uiTitle.textContent = auditTitle.toUpperCase();
+
+        const uiDept = document.getElementById("ui-auditee-dept");
+        if (uiDept) uiDept.textContent = resolvedDepartment.toUpperCase();
+
+        const uiPeriod = document.getElementById("ui-audit-dates");
+        if (uiPeriod) uiPeriod.textContent = resolvedPeriodTimeline;
+
+        // --- SECURE AUTHORIZATION SIGN-OFF PARAMETERS ---
+        setInputValWithoutFocusLoss("txt-follow-officer", followUpState.authorizerName || "");
+        setInputValWithoutFocusLoss("txt-follow-title", followUpState.authorizerTitle || "Head of Internal Audit");
+        setInputValWithoutFocusLoss("txt-follow-token", followUpState.secureToken || "");
+        setInputValWithoutFocusLoss("txt-follow-timestamp", followUpState.timestamp || "");
+
+        // --- RENDER DYNAMIC FOLLOW-UP TRACKING MATRIX CONTAINER ---
+        if (typeof renderFollowUpMatrixTable === 'function') {
+            renderFollowUpMatrixTable(draftState.findings || [], followUpState.remediationMetrics || {});
+        }
+    }
+     function injectFollowUpRowMarkup(idx, data = {}) {
             const tbody = document.getElementById("tbl-followup-body");
             const tr = document.createElement("tr");
             tr.className = "border-b border-outline-variant/30 dark:border-slate-800 last:border-0 hover:bg-surface-container-low dark:hover:bg-slate-900/40 align-top transition-colors";
@@ -459,7 +461,10 @@
             store.current.followUp.rows[idx].auditRemarks = remarkValue;
             renderFollowUpWorkspace();
         }
-
+function setInputValWithoutFocusLoss(elementId, textValue) {
+        const el = document.getElementById(elementId);
+        if (el && !el.matches(':focus')) el.value = textValue;
+    }
         function recalculateImplementationFormula() {
             const store = window.AuditStore;
             if (!store || !store.current) return;

@@ -87,49 +87,74 @@
     </aside>
 
     <!-- Primary Layout Content View Container -->
-    <main class="flex-1 flex flex-col overflow-y-auto bg-surface dark:bg-[#0d0e10]">
-        
-        <header class="bg-white dark:bg-[#1a1c1e] border-b border-outline-variant/10 dark:border-slate-800/60 p-6 flex items-center justify-between no-print">
-            <div class="flex items-center gap-4">
-                <span class="material-symbols-outlined text-2xl text-emerald-600 dark:text-emerald-400">verified</span>
-                <div>
-                    <h2 class="text-sm font-black text-on-surface dark:text-slate-200 uppercase tracking-wider">Kenya Revenue Authority (KRA)</h2>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phase 2 — Executive Sign-Off & Circulation Review</p>
+   <main class="flex-1 flex flex-col overflow-y-auto bg-surface dark:bg-[#0d0e10]">
+    
+    <header class="bg-white dark:bg-[#1a1c1e] border-b border-outline-variant/10 dark:border-slate-800/60 p-6 flex items-center justify-between no-print">
+        <div class="flex items-center gap-4">
+            <span class="material-symbols-outlined text-2xl text-primary dark:text-sky-400">gavel</span>
+            <div>
+                <!-- Formal Corporate Audit Header Section Entity Title Block -->
+                <div class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                    <span class="material-symbols-outlined text-xs">domain</span>
+                    NAME OF THE ENTITY: <span class="text-on-surface dark:text-slate-300 font-extrabold ml-1">Sentinel</span>
                 </div>
+                <h2 class="text-sm font-black text-on-surface dark:text-slate-200 uppercase tracking-wider mt-0.5">FINAL AUDIT REPORT</h2>
             </div>
-            
-            <div class="flex items-center gap-3">
-                <label class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Target Execution Risk Line:</label>
-                <select id="sel-audit-target" onchange="handleTargetRiskSwitch(this.value)" class="bg-surface-container-low dark:bg-slate-900 border border-outline-variant/40 dark:border-slate-700 text-xs rounded-xl p-2 font-bold focus:outline-none max-w-sm">
-                    <!-- Dropdown selections are dynamically injected programmatically -->
-                </select>
-            </div>
-        </header>
-
-        <div id="empty-final-state" class="p-24 text-center flex flex-col items-center justify-center space-y-3 text-slate-400 hidden">
-            <span class="material-symbols-outlined text-6xl">gavel</span>
-            <h3 class="text-sm font-black uppercase tracking-wider">No Active Target Work Plan Lines Inherited</h3>
-            <p class="text-xs max-w-md">Please complete and verify initialization parameters inside Phase 1 Stage 3 before performing corporate validation reviews.</p>
         </div>
+        
+        <div class="flex items-center gap-3">
+            <label class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Target Execution Risk Line:</label>
+            <select id="sel-audit-target" onchange="handleTargetRiskSwitch(this.value)" class="bg-surface-container-low dark:bg-slate-900 border border-outline-variant/40 dark:border-slate-700 text-xs rounded-xl p-2 font-bold focus:outline-none max-w-sm">
+                <!-- Dropdown selections are dynamically injected programmatically -->
+            </select>
+        </div>
+    </header>
 
-        <div id="active-final-workspace" class="p-8 space-y-6 max-w-[1700px] w-full mx-auto">
-            
-            <section class="bg-white dark:bg-[#1a1c1e] rounded-2xl border border-outline-variant/20 dark:border-slate-800 p-6 space-y-6 shadow-sm">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-outline-variant/10 dark:border-slate-800/60 pb-4 gap-4">
-                    <div class="space-y-1">
-                        <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">KRA Internal Audit Department Framework</div>
-                        <h3 class="text-lg font-black uppercase tracking-wide text-primary dark:text-sky-400" id="lbl-pull-title">—</h3>
-                        <div class="text-xs font-semibold text-on-surface-variant dark:text-slate-400 flex flex-wrap items-center gap-x-4 gap-y-1">
-                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">corporate_fare</span> Department: <strong id="lbl-pull-department">—</strong></span>
-                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> Audit Period: <strong id="lbl-pull-period">—</strong></span>
+    <div id="empty-final-state" class="p-24 text-center flex flex-col items-center justify-center space-y-3 text-slate-400 hidden">
+        <span class="material-symbols-outlined text-6xl">running_with_errors</span>
+        <h3 class="text-sm font-black uppercase tracking-wider">No Active Target Work Plan Lines Inherited</h3>
+        <p class="text-xs max-w-md">Please complete and verify initialization parameters inside Phase 1 Stage 3 before performing corporate validation reviews.</p>
+    </div>
+
+    <div id="active-final-workspace" class="p-8 space-y-6 max-w-[1700px] w-full mx-auto">
+        
+        <section class="bg-white dark:bg-[#1a1c1e] rounded-2xl border border-outline-variant/20 dark:border-slate-800 p-6 space-y-6 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-outline-variant/10 dark:border-slate-800/60 pb-4 gap-4">
+                <div class="space-y-2">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Performing &amp; Reporting Phase • Stage 3 Executive Review</div>
+                    
+                    <!-- Dynamic Pulled Information Layout Deck -->
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-xs pt-1">
+                        <div class="text-on-surface-variant dark:text-slate-400 font-medium">
+                            AUDIT AREA / TITLE: 
+                            <strong id="lbl-pull-title" class="text-primary dark:text-sky-400 font-black block uppercase text-sm mt-0.5">—</strong>
+                        </div>
+                        <div class="text-on-surface-variant dark:text-slate-400 font-medium">
+                            AUDITEE / DEPARTMENT / DIRECTORATE: 
+                            <strong id="lbl-pull-department" class="text-on-surface dark:text-slate-200 font-extrabold block uppercase mt-0.5">—</strong>
+                        </div>
+                        <div class="text-on-surface-variant dark:text-slate-400 font-medium sm:col-span-2 mt-1">
+                            AUDIT PERIOD: 
+                            <strong id="lbl-pull-period" class="text-slate-700 dark:text-slate-300 font-mono font-bold block mt-0.5">—</strong>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 no-print">
-                        <button onclick="routeBackToDraftWorkspace()" class="px-4 py-2.5 text-xs font-black uppercase bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-on-surface dark:text-slate-200 rounded-xl transition-all flex items-center gap-1"><span class="material-symbols-outlined text-sm">arrow_back</span> Back to Draft</button>
-                        <button onclick="commitFinalWorkspaceState()" class="px-4 py-2.5 text-xs font-black uppercase bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-on-surface dark:text-slate-200 rounded-xl transition-all flex items-center gap-1"><span class="material-symbols-outlined text-sm">save</span> Save Framework</button>
-                        <button onclick="triggerSystemPrintLayout()" class="px-5 py-2.5 text-xs font-black uppercase bg-primary dark:bg-sky-500 text-white rounded-xl shadow transition-all flex items-center gap-1"><span class="material-symbols-outlined text-sm">print</span> Print / Export PDF</button>
-                    </div>
                 </div>
+               <div class="flex items-center gap-2 no-print self-start sm:self-center">
+    <!-- Preserved Back and Save Options -->
+    <button onclick="window.routeBackToDraftWorkspace()" class="px-4 py-2.5 text-xs font-black uppercase bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-on-surface dark:text-slate-200 rounded-xl transition-all flex items-center gap-1">
+        <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Draft
+    </button>
+    <button onclick="commitFinalWorkspaceState()" class="px-4 py-2.5 text-xs font-black uppercase bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-on-surface dark:text-slate-200 rounded-xl transition-all">
+        Save Framework
+    </button>
+    
+    <!-- NEW ACTION TRIGGER: Launches remediation execution follow-up phase tracker lifecycle canvas -->
+    <button onclick="window.finalizeFinalReportAndProceedToFollowUp()" class="px-5 py-2.5 text-xs font-black uppercase bg-primary dark:bg-sky-500 text-white rounded-xl shadow hover:opacity-95 transition-all flex items-center gap-1">
+        Circulate to Follow-up <span class="material-symbols-outlined text-sm">published_with_changes</span>
+    </button>
+</div>
+
+            </div>
                 <!-- Read-Only Executive Summary Narrative Display Card -->
                 <div class="p-5 bg-surface-container-low/30 dark:bg-slate-900/10 rounded-xl border border-outline-variant/10 space-y-2">
                     <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1">
@@ -175,38 +200,35 @@
                     </div>
                 </div>
                 <!-- Detailed Findings Adequacy Verification Grid Module -->
-                <div class="space-y-4 pt-4">
-                    <div class="flex items-center justify-between border-b border-outline-variant/10 pb-2">
-                        <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">fact_check</span> 9. Management Response Adequacy Evaluation Matrix
-                        </h4>
-                        <!-- Reactive Validation Global Status Notification Banner Banner -->
-                        <div id="banner-validation-status" class="px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider text-center">
-                            Evaluating Status...
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto w-full border border-outline-variant/20 dark:border-slate-800 rounded-xl">
-                        <table class="w-full min-w-[1400px] border-collapse text-left table-fixed">
-                            <thead>
-                                <tr class="bg-surface-container-low dark:bg-slate-900 border-b border-outline-variant/40 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-on-surface-variant dark:text-slate-400">
-                                    <th class="p-3 w-12 text-center">S/N</th>
-                                    <th class="p-3 w-72">Evaluated Core Objective</th>
-                                    <th class="p-3 w-1/3">Observations & Gaps Summary</th>
-                                    <th class="p-3 w-1/4">Audit Recommendations</th>
-                                    <th class="p-3 w-1/4">Management Response Context</th>
-                                    <th class="p-3 w-48 select-none">Response Evaluation</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbl-final-findings-body">
-                                <!-- Dynamic verification tracks programmatically injected by controller -->
-                            </tbody>
-                        </table>
-                        <div id="empty-verification-row" class="p-8 text-center text-xs text-slate-400 italic hidden">
-                            No draft report observations mapped to verify. Add findings in Stage 2 first.
-                        </div>
-                    </div>
+                <!-- Section 9: Management Response Adequacy Evaluation Matrix -->
+            <div class="space-y-3 mt-6">
+                <div class="flex items-center justify-between border-b border-outline-variant/10 pb-2">
+                    <h4 class="text-xs font-black uppercase text-primary dark:text-sky-400 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">fact_check</span> 9. Audit Findings, Recommendations &amp; Management Responses
+                    </h4>
+                    <!-- Real-Time Evaluation Status Pill Banner -->
+                    <div id="banner-validation-status" class="text-[10px] font-black px-3 py-1 rounded-lg uppercase tracking-wider">Evaluating Status...</div>
                 </div>
+
+                <div class="overflow-x-auto w-full border border-outline-variant/20 dark:border-slate-800 rounded-xl">
+                    <table class="w-full min-w-[1750px] border-collapse text-left table-fixed">
+                        <thead>
+                            <tr class="bg-surface-container-low dark:bg-slate-900 border-b border-outline-variant/40 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-on-surface-variant dark:text-slate-400">
+                                <th class="p-3 w-12 text-center">S/N</th>
+                                <th class="p-3 w-64">Evaluated Core Objective</th>
+                                <th class="p-3 w-[500px]">Observations &amp; Gaps Summary</th>
+                                <th class="p-3 w-64">Audit Recommendations</th>
+                                <th class="p-3 w-[450px]">Management Response Context</th>
+                                <th class="p-3 w-36 text-center">Response Evaluation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-final-findings-body">
+                            <!-- Injected programmatically via structured nested dynamic row loops -->
+                        </tbody>
+                    </table>
+                    <div id="empty-verification-row" class="p-8 text-center text-xs text-slate-400 italic hidden">No draft report observations mapped to verify. Add findings in Stage 2 first.</div>
+                </div>
+            </div>
 
                 <!-- Document Appendices Reference View Layer Grid -->
                 <div class="space-y-4 pt-4">
@@ -280,6 +302,6 @@
     </main>
 
     <script type="module" src="shared_store.js"></script>
-    <script src="Final_Audit_Report_controller.js"></script>
+    <script src="final_report_controller.js"></script>
 </body>
 </html>
