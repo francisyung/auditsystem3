@@ -25,10 +25,14 @@ document.addEventListener("DOMContentLoaded", () => {
 /**
  * Parses cloud snapshots to load baseline variables and interactive lists
  */
+/**
+ * Parses cloud snapshots to load isolated variables and metrics safely without data blending
+ */
 function renderDraftReportWorkspace(data) {
     const workPlanList = data?.phase1_planning?.workPlan || [];
     const universeList = data?.phase1_planning?.universe || [];
-    const draftState = data?.phase2_performing?.draftReport || {};
+    const planProgram = data?.phase2_performing?.planProgram || {};
+    const draftReport = data?.phase2_performing?.draftReport || {};
     
     if (workPlanList.length === 0) {
         document.getElementById("empty-draft-state")?.classList.remove("hidden");
@@ -42,13 +46,27 @@ function renderDraftReportWorkspace(data) {
     // Populate targeted selectable risk lines in the dropdown filter
     populateTargetRiskSelector(workPlanList);
 
-    // Isolate active target row parameters
+    // Isolate active target row parameters safely
     const targetRow = workPlanList[activeTargetIndex] || workPlanList[0];
+    const refNum = targetRow.refNumber;
+
+    // --- NEW FIXED ISOLATION BUCKET LOGIC FOR DRAFT REPORT ---
+    if (!draftReport.audits) draftReport.audits = {};
+    if (!draftReport.audits[refNum]) {
+        draftReport.audits[refNum] = {
+            executiveSummarySegments: { introduction: "", objectives: "", findings: "", conclusion: "" },
+            findings: [],
+            appendices: []
+        };
+    }
+    const draftState = draftReport.audits[refNum];
+
+    // --- NEW FIXED RESOLUTION FOR PULLING FROM PREVIOUS PAGE'S ISOLATED STATE ---
+    const previousProgramState = planProgram.audits?.[refNum] || {};
 
     // --- ENHANCED PIPELINE INHERITANCE: RESOLVE DYNAMIC HEADER BANNERS ---
     const auditTitle = targetRow.auditAreaReplica || "Untitled Scope Area Assignment";
     
-    // Cross-reference department from universe using row index suffix matching
     let resolvedDepartment = "Operations / General Management";
     const rowRefSuffix = targetRow.refNumber ? targetRow.refNumber.split('-').pop() : "";
     const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === rowRefSuffix);
@@ -56,12 +74,10 @@ function renderDraftReportWorkspace(data) {
         resolvedDepartment = matchedUniverseItem.processOwner;
     }
 
-    // Generate period timeline string representation
     const startStr = targetRow.startDate || "Not Scheduled";
     const endStr = targetRow.endDate || "Not Scheduled";
     const resolvedPeriodTimeline = `${startStr} to ${endStr} (${targetRow.durationValue || 4} ${targetRow.scale || 'Weeks'})`;
 
-    // Dynamic Header Label Canvas Population
     const lblTitle = document.getElementById("lbl-pull-title");
     if (lblTitle) lblTitle.textContent = auditTitle.toUpperCase();
 
@@ -71,29 +87,29 @@ function renderDraftReportWorkspace(data) {
     const lblPeriod = document.getElementById("lbl-pull-period");
     if (lblPeriod) lblPeriod.textContent = resolvedPeriodTimeline;
 
-    // --- READ-ONLY READOUT TILES MATRIX DECK ---
+    // --- FIXED: READ-ONLY READOUT TILES NOW MAPPED FROM THE PREVIOUS STAGE'S ISOLATED BUCKET ---
     const lblBg = document.getElementById("lbl-pull-bg");
-    if (lblBg) lblBg.textContent = data?.phase2_performing?.planProgram?.introductionBackground || "—";
+    if (lblBg) lblBg.textContent = previousProgramState.introductionBackground || "—";
     
     const lblRisks = document.getElementById("lbl-pull-risks");
-    if (lblRisks) lblRisks.textContent = targetRow.riskDescription || "—";
+    if (lblRisks) lblRisks.textContent = previousProgramState.risksAdditions || targetRow.riskDescription || "—";
     
     const lblObjProfile = document.getElementById("lbl-pull-objectives");
-    if (lblObjProfile) lblObjProfile.textContent = targetRow.auditObjectives || "—";
+    if (lblObjProfile) lblObjProfile.textContent = previousProgramState.auditObjectivesAdditions || targetRow.auditObjectives || "—";
     
     const lblScope = document.getElementById("lbl-pull-scope");
-    if (lblScope) lblScope.textContent = targetRow.auditScopeBoundaries || "—";
+    if (lblScope) lblScope.textContent = previousProgramState.auditScopeAdditions || targetRow.auditScopeBoundaries || "—";
     
     const lblMethodology = document.getElementById("lbl-pull-methodology");
-    if (lblMethodology) lblMethodology.textContent = data?.phase2_performing?.planProgram?.methodology || "—";
+    if (lblMethodology) lblMethodology.textContent = previousProgramState.methodology || "—";
     
     const lblCriteria = document.getElementById("lbl-pull-criteria");
-    if (lblCriteria) lblCriteria.textContent = data?.phase2_performing?.planProgram?.evaluationCriteria || "—";
+    if (lblCriteria) lblCriteria.textContent = previousProgramState.evaluationCriteria || "—";
     
     const lblDuration = document.getElementById("lbl-pull-duration");
     if (lblDuration) lblDuration.textContent = `${targetRow.durationValue || 4} ${targetRow.scale || 'Weeks'}`;
 
-    // --- POPULATE EXECUTIVE SUMMARY SEGMENTS CANVAS AREAS ---
+    // --- POPULATE ISOLATED EXECUTIVE SUMMARY SEGMENTS ---
     const segments = draftState.executiveSummarySegments || {};
     setTextAreaValWithoutFocusLoss("txt-exec-intro",      segments.introduction || "");
     setTextAreaValWithoutFocusLoss("txt-exec-objectives", segments.objectives || "");
@@ -108,10 +124,11 @@ function renderDraftReportWorkspace(data) {
     setInputValWithoutFocusLoss("sign-auth-name", draftState.authorizerName || "");
     setInputValWithoutFocusLoss("sign-auth-date", draftState.authorizerDate || "");
 
-    // --- RENDER DYNAMIC RESTURCTURED TABLES ---
+    // --- RENDER DYNAMIC RESTURCTURED TABLES (WITH ISOLATED BOUNDED OBJECT MAPS) ---
     renderFindingsMatrixTable(draftState.findings || [], targetRow);
     renderAppendicesMatrixTable(draftState.appendices || []);
 }
+
 
 function setTextAreaValWithoutFocusLoss(elementId, textValue) {
     const el = document.getElementById(elementId);
@@ -310,46 +327,58 @@ function renderFindingsMatrixTable(findingsArray, targetRow) {
  */
 window.updateObjectiveBlockText = function(objIdx, valueText) {
     const store = window.AuditStore;
-    if (store?.current?.phase2_performing?.draftReport?.findings?.[objIdx]) {
-        store.current.phase2_performing.draftReport.findings[objIdx].objective = valueText;
+    if (!store?.current) return;
+    const targetRow = store.current.phase1_planning?.workPlan?.[activeTargetIndex];
+    if (!targetRow) return;
+
+    const findings = store.current.phase2_performing?.draftReport?.audits?.[targetRow.refNumber]?.findings;
+    if (findings?.[objIdx]) {
+        findings[objIdx].objective = valueText;
+        store.save(); // Continuous real-time synchronization save
     }
 };
 
 window.updateObservationSubNodeField = function(objIdx, obsIdx, fieldKey, valText) {
     const store = window.AuditStore;
-    const findings = store?.current?.phase2_performing?.draftReport?.findings;
+    if (!store?.current) return;
+    const targetRow = store.current.phase1_planning?.workPlan?.[activeTargetIndex];
+    if (!targetRow) return;
+
+    const findings = store.current.phase2_performing?.draftReport?.audits?.[targetRow.refNumber]?.findings;
     if (findings?.[objIdx]?.observations?.[obsIdx]) {
         findings[objIdx].observations[obsIdx][fieldKey] = valText;
+        store.save();
     }
 };
 
 window.addObservationSubNodeRow = function(objIdx) {
     const store = window.AuditStore;
-    const findings = store?.current?.phase2_performing?.draftReport?.findings;
+    if (!store?.current) return;
+    const targetRow = store.current.phase1_planning?.workPlan?.[activeTargetIndex];
+    if (!targetRow) return;
+
+    const findings = store.current.phase2_performing?.draftReport?.audits?.[targetRow.refNumber]?.findings;
     if (findings?.[objIdx]) {
         if (!findings[objIdx].observations) findings[objIdx].observations = [];
         findings[objIdx].observations.push({
-            observation: "", 
-            standard: "", 
-            practice: "", 
-            rootCause: "", 
-            implications: "",
-            recommendations: "", 
-            mgmtAction: "", 
-            mgmtTimeline: "", 
-            mgmtResponsible: "",
-            attachedFileName: "", 
-            attachedFileDataBase64: ""
+            observation: "", standard: "", practice: "", rootCause: "", implications: "", recommendations: "", 
+            mgmtAction: "", mgmtTimeline: "", mgmtResponsible: "", attachedFileName: "", attachedFileDataBase64: ""
         });
+        store.save();
         renderDraftReportWorkspace(store.current);
     }
 };
 
 window.removeObservationSubNodeRow = function(objIdx, obsIdx) {
     const store = window.AuditStore;
-    const findings = store?.current?.phase2_performing?.draftReport?.findings;
+    if (!store?.current) return;
+    const targetRow = store.current.phase1_planning?.workPlan?.[activeTargetIndex];
+    if (!targetRow) return;
+
+    const findings = store.current.phase2_performing?.draftReport?.audits?.[targetRow.refNumber]?.findings;
     if (findings?.[objIdx]?.observations) {
         findings[objIdx].observations.splice(obsIdx, 1);
+        store.save();
         renderDraftReportWorkspace(store.current);
     }
 };
@@ -358,30 +387,29 @@ window.addFindingMatrixRow = function() {
     const store = window.AuditStore;
     if (!store || !store.current) return;
     
-    if (!store.current.phase2_performing) store.current.phase2_performing = {};
-    if (!store.current.phase2_performing.draftReport) store.current.phase2_performing.draftReport = {};
+    const targetRow = store.current.phase1_planning.workPlan[activeTargetIndex];
+    if (!targetRow) return;
+
+    const refNum = targetRow.refNumber;
+    const draftReport = store.current.phase2_performing.draftReport;
     
-    const findings = store.current.phase2_performing.draftReport.findings || [];
-    const targetRow = store.current.phase1_planning.workPlan[activeTargetIndex] || {};
+    if (!draftReport.audits) draftReport.audits = {};
+    if (!draftReport.audits[refNum]) draftReport.audits[refNum] = { findings: [], appendices: [] };
+    
+    const findings = draftReport.audits[refNum].findings || [];
     
     findings.push({
         objective: targetRow.auditObjectives || "New Target Objective Mandate Track Statement",
         observations: [
             {
-                observation: "", 
-                standard: "", 
-                practice: "", 
-                rootCause: "", 
-                implications: "",
-                recommendations: "", 
-                mgmtAction: "", 
-                mgmtTimeline: "", 
-                mgmtResponsible: ""
+                observation: "", standard: "", practice: "", rootCause: "", implications: "", recommendations: "", 
+                mgmtAction: "", mgmtTimeline: "", mgmtResponsible: ""
             }
         ]
     });
     
-    store.current.phase2_performing.draftReport.findings = findings;
+    draftReport.audits[refNum].findings = findings;
+    store.save();
     renderDraftReportWorkspace(store.current);
 };
 
@@ -389,9 +417,33 @@ window.removeWholeObjectiveBlockRow = async function(objIdx) {
     const store = window.AuditStore;
     if (!store || !store.current) return;
     
-    store.current.phase2_performing.draftReport.findings.splice(objIdx, 1);
-    renderDraftReportWorkspace(store.current);
+    const targetRow = store.current.phase1_planning.workPlan[activeTargetIndex];
+    if (!targetRow) return;
+
+    const findings = store.current.phase2_performing.draftReport.audits?.[targetRow.refNumber]?.findings;
+    if (findings) {
+        findings.splice(objIdx, 1);
+        store.save();
+        renderDraftReportWorkspace(store.current);
+    }
 };
+
+function saveAppendicesInlineData(index, trElement) {
+    const store = window.AuditStore;
+    if (!store || !store.current) return;
+
+    const targetRow = store.current.phase1_planning.workPlan[activeTargetIndex];
+    if (!targetRow) return;
+
+    const app = store.current.phase2_performing.draftReport.audits?.[targetRow.refNumber]?.appendices?.[index];
+    if (!app) return;
+
+    app.ref = trElement.querySelector(`[name="app-${index}-ref"]`).value;
+    app.title = trElement.querySelector(`[name="app-${index}-title"]`).value;
+    app.hash = trElement.querySelector(`[name="app-${index}-hash"]`).value;
+    
+    store.save();
+}
 
 /**
  * Renders the Document Appendices Reference Matrix sub-table
@@ -427,12 +479,20 @@ window.addAppendixMatrixRow = function() {
     const store = window.AuditStore;
     if (!store || !store.current) return;
     
-    if (!store.current.phase2_performing.draftReport.appendices) {
-        store.current.phase2_performing.draftReport.appendices = [];
-    }
-    const appendices = store.current.phase2_performing.draftReport.appendices;
+    const targetRow = store.current.phase1_planning.workPlan[activeTargetIndex];
+    if (!targetRow) return;
+
+    const refNum = targetRow.refNumber;
+    const draftReport = store.current.phase2_performing.draftReport;
+
+    if (!draftReport.audits) draftReport.audits = {};
+    if (!draftReport.audits[refNum]) draftReport.audits[refNum] = { findings: [], appendices: [] };
+    if (!draftReport.audits[refNum].appendices) draftReport.audits[refNum].appendices = [];
+
+    const appendices = draftReport.audits[refNum].appendices;
     appendices.push({ ref: `APP-0${appendices.length + 1}`, title: "", hash: "" });
     
+    store.save();
     renderAppendicesMatrixTable(appendices);
 };
 
@@ -440,21 +500,17 @@ window.removeAppendixRow = async function(index) {
     const store = window.AuditStore;
     if (!store || !store.current) return;
     
-    store.current.phase2_performing.draftReport.appendices.splice(index, 1);
-    renderDraftReportWorkspace(store.current);
+    const targetRow = store.current.phase1_planning.workPlan[activeTargetIndex];
+    if (!targetRow) return;
+
+    const appendices = store.current.phase2_performing.draftReport.audits?.[targetRow.refNumber]?.appendices;
+    if (appendices) {
+        appendices.splice(index, 1);
+        store.save();
+        renderDraftReportWorkspace(store.current);
+    }
 };
 
-function saveAppendicesInlineData(index, trElement) {
-    const store = window.AuditStore;
-    if (!store || !store.current) return;
-
-    const app = store.current.phase2_performing.draftReport.appendices[index];
-    if (!app) return;
-
-    app.ref = trElement.querySelector(`[name="app-${index}-ref"]`).value;
-    app.title = trElement.querySelector(`[name="app-${index}-title"]`).value;
-    app.hash = trElement.querySelector(`[name="app-${index}-hash"]`).value;
-}
 
 /**
  * Syncs workspace inputs up to centralized Firestore schema collections
@@ -463,7 +519,13 @@ async function commitDraftWorkspaceState() {
     const store = window.AuditStore;
     if (!store || !store.current) return;
 
-    const draftState = store.current.phase2_performing.draftReport;
+    const targetRow = store.current.phase1_planning.workPlan[activeTargetIndex];
+    if (!targetRow) return;
+
+    const draftReport = store.current.phase2_performing.draftReport;
+    const draftState = draftReport.audits?.[targetRow.refNumber];
+    
+    if (!draftState) return;
     if (!draftState.executiveSummarySegments) {
         draftState.executiveSummarySegments = {};
     }

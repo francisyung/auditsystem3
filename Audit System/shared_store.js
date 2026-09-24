@@ -173,11 +173,20 @@ class CloudAuditStoreManager {
     }
 
 
-    async updateRiskRegister(riskRowsArray) {
-        if (!this.current) return;
-        this.current.phase1_planning.riskRegister = riskRowsArray;
-        await this.save();
+    async  updateRiskRegister(riskRowsArray) {
+    if (!this.current) return;
+    
+    // Prevent accidental wipeout optimizations if the array arrives empty 
+    // but a populated snapshot layer already securely exists in memory cache.
+    if ((!riskRowsArray || riskRowsArray.length === 0) && 
+        (this.current.phase1_planning?.riskRegister?.length > 0)) {
+        console.warn("⚠️ Blocked a potential state-wipe race condition during cloud initialization boot.");
+        return;
     }
+    
+    this.current.phase1_planning.riskRegister = riskRowsArray;
+    await this.save();
+}
 
     async updateWorkPlan(workPlanRowsArray, runningBudgetTotal, approvalMinutes, approvalDate) {
         if (!this.current) return;

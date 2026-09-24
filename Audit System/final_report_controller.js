@@ -26,12 +26,15 @@ document.addEventListener("DOMContentLoaded", () => {
 /**
  * Parses cloud snapshots to load baseline data metrics and corporate verification states
  */
+/**
+ * Parses cloud snapshots to load baseline data metrics and corporate verification states safely without data blending
+ */
 function renderFinalReportWorkspace(data) {
     const workPlanList = data?.phase1_planning?.workPlan || [];
     const universeList = data?.phase1_planning?.universe || [];
-    const planState = data?.phase2_performing?.planProgram || {};
-    const draftState = data?.phase2_performing?.draftReport || {};
-    const finalState = data?.phase2_performing?.finalReport || {};
+    const planProgram = data?.phase2_performing?.planProgram || {};
+    const draftReport = data?.phase2_performing?.draftReport || {};
+    const finalReport = data?.phase2_performing?.finalReport || {};
     
     if (workPlanList.length === 0) {
         document.getElementById("empty-final-state")?.classList.remove("hidden");
@@ -45,14 +48,27 @@ function renderFinalReportWorkspace(data) {
     // Populate targeted selectable risk lines in the dropdown filter
     populateTargetRiskSelector(workPlanList);
 
-    // Isolate active target row parameters
+    // Isolate active target row parameters safely
     const targetRow = workPlanList[activeTargetIndex] || workPlanList[0];
     if (!targetRow) return;
+    
+    const refNum = targetRow.refNumber;
+
+    // --- NEW FIXED ISOLATION BUCKETS LOGIC FOR BOTH PREVIOUS & CURRENT STATES ---
+    const previousProgramState = planProgram.audits?.[refNum] || {};
+    const previousDraftState   = draftReport.audits?.[refNum] || {};
+
+    if (!finalReport.audits) finalReport.audits = {};
+    if (!finalReport.audits[refNum]) {
+        finalReport.audits[refNum] = {
+            verificationFlags: {}
+        };
+    }
+    const finalState = finalReport.audits[refNum];
 
     // --- PIPELINE INHERITANCE: RESOLVE DYNAMIC HEADER BANNERS ---
     const auditTitle = targetRow.auditAreaReplica || "Untitled Scope Area Assignment";
     
-    // Cross-reference department from universe using row index suffix matching
     let resolvedDepartment = "Operations / General Management";
     const rowRefSuffix = targetRow.refNumber ? targetRow.refNumber.split('-').pop() : "";
     const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === rowRefSuffix);
@@ -60,7 +76,6 @@ function renderFinalReportWorkspace(data) {
         resolvedDepartment = matchedUniverseItem.processOwner;
     }
 
-    // Generate period timeline string representation
     const startStr = targetRow.startDate || "Not Scheduled";
     const endStr = targetRow.endDate || "Not Scheduled";
     const resolvedPeriodTimeline = `${startStr} to ${endStr} (${targetRow.durationValue || 4} ${targetRow.scale || 'Weeks'})`;
@@ -75,16 +90,32 @@ function renderFinalReportWorkspace(data) {
     const lblPeriod = document.getElementById("lbl-pull-period");
     if (lblPeriod) lblPeriod.textContent = resolvedPeriodTimeline;
     
-    // Core Read-Only Narrative Synthesis Boards
-    const execSummaryIntro = draftState.executiveSummarySegments?.introduction || draftState.executiveSummary || "";
-    document.getElementById("lbl-pull-summary").textContent = execSummaryIntro || "No executive summary overview introduction declarations recorded.";
-    document.getElementById("lbl-pull-bg").textContent = planState.introductionBackground || "—";
-    document.getElementById("lbl-pull-risks").textContent = targetRow.riskDescription || "—";
-    document.getElementById("lbl-pull-objectives").textContent = targetRow.auditObjectives || "—";
-    document.getElementById("lbl-pull-scope").textContent = targetRow.auditScopeBoundaries || "—";
-    document.getElementById("lbl-pull-methodology").textContent = planState.methodology || "—";
-    document.getElementById("lbl-pull-criteria").textContent = planState.evaluationCriteria || "—";
-    document.getElementById("lbl-pull-duration").textContent = `${targetRow.durationValue || 4} ${targetRow.scale || 'Weeks'}`;
+    // --- FIXED: READ-ONLY NARRATIVES MAPPED FROM THE ISOLATED PARENT OBJECT BUCKETS ---
+    const execSummaryIntro = previousDraftState.executiveSummarySegments?.introduction || "—";
+    
+    const lblSummary = document.getElementById("lbl-pull-summary");
+    if (lblSummary) lblSummary.textContent = execSummaryIntro;
+
+    const lblBg = document.getElementById("lbl-pull-bg");
+    if (lblBg) lblBg.textContent = previousProgramState.introductionBackground || "—";
+
+    const lblRisks = document.getElementById("lbl-pull-risks");
+    if (lblRisks) lblRisks.textContent = previousProgramState.risksAdditions || targetRow.riskDescription || "—";
+
+    const lblObjProfile = document.getElementById("lbl-pull-objectives");
+    if (lblObjProfile) lblObjProfile.textContent = previousProgramState.auditObjectivesAdditions || targetRow.auditObjectives || "—";
+
+    const lblScope = document.getElementById("lbl-pull-scope");
+    if (lblScope) lblScope.textContent = previousProgramState.auditScopeAdditions || targetRow.auditScopeBoundaries || "—";
+
+    const lblMethodology = document.getElementById("lbl-pull-methodology");
+    if (lblMethodology) lblMethodology.textContent = previousProgramState.methodology || "—";
+
+    const lblCriteria = document.getElementById("lbl-pull-criteria");
+    if (lblCriteria) lblCriteria.textContent = previousProgramState.evaluationCriteria || "—";
+
+    const lblDuration = document.getElementById("lbl-pull-duration");
+    if (lblDuration) lblDuration.textContent = `${targetRow.durationValue || 4} ${targetRow.scale || 'Weeks'}`;
 
     // --- SECURE AUTHORIZATION SIGN-OFF PARAMETERS ---
     setInputValWithoutFocusLoss("txt-auth-officer", finalState.authorizerName || "");
@@ -93,9 +124,10 @@ function renderFinalReportWorkspace(data) {
     setInputValWithoutFocusLoss("txt-auth-timestamp", finalState.timestamp || "");
 
     // --- RENDER DYNAMIC VERIFICATION GRID AND APPENDICES ---
-    renderFindingsVerificationGrid(draftState.findings || [], finalState.verificationFlags || {}, targetRow);
-    renderAppendicesReferenceGrid(draftState.appendices || []);
+    renderFindingsVerificationGrid(previousDraftState.findings || [], finalState.verificationFlags || {}, targetRow);
+    renderAppendicesReferenceGrid(previousDraftState.appendices || []);
 }
+
 
 function setInputValWithoutFocusLoss(elementId, textValue) {
     const el = document.getElementById(elementId);
@@ -236,16 +268,22 @@ window.updateFindingAdequacyFlagInline = function(compositeFlagKey, selectedFlag
     const store = window.AuditStore;
     if (!store || !store.current) return;
 
-    if (!store.current.phase2_performing.finalReport.verificationFlags) {
-        store.current.phase2_performing.finalReport.verificationFlags = {};
+    const targetRow = store.current.phase1_planning?.workPlan?.[activeTargetIndex];
+    if (!targetRow) return;
+
+    const finalReport = store.current.phase2_performing.finalReport;
+    if (!finalReport.audits) finalReport.audits = {};
+    if (!finalReport.audits[targetRow.refNumber]) {
+        finalReport.audits[targetRow.refNumber] = { verificationFlags: {} };
     }
     
     // Set adequacy tracking data inside the dynamic map context identifier
-    store.current.phase2_performing.finalReport.verificationFlags[compositeFlagKey] = selectedFlagValue;
+    finalReport.audits[targetRow.refNumber].verificationFlags[compositeFlagKey] = selectedFlagValue;
     
     // Loop verification loops map layers to toggle lock switches reactively
-    const findings = store.current.phase2_performing.draftReport.findings || [];
-    const flagsMap = store.current.phase2_performing.finalReport.verificationFlags;
+    const previousDraftState = store.current.phase2_performing.draftReport.audits?.[targetRow.refNumber] || {};
+    const findings = previousDraftState.findings || [];
+    const flagsMap = finalReport.audits[targetRow.refNumber].verificationFlags;
     let hasInadequateFlag = false;
     
     findings.forEach((findingBlock, objIdx) => {
@@ -259,6 +297,7 @@ window.updateFindingAdequacyFlagInline = function(compositeFlagKey, selectedFlag
     });
 
     updateGlobalValidationStatusBanner(hasInadequateFlag);
+    store.save(); // Continuous live auto-saving
 };
 
 /**
@@ -319,10 +358,16 @@ async function commitFinalWorkspaceState() {
     const store = window.AuditStore;
     if (!store || !store.current) return;
 
-    if (!store.current.phase2_performing.finalReport) {
-        store.current.phase2_performing.finalReport = {};
+    const targetRow = store.current.phase1_planning?.workPlan?.[activeTargetIndex];
+    if (!targetRow) return;
+
+    const finalReport = store.current.phase2_performing.finalReport;
+    if (!finalReport.audits) finalReport.audits = {};
+    if (!finalReport.audits[targetRow.refNumber]) {
+        finalReport.audits[targetRow.refNumber] = { verificationFlags: {} };
     }
-    const finalState = store.current.phase2_performing.finalReport;
+    
+    const finalState = finalReport.audits[targetRow.refNumber];
     
     finalState.authorizerName = document.getElementById("txt-auth-officer").value;
     finalState.authorizerTitle = document.getElementById("txt-auth-title").value;

@@ -319,35 +319,55 @@ async function commitNewUniverseAsset(event) {
 /**
  * Pipelines selected data keys into Phase 1, Stage 2
  */
+/**
+ * Pipelines selected data keys into Phase 1, Stage 2 safely without wiping edits
+ */
 async function commitSelectionAndProceed() {
     const store = window.AuditStore;
     if (!store || !store.current || selectedUniverseKeys.size === 0) return;
 
     const fullUniverse = store.current.phase1_planning.universe || [];
     
+    // Get whatever edits already safely exist inside your database
+    const existingRiskRegister = store.current.phase1_planning.riskRegister || [];
+    
     // Filter matching data structures out of inventory
     const filteredSelection = fullUniverse.filter(item => selectedUniverseKeys.has(item.serialNo));
 
-    // Map selection items into Risk Assessment placeholder rows structure
-    const initialRiskRows = filteredSelection.map(item => ({
-        riskId: `RISK-${item.serialNo.split('-').pop()}`,
-        riskIdentification: "",
-        riskDescription: `Vulnerability audit mapped for scope item: ${item.auditArea}`,
-        riskCauses: "",
-        riskCategory: "IT",
-        existingControls: "",
-        likelihood: "1",
-        impact: "1",
-        riskScore: 1,
-        riskOwner: item.processOwner,
-        department: "Operations",
-        isCommittedToPlan: false
-    }));
+    // Map selection items, keeping old edits if they exist!
+    const updatedRiskRows = filteredSelection.map(item => {
+        const targetRiskId = `RISK-${item.serialNo.split('-').pop()}`;
+        
+        // Check if this risk already has saved data in the database
+        const preExistingRecord = existingRiskRegister.find(r => r.riskId === targetRiskId);
+        
+        if (preExistingRecord) {
+            // Keep the user's edits completely intact!
+            return preExistingRecord;
+        }
+
+        // Only create a blank placeholder if it's a brand-new selection
+        return {
+            riskId: targetRiskId,
+            riskIdentification: "",
+            riskDescription: `: ${item.auditArea}`,
+            riskCauses: "",
+            riskCategory: "IT",
+            existingControls: "",
+            likelihood: "1",
+            impact: "1",
+            riskScore: 1,
+            riskOwner: item.processOwner,
+            department: "Operations",
+            isCommittedToPlan: false
+        };
+    });
 
     try {
-        await store.updateRiskRegister(initialRiskRows);
+        await store.updateRiskRegister(updatedRiskRows);
         window.location.href = "risk-assessment.html";
     } catch(err) {
         alert("Failed to advance stages due to secure cloud connection timeouts.");
     }
 }
+

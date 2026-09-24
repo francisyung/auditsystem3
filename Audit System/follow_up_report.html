@@ -283,244 +283,308 @@
     </main>  
 
     <script>  
-         document.addEventListener("DOMContentLoaded", () => {
-        if (window.Theme) {
-            window.Theme.init();
-        }
+      /**
+ * Sentinel Core Follow-Up Audit Report Controller Module
+ * Handles multi-tenant row isolation tracking, real-time math equations index, 
+ * evidence logs persistence, and closure approvals for Phase 3.
+ */
 
-        // Live cloud listener hook subscription pipeline
-        if (window.AuditStore) {
-            window.AuditStore.subscribeToAudit((snapshotData) => {
-                if (snapshotData) {
-                    // Pull active targeted line item row index pointers
-                    let cloudIndex = snapshotData?.phase1_planning?.selectedExecutionId;
-                    if (cloudIndex !== undefined && cloudIndex !== null) {
-                        activeTargetIndex = parseInt(cloudIndex);
-                    }
-                    // Pass the fresh database snapshot layer downstream to build layout
-                    renderFollowUpWorkspace(snapshotData);
-                }
+// Track index targeting the specific active audit line row from Phase 1
+let activeTargetIndex = 0;
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (window.Theme) window.Theme.init();
+    
+    // Connect live cloud listener subscription hook
+    if (window.AuditStore) {
+        window.AuditStore.subscribeToAudit((snapshotData) => {
+            let cloudIndex = snapshotData?.phase1_planning?.selectedExecutionId;
+            if (cloudIndex !== undefined && cloudIndex !== null) {
+                activeTargetIndex = parseInt(cloudIndex);
+            }
+            renderFollowUpWorkspace(snapshotData);
+        });
+    }
+});
+
+/**
+ * Main Controller Workflow Renderer
+ */
+/**
+ * Main Controller Workflow Renderer (Hardened Layout Population)
+ */
+/**
+ * Main Controller Workspace Content Frame Renderer (Fully Formatted Alignment Block)
+ */
+function renderFollowUpWorkspace(data) {
+    const workPlanList = data?.phase1_planning?.workPlan || [];
+    const universeList = data?.phase1_planning?.universe || [];
+    const planProgram  = data?.phase2_performing?.planProgram || {};
+    const draftReport  = data?.phase2_performing?.draftReport || {};
+    const followupRoot = data?.phase3_followup || {};
+
+    if (workPlanList.length === 0) {
+        console.warn("⚠️ No active planning rows loaded from cloud database matrix.");
+        return;
+    }
+
+    // Isolate active target row parameters safely
+    const targetRow = workPlanList[activeTargetIndex] || workPlanList[0];
+    if (!targetRow) return;
+    
+    const refNum = targetRow.refNumber;
+
+    // --- PIPELINE DATA INHERITANCE MAPS ---
+    const previousProgramState = planProgram.audits?.[refNum] || {};
+    const previousDraftState   = draftReport.audits?.[refNum] || {};
+
+    // --- PHASE 3 REMEDIATION ISOLATION LAYER ---
+    if (!followupRoot.audits) followupRoot.audits = {};
+    if (!followupRoot.audits[refNum]) {
+        followupRoot.audits[refNum] = {
+            rows: [],
+            approval: { name: "", designation: "", token: "", date: "" }
+        };
+    }
+    const followupState = followupRoot.audits[refNum];
+
+    // --- HEADER BANNERS INJECTION ROUTINES ---
+    let resolvedDepartment = "Operations / General Management";
+    const rowRefSuffix = refNum ? refNum.split('-').pop() : "";
+    const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === rowRefSuffix);
+    if (matchedUniverseItem && matchedUniverseItem.processOwner) {
+        resolvedDepartment = matchedUniverseItem.processOwner;
+    }
+
+    const titleText = (targetRow.auditAreaReplica || "—").toUpperCase();
+    const deptText  = resolvedDepartment.toUpperCase();
+    const periodText = `${targetRow.startDate || '—'} to ${targetRow.endDate || '—'}`;
+
+    // --- TARGET MATCHING ELEMENT SELECTORS (UPDATED ACCORDING TO HTML FILE DEFINITIONS) ---
+    const elTitle = document.getElementById("ui-ref-area") || document.getElementById("lbl-pull-title");
+    if (elTitle) elTitle.textContent = titleText;
+
+    const elDept = document.getElementById("ui-auditee-dept") || document.getElementById("lbl-pull-department");
+    if (elDept) elDept.textContent = deptText;
+
+    const elPeriod = document.getElementById("ui-audit-dates") || document.getElementById("lbl-pull-period");
+    if (elPeriod) elPeriod.textContent = periodText;
+
+    // --- POPULATE CLOSURE SIGN-OFF VALUES ---
+    const approval = followupState.approval || {};
+    setInputValWithoutFocusLoss("txt-app-name", approval.name || "");
+    setInputValWithoutFocusLoss("txt-app-title", approval.designation || "");
+    setInputValWithoutFocusLoss("txt-app-token", approval.token || "");
+    setInputValWithoutFocusLoss("txt-app-date", approval.date || "");
+
+    // --- GENERATE AND SYNC REMEDIATION TRACKS MATRIX ---
+    const findings = previousDraftState.findings || [];
+    const trackingRows = [];
+
+    findings.forEach((block, objIdx) => {
+        const obsArray = block.observations || [];
+        obsArray.forEach((obsNode, obsIdx) => {
+            const compositeKey = `${objIdx}_${obsIdx}`;
+            
+            let preExistingFollowupRow = followupState.rows?.find(r => r.key === compositeKey);
+            
+            if (!preExistingFollowupRow) {
+                preExistingFollowupRow = {
+                    key: compositeKey,
+                    statusOfImplementation: "Not Implemented",
+                    evidenceText: "",
+                    auditRemarks: "Open",
+                    extendedTimeline: ""
+                };
+            }
+
+            trackingRows.push({
+                objective: block.objective || "—",
+                observation: obsNode.observation || "—",
+                recommendation: obsNode.recommendations || "—",
+                mgmtAction: obsNode.mgmtAction || "—",
+                mgmtTimeline: obsNode.mgmtTimeline || "—",
+                mgmtResponsible: obsNode.mgmtResponsible || "—",
+                attachedFileName: obsNode.attachedFileName || "",
+                followupData: preExistingFollowupRow
             });
-        }
+        });
     });
 
-      function renderFollowUpWorkspace(data) {
-        if (!data) return;
+    followupState.rows = trackingRows.map(r => r.followupData);
 
-        // Fallback tracking checks both the nested and direct document properties roots
-        const workPlanList = data?.phase1_planning?.workPlan || data?.workPlan || [];
-        const universeList = data?.phase1_planning?.universe || data?.universe || [];
-        
-        const draftState = data?.phase2_performing?.draftReport || data?.draftReport || {};
-        const followUpState = data?.phase2_performing?.followUpReport || data?.followUpReport || {};
-        
-        // Clear empty state layouts if items are safely matched
-        if (workPlanList.length === 0) {
-            document.getElementById("empty-followup-state")?.classList.remove("hidden");
-            document.getElementById("active-followup-workspace")?.classList.add("hidden");
-            return;
-        }
-        
-        document.getElementById("empty-followup-state")?.classList.add("hidden");
-        document.getElementById("active-followup-workspace")?.classList.remove("hidden");
-        
-        const targetRow = workPlanList[activeTargetIndex] || workPlanList[0];
-        if (!targetRow) return;
-
-        // --- PIPELINE INHERITANCE: RESOLVE DATA & CORRELATE STRINGS ---
-        const auditTitle = targetRow.auditAreaReplica || "Untitled Scope Area Assignment";
-        let resolvedDepartment = "Operations / General Management";
-        const rowRefSuffix = targetRow.refNumber ? targetRow.refNumber.split('-').pop() : "";
-        const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === rowRefSuffix);
-        if (matchedUniverseItem && matchedUniverseItem.processOwner) {
-            resolvedDepartment = matchedUniverseItem.processOwner;
-        }
-        const resolvedPeriodTimeline = `${targetRow.startDate || '—'} to ${targetRow.endDate || '—'} (${targetRow.durationValue || 4} ${targetRow.scale || 'Weeks'})`;
-
-        // --- FIX: MAP TO TARGET UI ATTRIBUTE LABELS ON THE NEW FORM PAGE ---
-        const uiTitle = document.getElementById("ui-ref-area");
-        if (uiTitle) uiTitle.textContent = auditTitle.toUpperCase();
-
-        const uiDept = document.getElementById("ui-auditee-dept");
-        if (uiDept) uiDept.textContent = resolvedDepartment.toUpperCase();
-
-        const uiPeriod = document.getElementById("ui-audit-dates");
-        if (uiPeriod) uiPeriod.textContent = resolvedPeriodTimeline;
-
-        // --- SECURE AUTHORIZATION SIGN-OFF PARAMETERS ---
-        setInputValWithoutFocusLoss("txt-follow-officer", followUpState.authorizerName || "");
-        setInputValWithoutFocusLoss("txt-follow-title", followUpState.authorizerTitle || "Head of Internal Audit");
-        setInputValWithoutFocusLoss("txt-follow-token", followUpState.secureToken || "");
-        setInputValWithoutFocusLoss("txt-follow-timestamp", followUpState.timestamp || "");
-
-        // --- RENDER DYNAMIC FOLLOW-UP TRACKING MATRIX CONTAINER ---
-        if (typeof renderFollowUpMatrixTable === 'function') {
-            renderFollowUpMatrixTable(draftState.findings || [], followUpState.remediationMetrics || {});
-        }
-    }
-     function injectFollowUpRowMarkup(idx, data = {}) {
-            const tbody = document.getElementById("tbl-followup-body");
-            const tr = document.createElement("tr");
-            tr.className = "border-b border-outline-variant/30 dark:border-slate-800 last:border-0 hover:bg-surface-container-low dark:hover:bg-slate-900/40 align-top transition-colors";
-            
-            // Layout status background color assignments rules definitions
-            let statusStyleBadge = "bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300";
-            if (data.statusOfImplementation === "Implemented") statusStyleBadge = "bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-300";
-            if (data.statusOfImplementation === "Partially Implemented") statusStyleBadge = "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300";
-
-            tr.innerHTML = `
-                <td class="p-3 text-center text-xs font-bold text-on-surface-variant dark:text-slate-400 bg-surface-container-low/40 dark:bg-slate-900/20">${idx + 1}</td>
-                <td class="p-3 text-xs font-medium text-on-surface-variant dark:text-slate-400 whitespace-pre-wrap">${window.escapeAttr(data.objective)}</td>
-                <td class="p-3 text-xs font-medium text-on-surface dark:text-slate-300 whitespace-pre-wrap">${window.escapeAttr(data.findings)}</td>
-                <td class="p-3 text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-pre-wrap">${window.escapeAttr(data.recommendations)}</td>
-                
-                <td class="p-3 text-xs space-y-1 bg-slate-50/50 dark:bg-slate-900/30">
-                    <div><span class="text-[9px] font-black uppercase text-slate-400">Action:</span> <span class="font-medium text-on-surface-variant dark:text-slate-300">${window.escapeAttr(data.managementAction)}</span></div>
-                    <div><span class="text-[9px] font-black uppercase text-slate-400">Timeline:</span> <span class="font-semibold text-slate-600 dark:text-slate-400">${window.escapeAttr(data.implementationTimeline)}</span></div>
-                    <div><span class="text-[9px] font-black uppercase text-slate-400">Owner:</span> <span class="font-medium text-slate-500">${window.escapeAttr(data.responsiblePerson)}</span></div>
-                </td>
-
-                <td class="p-2 bg-sky-50/10 dark:bg-sky-950/5">
-                    <select onchange="updateImplementationStatusField(${idx}, this.value)" class="w-full text-xs font-bold rounded-lg border-outline-variant/40 dark:border-slate-700 bg-white dark:bg-[#0d0e10] focus:ring-primary ${statusStyleBadge}">
-                        <option value="Not Implemented" ${data.statusOfImplementation === 'Not Implemented' ? 'selected' : ''}>❌ Not Implemented</option>
-                        <option value="Partially Implemented" ${data.statusOfImplementation === 'Partially Implemented' ? 'selected' : ''}>⚠️ Partially Implemented</option>
-                        <option value="Implemented" ${data.statusOfImplementation === 'Implemented' ? 'selected' : ''}>✅ Implemented</option>
-                    </select>
-                </td>
-
-                               <td class="p-2" id="conditional-cell-${idx}">
-                    <!-- Injected dynamically via script function below -->
-                </td>
-
-                <td class="p-2 space-y-2 text-center">
-                    <div class="flex items-center justify-center gap-1.5">
-                        <button onclick="toggleAuditRemarksField(${idx}, 'Closed')" class="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-l-md border transition-all ${data.auditRemarks === 'Closed' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white dark:bg-[#0d0e10] text-slate-400 border-outline-variant/30'}">Closed</button>
-                        <button onclick="toggleAuditRemarksField(${idx}, 'Open')" class="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-r-md border transition-all ${data.auditRemarks === 'Open' ? 'bg-rose-600 text-white border-rose-600' : 'bg-white dark:bg-[#0d0e10] text-slate-400 border-outline-variant/30'}">Open</button>
-                    </div>
-                    
-                    <div id="extension-wrapper-${idx}" class="space-y-1 ${data.auditRemarks === 'Closed' ? 'hidden' : ''}">
-                        <span class="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-left pl-1">Extension Target Date</span>
-                        <input type="text" name="extended_timeline" value="${window.escapeAttr(data.extendedTimeline)}" placeholder="e.g. 31/12/2026" class="w-full bg-surface dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-1.5 focus:ring-1 focus:ring-primary focus:outline-none">
-                    </div>
-                </td>
-            `;
-            tbody.appendChild(tr);
-
-            // Inject inner conditional items configuration logs
-            renderInnerConditionalCellElements(idx, data);
-        }
-
-        function renderInnerConditionalCellElements(idx, data) {
-            const container = document.getElementById(`conditional-cell-${idx}`);
-            if (!container) return;
-            container.innerHTML = "";
-
-            if (data.statusOfImplementation === "Implemented") {
-                container.innerHTML = `
-                    <div class="space-y-1.5">
-                        <span class="block text-[9px] font-black uppercase text-green-600 tracking-wider">Attachment Log Registry</span>
-                        <div class="flex items-center gap-2">
-                            <input type="text" name="evidence_val" value="${window.escapeAttr(data.evidenceAttachmentName)}" placeholder="e.g. Evidence_Document.pdf" class="flex-1 bg-surface dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs rounded-lg p-1.5 focus:ring-1 focus:ring-primary focus:outline-none font-mono">
-                            <button onclick="alert('Simulation: Core binary stream registry committed to browser document storage context! 📎')" class="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 no-print">
-                                <span class="material-symbols-outlined text-sm">upload_file</span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = `
-                    <div class="space-y-1">
-                        <span class="block text-[9px] font-black uppercase text-amber-600 tracking-wider">Remediation Delays Justification Text</span>
-                        <textarea name="justification_val" rows="2" placeholder="Provide reason for delayed parameter implementation..." class="w-full bg-surface dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 text-on-surface dark:text-slate-200 rounded-lg focus:ring-primary focus:border-primary text-xs p-1.5">${window.escapeAttr(data.justificationText)}</textarea>
-                    </div>
-                `;
-            }
-        }
-
-        function updateImplementationStatusField(idx, statusValue) {
-            const store = window.AuditStore;
-            if (!store) return;
-
-            syncFollowUpInputsToStore();
-            store.current.followUp.rows[idx].statusOfImplementation = statusValue;
-            
-            if (statusValue === "Implemented") {
-                store.current.followUp.rows[idx].auditRemarks = "Closed";
-            } else {
-                store.current.followUp.rows[idx].auditRemarks = "Open";
-            }
-
-            renderFollowUpWorkspace();
-        }
-
-        function toggleAuditRemarksField(idx, remarkValue) {
-            const store = window.AuditStore;
-            if (!store) return;
-
-            syncFollowUpInputsToStore();
-            store.current.followUp.rows[idx].auditRemarks = remarkValue;
-            renderFollowUpWorkspace();
-        }
+    // --- RENDER WORKSPACE CALCULATIONS TABLE & METRICS ---
+    renderFollowUpMatrixGridTable(trackingRows, refNum);
+    calculateRemediationIndexMetrics(trackingRows);
+}
 function setInputValWithoutFocusLoss(elementId, textValue) {
-        const el = document.getElementById(elementId);
-        if (el && !el.matches(':focus')) el.value = textValue;
+    const el = document.getElementById(elementId);
+    if (el && !el.matches(':focus')) el.value = textValue;
+}
+
+/**
+ * Builds table grid dynamically using isolated dataset components
+ */
+/**
+ * Builds table grid dynamically using isolated dataset components
+ */
+function renderFollowUpMatrixGridTable(trackingRows, refNum) {
+    const tbody = document.getElementById("tbl-followup-body");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    if (trackingRows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-xs text-slate-400 italic">No historical validation entries available for follow up loops.</td></tr>`;
+        return;
     }
-        function recalculateImplementationFormula() {
-            const store = window.AuditStore;
-            if (!store || !store.current) return;
 
-            const rows = store.current.followUp.rows || [];
-            const totalCount = rows.length;
+    trackingRows.forEach((row, index) => {
+        const tr = document.createElement("tr");
+        tr.className = "border-b border-slate-200 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-900/40 align-top text-xs transition-colors";
+        
+        const fd = row.followupData;
+
+        tr.innerHTML = `
+            <td class="p-3 text-center font-mono font-bold text-slate-400 align-middle bg-slate-50/40 dark:bg-slate-900/10 w-12">${index + 1}</td>
+            <td class="p-3 font-medium text-slate-600 dark:text-slate-400 max-w-xs">${window.escapeAttr(row.objective)}</td>
+            <td class="p-3 font-semibold text-slate-800 dark:text-slate-200 max-w-xs">
+                <div>${window.escapeAttr(row.observation)}</div>
+                ${row.attachedFileName ? `<div class="mt-1 text-[10px] text-sky-500 font-mono">📎 Paper: \${window.escapeAttr(row.attachedFileName)}</div>` : ''}
+            </td>
+            <td class="p-3 text-slate-600 dark:text-slate-400 max-w-xs">${window.escapeAttr(row.recommendation)}</td>
+            <td class="p-3 bg-slate-50/30 dark:bg-slate-950/5 max-w-xs">
+                <div class="italic text-slate-500">${window.escapeAttr(row.mgmtAction)}</div>
+                <div class="text-[10px] text-slate-400 mt-1">Owner: ${window.escapeAttr(row.mgmtResponsible)} | By: ${window.escapeAttr(row.mgmtTimeline)}</div>
+            </td>
             
-            const closedCount = rows.filter(r => r.auditRemarks === "Closed").length;
+            <!-- Follow-up Option Selection Dropdown -->
+            <td class="p-2 w-44">
+                <select name="row-${fd.key}-status" onchange="updateFollowUpInlineField('${refNum}', '${fd.key}', 'statusOfImplementation', this.value)"
+                        class="w-full text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0d0e10] p-1.5 focus:outline-none focus:border-sky-500 cursor-pointer">
+                    <option value="Not Implemented" ${fd.statusOfImplementation === 'Not Implemented' ? 'selected' : ''}>❌ Not Implemented</option>
+                    <option value="Partially Implemented" ${fd.statusOfImplementation === 'Partially Implemented' ? 'selected' : ''}>⚡ Partially Implemented</option>
+                    <option value="Implemented" ${fd.statusOfImplementation === 'Implemented' ? 'selected' : ''}>✅ Implemented / Closed</option>
+                </select>
+            </td>
+            
+            <!-- Evidence Reference Log Input Box -->
+            <td class="p-2 min-w-[200px]">
+                <textarea placeholder="Enter evidence paper refs or remarks..." onchange="updateFollowUpInlineField('${refNum}', '${fd.key}', 'evidenceText', this.value)"
+                          rows="2" class="w-full bg-white dark:bg-[#0d0e10] border border-slate-200 dark:border-slate-700 text-xs rounded-lg p-2 focus:outline-none focus:border-sky-500 shadow-sm transition-colors resize-y min-h-[42px]">${window.escapeAttr(fd.evidenceText || "")}</textarea>
+            </td>
+            
+            <!-- Audit Tracking Actions Remarks Dropdown -->
+            <td class="p-2 w-40">
+                <div class="space-y-1">
+                    <select name="row-${fd.key}-remarks" onchange="updateFollowUpInlineField('${refNum}', '${fd.key}', 'auditRemarks', this.value)"
+                            class="w-full text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0d0e10] p-1.5 focus:outline-none focus:border-sky-500 cursor-pointer">
+                        <option value="Open" ${fd.auditRemarks === 'Open' ? 'selected' : ''}>🚨 Open Target</option>
+                        <option value="Escalated" ${fd.auditRemarks === 'Escalated' ? 'selected' : ''}>⚠️ Escalated Board</option>
+                        <option value="Resolved" ${fd.auditRemarks === 'Resolved' ? 'selected' : ''}>🔒 Resolved / Lock</option>
+                    </select>
+                    <!-- FIXED: Removed backslashes and corrected parameter quote structures below -->
+                    <input type="text" value="${window.escapeAttr(fd.extendedTimeline || "")}" placeholder="Extended Date..." onchange="updateFollowUpInlineField('${refNum}', '${fd.key}', 'extendedTimeline', this.value)"
+                           class="w-full bg-white dark:bg-[#0d0e10] border border-slate-200 dark:border-slate-700 rounded-lg p-1 text-[11px] placeholder-slate-400 focus:outline-none focus:border-sky-500" />
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+/**
+ * Real-Time Inline Workspace Mutator Handler
+ */
+function updateFollowUpInlineField(refNum, rowKey, fieldKey, valText) {
+    const store = window.AuditStore;
+    if (!store?.current) return;
 
-            document.getElementById("lbl-counts-ratio").textContent = `${closedCount} / ${totalCount} Observations Closed`;
+    const followupState = store.current.phase3_followup?.audits?.[refNum];
+    const targetRowData = followupState?.rows?.find(r => r.key === rowKey);
 
-            let ratioPercentResult = 0;
-            if (totalCount > 0) {
-                ratioPercentResult = (closedCount / totalCount) * 100;
-            }
-
-            const cleanPercentageString = ratioPercentResult.toFixed(1);
-            document.getElementById("lbl-percentage-text").textContent = `${cleanPercentageString}% Remediation Index`;
-            document.getElementById("bar-percentage-fill").style.width = `${ratioPercentResult}%`;
+    if (targetRowData) {
+        targetRowData[fieldKey] = valText;
+        store.save(); // Continuous real-time database synchronization execution
+        
+        // Dynamic re-summation calculation trigger pass
+        if (fieldKey === 'statusOfImplementation') {
+            const tempRows = followupState.rows.map(r => ({ followupData: r }));
+            calculateRemediationIndexMetrics(tempRows);
         }
+    }
+}
 
-        function syncFollowUpInputsToStore() {
-            const store = window.AuditStore;
-            if (!store || !store.current) return;
+/**
+ * Dynamic Dashboard Metric Equations Execution Logic
+ * Computes: Status = [Closed / (Open + Closed)] × 100
+ */
+function calculateRemediationIndexMetrics(trackingRows) {
+    const totalCount = trackingRows.length;
+    if (totalCount === 0) return;
 
-            document.querySelectorAll("#tbl-followup-body tr").forEach((tr, idx) => {
-                const rowRef = store.current.followUp.rows[idx];
-                if (!rowRef) return;
+    const closedCount = trackingRows.filter(r => r.followupData.statusOfImplementation === "Implemented").length;
+    
+    // Formula calculation
+    const completionPercentage = ((closedCount / totalCount) * 100).toFixed(1);
 
-                const fileInput = tr.querySelector('input[name="evidence_val"]');
-                if (fileInput) rowRef.evidenceAttachmentName = fileInput.value;
+    // Dynamic badge layout value injection
+    const elCounts = document.getElementById("lbl-solved-counts");
+    if (elCounts) elCounts.textContent = `${closedCount} / ${totalCount} Observations Solved`;
 
-                const textJustification = tr.querySelector('textarea[name="justification_val"]');
-                if (textJustification) rowRef.justificationText = textJustification.value;
+    const elIndex = document.getElementById("lbl-index-percentage");
+    if (elIndex) elIndex.textContent = `${completionPercentage}% Complete`;
+}
 
-                const extendedInput = tr.querySelector('input[name="extended_timeline"]');
-                if (extendedInput) rowRef.extendedTimeline = extendedInput.value;
-            });
+/**
+ * Commits Closure Approval Fields Upstream
+ */
+async function commitFollowUpWorkspaceState() {
+    const store = window.AuditStore;
+    if (!store || !store.current) return;
 
-            store.current.followUp.approval = {
-                name: document.getElementById("fu-auth-name").value,
-                designation: document.getElementById("fu-auth-desig").value,
-                sign: document.getElementById("fu-auth-sign").value,
-                date: document.getElementById("fu-auth-date").value
-            };
-        }
+    const targetRow = store.current.phase1_planning?.workPlan?.[activeTargetIndex];
+    if (!targetRow) return;
 
-        function saveFollowUpProgress() {
-            const store = window.AuditStore;
-            if (!store) return;
+    const followupState = store.current.phase3_followup.audits?.[targetRow.refNumber];
+    if (!followupState) return;
 
-            syncFollowUpInputsToStore();
-            store.save();
-            recalculateImplementationFormula();
-            alert("Follow-up spreadsheet tracking data matrices successfully committed to internal data persistence layers! 🔒");
-        }
+    if (!followupState.approval) followupState.approval = {};
+
+    followupState.approval.name = document.getElementById("txt-app-name").value;
+    followupState.approval.designation = document.getElementById("txt-app-title").value;
+    followupState.approval.token = document.getElementById("txt-app-token").value;
+    followupState.approval.date = document.getElementById("txt-app-date").value;
+
+    try {
+        await store.save();
+        alert("Follow-Up tracking metrics and structural sign-off verification hashes committed safely to corporate database! 🔒");
+    } catch (err) {
+        alert("Failed to sync final follow up report configurations.");
+    }
+}
+
+/**
+ * Advanced Verification Layer: Generates a secure token signature hash
+ */
+window.generateSecureFollowUpApprovalHash = function() {
+    const name = document.getElementById("txt-app-name").value;
+    if (!name) {
+        alert("Please provide the Approving Officer's name to generate the closure verification hash signature.");
+        return;
+    }
+    
+    const randomHashToken = "SENTINEL-CLOSE-" + Math.random().toString(36).substring(2, 10).toUpperCase() + "-" + new Date().getFullYear();
+    const currentISOString = new Date().toISOString().split('T')[0];
+
+    document.getElementById("txt-app-token").value = randomHashToken;
+    document.getElementById("txt-app-date").value = currentISOString;
+    
+    commitFollowUpWorkspaceState();
+};
+
+window.commitFollowUpWorkspaceState = commitFollowUpWorkspaceState;
+
+ 
+       
     </script>  
 </body>
 </html>

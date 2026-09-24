@@ -13,7 +13,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
-
+let riskFieldSaveTimeout = null;
+/**
+ * Loops and builds matrix rows using current cloud data collections
+ */
 /**
  * Loops and builds matrix rows using current cloud data collections
  */
@@ -33,19 +36,18 @@ function renderRiskAssessmentWorkspace(data) {
     document.getElementById("empty-risk-row")?.classList.add("hidden");
 
     // --- AUTOMATIC SORTING & INDEX PRESERVATION LOGIC ---
-    const mappedRisks = riskRows.map((row, originalIdx) => {
+    const mappedRisks = riskRows.map((row) => {
         const L = parseInt(row.likelihood || 1);
         const I = parseInt(row.impact || 1);
         return {
             row,
-            originalIdx,
             score: L * I
         };
     });
 
     mappedRisks.sort((a, b) => b.score - a.score);
 
-    mappedRisks.forEach(({ row, originalIdx, score }) => {
+    mappedRisks.forEach(({ row, score }) => {
         const tr = document.createElement("tr");
         tr.className = "border-b border-outline-variant/30 dark:border-slate-800 last:border-0 hover:bg-surface-container-low dark:hover:bg-slate-900/40 align-top transition-colors";
         
@@ -80,11 +82,14 @@ function renderRiskAssessmentWorkspace(data) {
             derivedAuditArea = row.riskDescription.split("scope item:").pop().trim();
         }
 
+        // Escaped safe version of the risk ID string for use inside HTML inline attributes
+        const safeRiskId = window.escapeAttr(row.riskId);
+
         tr.innerHTML = `
             <!-- Selection Checkbox Column -->
             <td class="p-3 text-center align-middle">
                 <input type="checkbox" 
-                       onchange="toggleRiskInclusion(${originalIdx}, this.checked)" 
+                       onchange="toggleRiskInclusion('${safeRiskId}', this.checked)" 
                        ${row.isCommittedToPlan ? 'checked' : ''} 
                        class="rounded border-outline-variant/40 text-primary focus:ring-primary h-4 w-4 bg-transparent cursor-pointer">
             </td>
@@ -92,29 +97,29 @@ function renderRiskAssessmentWorkspace(data) {
             <!-- 1. Risk ID -->
             <td class="p-3 text-xs font-mono font-bold text-on-surface-variant dark:text-slate-400 align-middle">${window.escapeAttr(row.riskId)}</td>
             
-            <!-- 2. Audit Area (Now populated cleanly) -->
+            <!-- 2. Audit Area -->
             <td class="p-3 text-xs font-semibold text-on-surface dark:text-slate-200 align-middle" data-audit-area="${window.escapeAttr(derivedAuditArea)}">
                 ${window.escapeAttr(derivedAuditArea)}
             </td>
 
             <!-- 3. Risk Identification -->
             <td class="p-2">
-                <input type="text" value="${window.escapeAttr(row.riskIdentification || '')}" onchange="updateRiskField(${originalIdx}, 'riskIdentification', this.value)" placeholder="e.g. Data Breach Vector" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs font-bold rounded-lg p-1.5 focus:outline-none">
+                <input type="text" value="${window.escapeAttr(row.riskIdentification || '')}" onchange="updateRiskField('${safeRiskId}', 'riskIdentification', this.value)" placeholder="e.g. Data Breach Vector" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs font-bold rounded-lg p-1.5 focus:outline-none">
             </td>
             
             <!-- 4. Risk Description -->
             <td class="p-2">
-                <textarea onchange="updateRiskField(${originalIdx}, 'riskDescription', this.value)" rows="2" placeholder="Risk impacts statement..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">${window.escapeAttr(row.riskDescription || '')}</textarea>
+                <textarea onchange="updateRiskField('${safeRiskId}', 'riskDescription', this.value)" rows="2" placeholder="Risk impacts statement..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">${window.escapeAttr(row.riskDescription || '')}</textarea>
             </td>
             
             <!-- 5. Risk Causes/Triggers -->
             <td class="p-2">
-                <textarea onchange="updateRiskField(${originalIdx}, 'riskCauses', this.value)" rows="2" placeholder="Triggers or root vectors..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">${window.escapeAttr(row.riskCauses || '')}</textarea>
+                <textarea onchange="updateRiskField('${safeRiskId}', 'riskCauses', this.value)" rows="2" placeholder="Triggers or root vectors..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">${window.escapeAttr(row.riskCauses || '')}</textarea>
             </td>
             
             <!-- 5. Risk Category -->
             <td class="p-2">
-                <select onchange="updateRiskField(${originalIdx}, 'riskCategory', this.value)" class="w-full text-xs bg-slate-50 dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5 focus:ring-primary">
+                <select onchange="updateRiskField('${safeRiskId}', 'riskCategory', this.value)" class="w-full text-xs bg-slate-50 dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5 focus:ring-primary">
                     <option value="IT" ${row.riskCategory === 'IT' ? 'selected' : ''}>IT / Cyber</option>
                     <option value="Financial" ${row.riskCategory === 'Financial' ? 'selected' : ''}>Financial</option>
                     <option value="Operational" ${row.riskCategory === 'Operational' ? 'selected' : ''}>Operational</option>
@@ -126,12 +131,12 @@ function renderRiskAssessmentWorkspace(data) {
             
             <!-- 6. Type of Existing Controls -->
             <td class="p-2">
-                <textarea onchange="updateRiskField(${originalIdx}, 'existingControls', this.value)" rows="2" placeholder="Current mitigating controls..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">${window.escapeAttr(row.existingControls || '')}</textarea>
+                <textarea onchange="updateRiskField('${safeRiskId}', 'existingControls', this.value)" rows="2" placeholder="Current mitigating controls..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">${window.escapeAttr(row.existingControls || '')}</textarea>
             </td>
             
             <!-- 7. Likelihood -->
             <td class="p-2 w-24">
-                <select onchange="updateRiskMetrics(${originalIdx}, 'likelihood', this.value)" class="w-full text-xs bg-slate-50 dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5">
+                <select onchange="updateRiskMetrics('${safeRiskId}', 'likelihood', this.value)" class="w-full text-xs bg-slate-50 dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5">
                     <option value="1" ${L === 1 ? 'selected' : ''}>Low (1)</option>
                     <option value="2" ${L === 2 ? 'selected' : ''}>Mod (2)</option>
                     <option value="3" ${L === 3 ? 'selected' : ''}>High (3)</option>
@@ -140,7 +145,7 @@ function renderRiskAssessmentWorkspace(data) {
             
             <!-- 8. Impact -->
             <td class="p-2 w-24">
-                <select onchange="updateRiskMetrics(${originalIdx}, 'impact', this.value)" class="w-full text-xs bg-slate-50 dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5">
+                <select onchange="updateRiskMetrics('${safeRiskId}', 'impact', this.value)" class="w-full text-xs bg-slate-50 dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5">
                     <option value="1" ${I === 1 ? 'selected' : ''}>Low (1)</option>
                     <option value="2" ${I === 2 ? 'selected' : ''}>Mod (2)</option>
                     <option value="3" ${I === 3 ? 'selected' : ''}>High (3)</option>
@@ -156,12 +161,12 @@ function renderRiskAssessmentWorkspace(data) {
             
             <!-- 11. Risk Owner -->
             <td class="p-2">
-                <input type="text" value="${window.escapeAttr(row.riskOwner || '')}" onchange="updateRiskField(${originalIdx}, 'riskOwner', this.value)" placeholder="e.g. Director IT" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">
+                <input type="text" value="${window.escapeAttr(row.riskOwner || '')}" onchange="updateRiskField('${safeRiskId}', 'riskOwner', this.value)" placeholder="e.g. Director IT" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">
             </td>
             
             <!-- 12. Directorate/Department -->
             <td class="p-2">
-                <input type="text" value="${window.escapeAttr(row.department || '')}" onchange="updateRiskField(${originalIdx}, 'department', this.value)" placeholder="e.g. Technology Infrastructure" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">
+                <input type="text" value="${window.escapeAttr(row.department || '')}" onchange="updateRiskField('${safeRiskId}', 'department', this.value)" placeholder="e.g. Technology Infrastructure" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">
             </td>
             
             <!-- 13. Risk Ranking -->
@@ -178,49 +183,83 @@ function renderRiskAssessmentWorkspace(data) {
 }
 
 
+
 /**
  * Persists general text updates to the local state model context
  */
-function updateRiskField(idx, fieldKey, val) {
+function updateRiskField(riskId, fieldKey, val) {
     const store = window.AuditStore;
     if (!store || !store.current) return;
     
-    store.current.phase1_planning.riskRegister[idx][fieldKey] = val;
-    // Debounced automatic saves occur via blur mappings or explicit commits
+    const riskRegister = store.current.phase1_planning.riskRegister || [];
+    const targetRow = riskRegister.find(r => r.riskId === riskId);
+    
+    if (!targetRow) return;
+    
+    // 1. Instantly update the local memory state so UI modifications aren't lost
+    targetRow[fieldKey] = val;
+    
+    // 2. Clear any previous pending cloud save timer to reset the countdown
+    if (riskFieldSaveTimeout) {
+        clearTimeout(riskFieldSaveTimeout);
+    }
+    
+    // 3. Queue up a new cloud database write that runs 500ms after the last edit activity
+    riskFieldSaveTimeout = setTimeout(async () => {
+        try {
+            await store.updateRiskRegister(riskRegister);
+            console.log("Debounced text updates successfully saved to cloud.");
+        } catch(err) {
+            console.error("Failed to commit debounced text updates up to cloud layer.", err);
+        }
+    }, 500);
 }
 
 /**
  * Fires score calculations on dropdown modifications and updates Firestore
  */
-async function updateRiskMetrics(idx, weightKey, numericStringValue) {
+async function updateRiskMetrics(riskId, weightKey, numericStringValue) {
     const store = window.AuditStore;
     if (!store || !store.current) return;
 
-    const targetRow = store.current.phase1_planning.riskRegister[idx];
+    const riskRegister = store.current.phase1_planning.riskRegister || [];
+    const targetRow = riskRegister.find(r => r.riskId === riskId);
+    
+    if (!targetRow) return;
+
     targetRow[weightKey] = numericStringValue;
     
     // Compute total score metrics inline
     targetRow.riskScore = parseInt(targetRow.likelihood || 1) * parseInt(targetRow.impact || 1);
     
     try {
-        await store.updateRiskRegister(store.current.phase1_planning.riskRegister);
+        await store.updateRiskRegister(riskRegister);
     } catch(err) {
         console.error("Failed to commit metrics updates up to cloud layer.");
     }
 }
 
-async function toggleRiskInclusion(idx, booleanIsChecked) {
+/**
+ * Commits checkbox inclusion states using row IDs
+ */
+async function toggleRiskInclusion(riskId, booleanIsChecked) {
     const store = window.AuditStore;
     if (!store || !store.current) return;
 
-    store.current.phase1_planning.riskRegister[idx].isCommittedToPlan = booleanIsChecked;
+    const riskRegister = store.current.phase1_planning.riskRegister || [];
+    const targetRow = riskRegister.find(r => r.riskId === riskId);
+    
+    if (!targetRow) return;
+
+    targetRow.isCommittedToPlan = booleanIsChecked;
     
     try {
-        await store.updateRiskRegister(store.current.phase1_planning.riskRegister);
+        await store.updateRiskRegister(riskRegister);
     } catch(err) {
         console.error("Cloud synchronization timeout on row check mutation.");
     }
 }
+
 
 function updateRiskSelectionCounter(rowsArray) {
     const selectedCount = rowsArray.filter(r => r.isCommittedToPlan).length;
@@ -261,13 +300,18 @@ async function triggerRiskMatrixSort() {
 /**
  * Pushes selected risks down the pipeline into Phase 1, Stage 3
  */
+/**
+ * Pushes selected risks down the pipeline into Phase 1, Stage 3 without erasing old entries
+ */
 async function commitRisksAndAdvanceStage() {
     const store = window.AuditStore;
     if (!store || !store.current) return;
 
     const fullRegister = store.current.phase1_planning.riskRegister || [];
-    // Bring in universe collection to extract mapped names for the final workspace stage
     const universeList = store.current.phase1_planning.universe || [];
+    
+    // Retrieve any pre-existing rows from your work plan collection to protect them
+    const existingWorkPlan = store.current.phase1_planning.workPlan || [];
     
     const selectedRisks = fullRegister.filter(r => r.isCommittedToPlan);
 
@@ -277,20 +321,27 @@ async function commitRisksAndAdvanceStage() {
     }
 
     // Map checked items into scheduling array entities
-    const initialWorkPlanRows = selectedRisks.map(risk => {
-        // Find matching universe node using suffix to read its true auditArea value
+    const updatedWorkPlanRows = selectedRisks.map(risk => {
         const riskIdSuffix = risk.riskId ? risk.riskId.split('-').pop() : "";
+        const targetRefNumber = `AUD-2026-${riskIdSuffix}`;
+        
+        // If this work plan record has already been built and edited before, preserve it!
+        const preExistingRecord = existingWorkPlan.find(w => w.refNumber === targetRefNumber);
+        if (preExistingRecord) {
+            return preExistingRecord;
+        }
+
         const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === riskIdSuffix);
         const resolvedAuditArea = matchedUniverseItem ? matchedUniverseItem.auditArea : "Untitled Mapped Title";
 
         return {
-            refNumber: `AUD-2026-${risk.riskId.split('-').pop()}`,
+            refNumber: targetRefNumber,
             riskLevel: risk.riskScore >= 7 ? "HIGH (H)" : (risk.riskScore >= 4 ? "MEDIUM (M)" : "LOW (L)"),
-            // EXTRAS CHANGED HERE: Now fed exactly by the resolved Audit Area text 
             auditAreaReplica: resolvedAuditArea,
             riskDescription: risk.riskDescription || "—",
             auditObjectives: "",
             auditScopeBoundaries: "",
+            durationValue: 4,
             scale: "Weeks",
             startDate: "",
             endDate: "",
@@ -306,10 +357,21 @@ async function commitRisksAndAdvanceStage() {
     });
 
     try {
-        await store.updateWorkPlan(initialWorkPlanRows, 0, "", "");
+        let computedSum = 0;
+        updatedWorkPlanRows.forEach(r => computedSum += parseFloat(r.budgetKsh || 0));
+        
+        const existingMeta = store.current.phase1_planning.workPlanMetadata || {};
+
+        await store.updateWorkPlan(
+            updatedWorkPlanRows, 
+            computedSum, 
+            existingMeta.minuteNumberRef || "", 
+            existingMeta.approvalDate || ""
+        );
         window.location.href = "internal_Audit_Work_Plan.html";
     } catch (err) {
         alert("Pipeline error. Failed to commit data mappings to cloud workspace scheduler.");
     }
 }
+
 
