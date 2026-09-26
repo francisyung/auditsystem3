@@ -12,10 +12,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // Connect live cloud listener subscription hook
     if (window.AuditStore) {
         window.AuditStore.subscribeToAudit((snapshotData) => {
+            // Read selection context tracker pointer key from master cloud planning layer
+            let cloudIndex = snapshotData?.phase1_planning?.selectedExecutionId;
+            if (cloudIndex !== undefined && cloudIndex !== null) {
+                activeTargetIndex = parseInt(cloudIndex);
+            }
             renderPlanProgramWorkspace(snapshotData);
         });
     }
 });
+
 
 /**
  * Parses cloud snapshots to load metrics cards and checklist steps
@@ -279,16 +285,17 @@ function saveChecklistStepRowInlineData(index, trElement) {
     const targetRow = workPlanList[activeTargetIndex] || workPlanList[0];
     if (!targetRow) return;
 
-    const step = store.phase2_performing.planProgram.audits?.[targetRow.refNumber]?.steps?.[index];
+    const step = store.phase2_performing?.planProgram?.audits?.[targetRow.refNumber]?.steps?.[index];
     if (!step) return;
 
-    step.obj = trElement.querySelector(`[name="step-${index}-obj"]`)?.value || "";
-    step.risk = trElement.querySelector(`[name="step-${index}-risk"]`)?.value || "";
-    step.activity = trElement.querySelector(`[name="step-${index}-activity"]`)?.value || "";
-    step.instructions = trElement.querySelector(`[name="step-${index}-instructions"]`)?.value || "";
-    step.status = trElement.querySelector(`[name="step-${index}-status"]`)?.value || "";
+    // Use flexible, name-ending wildcards to bypass formatting issues from window.cellInput
+    step.obj = trElement.querySelector(`input[name*="obj"], [name$="obj"]`)?.value || trElement.querySelector(`input:nth-child(1)`)?.value || "";
+    step.risk = trElement.querySelector(`input[name*="risk"], [name$="risk"]`)?.value || "";
+    step.activity = trElement.querySelector(`input[name*="activity"], [name$="activity"]`)?.value || "";
+    step.instructions = trElement.querySelector(`textarea[name*="instructions"]`)?.value || "";
+    step.status = trElement.querySelector(`select`)?.value || "Pending";
     
-    // Automatically save text changes behind the scenes as you type/select
+    // Automatically save text changes behind the scenes cleanly
     window.AuditStore.save();
 }
 
@@ -372,17 +379,37 @@ function triggerWorkspaceReset() {
 /**
  * Dynamically builds row target links based on available options inside the selector dropdown
  */
+/**
+ * Dynamically builds row target links based on available options inside the selector dropdown
+ */
 function populateTargetRiskSelector(workPlanList) {
     const select = document.getElementById("sel-audit-target");
-    if (!select || select.options.length > 0) return; 
+    if (!select) return;
+    
+    // If options are already loaded, just sync the current selection value state
+    if (select.options.length > 0) {
+        if (parseInt(select.value) !== activeTargetIndex) {
+            select.value = activeTargetIndex;
+        }
+        return;
+    }
+
+    select.innerHTML = "";
 
     workPlanList.forEach((row, index) => {
         const opt = document.createElement("option");
         opt.value = index;
         opt.textContent = `[${row.refNumber}] ${row.auditAreaReplica}`;
+        if (index === activeTargetIndex) {
+            opt.selected = true;
+        }
         select.appendChild(opt);
     });
+    
+    // Explicit safety sync
+    select.value = activeTargetIndex;
 }
+
 /**
  * Safe text update routine preventing cursor reset focus issues during typing inputs
  */
