@@ -44,7 +44,7 @@ function renderWorkPlanWorkspace(data) {
         // 🛡️ ITEM-ISOLATED INITIALIZATION: Assign a unique status tracking state per individual row if missing
         if (!row.trackingState) {
             row.trackingState = { status: "Draft", currentHolder: "officer", remarks: "" };
-        }Z
+        }
 
         const itemState = row.trackingState;
         const safeRefNum = window.escapeAttr(row.refNumber);
