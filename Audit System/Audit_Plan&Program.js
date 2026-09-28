@@ -520,11 +520,40 @@ window.addChecklistStepRow = function() {
     window.renderExistingProgramTableOnly();
 };
 
-// Fixes: Sync Cloud State Button
 window.commitProgramWorkspaceState = function() {
+    const store = window.AuditStore;
+    if (!store || !store.current) {
+        saveState(state);
+        alert("State cached locally.");
+        return;
+    }
+
+    const workPlanList = store.current.phase1_planning?.workPlan || [];
+    const targetRow = workPlanList[activeTargetIndex];
+    if (!targetRow) return;
+
+    const refNum = targetRow.refNumber;
+    const planProgram = store.current.phase2_performing.planProgram;
+
+    if (!planProgram.audits) planProgram.audits = {};
+    if (!planProgram.audits[refNum]) planProgram.audits[refNum] = {};
+    
+    const programState = planProgram.audits[refNum];
+    
+    // Read directly out of the form fields to ensure precision tracking updates
+    programState.prepName = document.getElementById("sign-prep-name")?.value || "";
+    programState.prepDate = document.getElementById("sign-prep-date")?.value || "";
+    programState.revName  = document.getElementById("sign-rev-name")?.value || "";
+    programState.revDate  = document.getElementById("sign-rev-date")?.value || "";
+    programState.appName  = document.getElementById("sign-app-name")?.value || "";
+    programState.appDate  = document.getElementById("sign-app-date")?.value || "";
+
+    // Sync up to fallback storage layer block
     saveState(state);
-    alert("Cloud state synchronized successfully!");
+    store.save(); 
+    alert("Cloud state synchronized successfully! 🌐");
 };
+
 
 // Fixes: Uncaught ReferenceError: finalizeProgramAndProceedToDraft is not defined
 window.finalizeProgramAndProceedToDraft = function() {
@@ -580,10 +609,15 @@ window.handleTargetRiskSwitch = async function(newIndexValue) {
     }
 };
 
-function initializePhase2ProgramCanvas(data) {
+/**
+ * Hardened Canvas Setup & Initialization Vector
+ * Processes live database state profiles and intercepts cipher strings via real-time AES-GCM decryption filters.
+ */
+async function initializePhase2ProgramCanvas(data) {
     // 1. Data extraction and safety fallback wrappers
     const planRows = data?.phase1_planning?.workPlan || [];
     const universeList = data?.phase1_planning?.universe || [];
+    const planProgram = data?.phase2_performing?.planProgram || {};
     
     // Resolve selected row pointer index key safely
     let activeIdx = data?.phase1_planning?.selectedExecutionId;
@@ -617,24 +651,18 @@ function initializePhase2ProgramCanvas(data) {
     const activeRow = planRows[activeIdx];
     if (!activeRow) return;
 
+    const refNum = activeRow.refNumber;
+
     // 3. Robust Relational Entity Mapping Computations
-    // Cleanly pull title parameter field text directly
     const auditTitle = activeRow.auditAreaReplica || "Untitled Scope Area Assignment";
 
-    // Cross-reference department from universe, with an immediate fallback check string split extraction
+    // Cross-reference department from universe
     let resolvedDepartment = "Operations / General Management";
-    
-    // Extract suffix digit from reference code (e.g., "AUD-2026-1" -> "1")
     const rowRefSuffix = activeRow.refNumber ? activeRow.refNumber.split('-').pop() : "";
-    
-    // Double check and find index mapping reference inside the global assets array matrix
     const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === rowRefSuffix);
     
     if (matchedUniverseItem && matchedUniverseItem.processOwner) {
         resolvedDepartment = matchedUniverseItem.processOwner;
-    } else if (activeRow.leadAuditor) {
-        // Safe contextual string fallback if universe reference connection was missing
-        resolvedDepartment = "Assigned Internal Audit Team Sector";
     }
 
     // Structure a friendly, scan-optimized timeline layout text block string
@@ -644,40 +672,83 @@ function initializePhase2ProgramCanvas(data) {
     const durationScale = activeRow.scale || 'Weeks';
     const resolvedPeriodTimeline = `${startStr} to ${endStr} (${durationVal} ${durationScale})`;
 
-    // 4. Force DOM Insertion on matching elements using context values
+    // 4. Force DOM Insertion on matching banner elements
     const lblTitle = document.getElementById("lbl-pull-title");
-    if (lblTitle) {
-        lblTitle.innerText = auditTitle.toUpperCase();
-        lblTitle.textContent = auditTitle.toUpperCase();
-    }
+    if (lblTitle) lblTitle.textContent = auditTitle.toUpperCase();
 
     const lblDept = document.getElementById("lbl-pull-department");
-    if (lblDept) {
-        lblDept.innerText = resolvedDepartment.toUpperCase();
-        lblDept.textContent = resolvedDepartment.toUpperCase();
-    }
+    if (lblDept) lblDept.textContent = resolvedDepartment.toUpperCase();
 
     const lblPeriod = document.getElementById("lbl-pull-period");
-    if (lblPeriod) {
-        lblPeriod.innerText = resolvedPeriodTimeline.toUpperCase();
-        lblPeriod.textContent = resolvedPeriodTimeline.toUpperCase();
+    if (lblPeriod) lblPeriod.textContent = resolvedPeriodTimeline.toUpperCase();
+
+    // --- 🛡️ REAL-TIME FIELD-LEVEL DECRYPTION INTERCEPTION MODULE ---
+    // Safely detox text fields if they contain the cryptographically bound cipher marker token
+    let plainObjectives = activeRow.auditObjectives || "";
+    let plainScope = activeRow.auditScopeBoundaries || "";
+    let plainRisks = activeRow.riskDescription || "";
+
+    try {
+        if (plainObjectives.startsWith("SENTINEL_CIPHER:")) {
+            const cipherText = plainObjectives.replace("SENTINEL_CIPHER:", "");
+            plainObjectives = await window.SentinelCrypto.decryptDataField(cipherText);
+        }
+        if (plainScope.startsWith("SENTINEL_CIPHER:")) {
+            const cipherText = plainScope.replace("SENTINEL_CIPHER:", "");
+            plainScope = await window.SentinelCrypto.decryptDataField(cipherText);
+        }
+        if (plainRisks.startsWith("SENTINEL_CIPHER:")) {
+            const cipherText = plainRisks.replace("SENTINEL_CIPHER:", "");
+            plainRisks = await window.SentinelCrypto.decryptDataField(cipherText);
+        }
+    } catch (cryptoErr) {
+        console.error("🔒 Cryptographic Exception: Failed to decode data-at-rest ciphertext arrays.", cryptoErr);
     }
 
-    // 5. Hydrate narrative content parameters text area cards
-    const txtObjectives = document.getElementById("txt-intro-bg"); // Double check mapping definitions
+    // 5. Hydrate narrative content parameters text area cards smoothly with clean plain text
+    const txtObjectives = document.getElementById("txt-intro-bg"); 
     const txtScope = document.querySelector("[placeholder*='boundaries']");
     const txtRisks = document.getElementById("lbl-pull-risks");
 
     if (txtObjectives && !txtObjectives.matches(':focus')) {
-        txtObjectives.value = activeRow.auditObjectives || "";
+        txtObjectives.value = plainObjectives;
     }
     if (txtScope && !txtScope.matches(':focus')) {
-        txtScope.value = activeRow.auditScopeBoundaries || "";
+        txtScope.value = plainScope;
     }
     if (txtRisks) {
-        txtRisks.textContent = activeRow.riskDescription || "No mapped risk framework narrative definitions declared.";
+        txtRisks.textContent = plainRisks || "No mapped risk framework narrative definitions declared.";
     }
+
+    // --- 🚀 CRITICAL PIPELINE INHERITANCE MAP FOR SIGN-OFF FIELDS ---
+    // Extract workspace state specifically linked to this audit area's unique ref number
+    if (!planProgram.audits) planProgram.audits = {};
+    if (!planProgram.audits[refNum]) planProgram.audits[refNum] = {};
+    const programState = planProgram.audits[refNum];
+
+    // Compute dynamic, real-time fallback parameters directly matching your workplan definitions
+    const finalPreparedBy = programState.prepName || activeRow.leadAuditor || activeRow.auditorInput || state.approvals?.prepared?.name || "";
+    const finalReviewedBy = programState.revName  || activeRow.auditor1 || activeRow.auditor2 || state.approvals?.reviewed?.name || "";
+    const finalApprovedBy = programState.appName  || activeRow.approver || state.approvals?.approved?.name || "";
+
+    // Sync variables back into your active local state memory layer
+    if (!state.approvals) state.approvals = { prepared: {}, reviewed: {}, approved: {} };
+    state.approvals.prepared.name = finalPreparedBy;
+    state.approvals.reviewed.name = finalReviewedBy;
+    state.approvals.approved.name = finalApprovedBy;
+
+    // Inject evaluated textual string entries cleanly into your form fields
+    setInputValWithoutFocusLoss("sign-prep-name", finalPreparedBy);
+    setInputValWithoutFocusLoss("sign-prep-date", programState.prepName ? (programState.prepDate || "") : (activeRow.approvalDate || state.approvals?.prepared?.date || ""));
+    
+    setInputValWithoutFocusLoss("sign-rev-name", finalReviewedBy);
+    setInputValWithoutFocusLoss("sign-rev-date", programState.revDate || state.approvals?.reviewed?.date || "");
+    
+    setInputValWithoutFocusLoss("sign-app-name", finalApprovedBy);
+    setInputValWithoutFocusLoss("sign-app-date", programState.appName ? (programState.appDate || "") : (activeRow.approvalDate || state.approvals?.approved?.date || ""));
 }
+
+
 
 
 /**

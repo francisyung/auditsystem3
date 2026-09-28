@@ -372,6 +372,17 @@ function renderFollowUpWorkspace(data) {
 
     // --- POPULATE CLOSURE SIGN-OFF VALUES ---
     const approval = followupState.approval || {};
+        // --- POPULATE CLOSURE SIGN-OFF VALUES (COMPLETE PIPELINE CLOSURE LOOP) ---
+
+    
+    // Scans your data structure index to map your image entries directly onto the closure signature fields
+    const followUpApproverName = approval.name || previousFinalState.authorizerName || previousDraftState.authorizerName || targetRow.approver || "";
+
+    setInputValWithoutFocusLoss("txt-app-name", followUpApproverName);
+    setInputValWithoutFocusLoss("txt-app-title", approval.designation || "Head of Internal Audit");
+    setInputValWithoutFocusLoss("txt-app-token", approval.token || "");
+    setInputValWithoutFocusLoss("txt-app-date", approval.date || (previousFinalState.timestamp ? previousFinalState.timestamp.split(" ")[0] : ""));
+
     setInputValWithoutFocusLoss("txt-app-name", approval.name || "");
     setInputValWithoutFocusLoss("txt-app-title", approval.designation || "");
     setInputValWithoutFocusLoss("txt-app-token", approval.token || "");
@@ -417,10 +428,28 @@ function renderFollowUpWorkspace(data) {
     renderFollowUpMatrixGridTable(trackingRows, refNum);
     calculateRemediationIndexMetrics(trackingRows);
 }
+/**
+ * Safe text update routine preventing cursor reset focus issues during typing inputs
+ */
+function setTextAreaValWithoutFocusLoss(elementId, textValue) {
+    const el = document.getElementById(elementId);
+    // FIXED: Enforce a strict fallback to an empty string if the value arrives undefined or null
+    if (el && !el.matches(':focus')) {
+        el.value = (textValue !== undefined && textValue !== null) ? textValue : "";
+    }
+}
+
+/**
+ * Safe single-line input field update routine matching focus boundary criteria
+ */
 function setInputValWithoutFocusLoss(elementId, textValue) {
     const el = document.getElementById(elementId);
-    if (el && !el.matches(':focus')) el.value = textValue;
+    // FIXED: Enforce a strict fallback to an empty string if the value arrives undefined or null
+    if (el && !el.matches(':focus')) {
+        el.value = (textValue !== undefined && textValue !== null) ? textValue : "";
+    }
 }
+
 
 /**
  * Builds table grid dynamically using isolated dataset components

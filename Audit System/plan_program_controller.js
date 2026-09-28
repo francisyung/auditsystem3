@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 activeTargetIndex = parseInt(cloudIndex);
             }
             renderPlanProgramWorkspace(snapshotData);
+            initializePhase2ProgramCanvas(snapshotData);
         });
     }
 });
@@ -75,6 +76,20 @@ function renderPlanProgramWorkspace(data) {
     const riskContent = programState.risksAdditions || targetRow.riskDescription || "";
     const objectiveContent = programState.auditObjectivesAdditions || targetRow.auditObjectives || "";
     const scopeContent = programState.auditScopeAdditions || targetRow.auditScopeBoundaries || "";
+    // --- AUTHENTICATION SIGN-OFF BLOCKS PATHS (WITH ENHANCED ALL-FIELD FALLBACKS) ---
+    // Safely reads the fields matching your image mapping data layout
+    const fallbackPreparedBy = programState.prepName || targetRow.leadAuditor || targetRow.auditorInput || "";
+    const fallbackReviewedBy = programState.revName  || targetRow.auditor1 || targetRow.auditor2 || targetRow.auditor3 || "";
+    const fallbackApprovedBy = programState.appName  || targetRow.approver || "Head of Internal Audit";
+
+    setInputValWithoutFocusLoss("sign-prep-name", fallbackPreparedBy);
+    setInputValWithoutFocusLoss("sign-prep-date", programState.prepName ? (programState.prepDate || "") : (targetRow.approvalDate || ""));
+    
+    setInputValWithoutFocusLoss("sign-rev-name", fallbackReviewedBy);
+    setInputValWithoutFocusLoss("sign-rev-date", programState.revDate || "");
+    
+    setInputValWithoutFocusLoss("sign-app-name", fallbackApprovedBy);
+    setInputValWithoutFocusLoss("sign-app-date", programState.appName ? (programState.appDate || "") : (targetRow.approvalDate || ""));
 
     setTextAreaValWithoutFocusLoss("txt-add-risks", riskContent);
     setTextAreaValWithoutFocusLoss("txt-add-objectives", objectiveContent);
@@ -107,6 +122,135 @@ function renderPlanProgramWorkspace(data) {
 
     // --- RENDER EXECUTION CHECKLIST SUB-TABLE ---
     renderProgramChecklistStepsTable(programState.steps || [], targetRow);
+}
+
+async function initializePhase2ProgramCanvas(data) {
+    // 1. Data extraction and safety fallback wrappers
+    const planRows = data?.phase1_planning?.workPlan || [];
+    const universeList = data?.phase1_planning?.universe || [];
+    const planProgram = data?.phase2_performing?.planProgram || {};
+    
+    // Resolve selected row pointer index key safely
+    let activeIdx = data?.phase1_planning?.selectedExecutionId;
+    
+    // Fallback: If index pointer is unassigned, check for dynamic context or default to row 0
+    if (activeIdx === undefined || activeIdx === null) {
+        activeIdx = 0;
+    }
+    
+    // Halt logic loop gracefully if no operational scheduled lines exist
+    if (planRows.length === 0) {
+        document.getElementById("empty-program-state")?.classList.remove("hidden");
+        document.getElementById("active-program-workspace")?.classList.add("hidden");
+        return;
+    }
+
+    document.getElementById("empty-program-state")?.classList.add("hidden");
+    document.getElementById("active-program-workspace")?.classList.remove("hidden");
+
+    // 2. Hydrate top-right select picker dropdown options element
+    const selectTarget = document.getElementById("sel-audit-target");
+    if (selectTarget) {
+        selectTarget.innerHTML = planRows.map((r, i) => `
+            <option value="${i}" ${Number(i) === Number(activeIdx) ? 'selected' : ''}>
+                ${window.escapeAttr(r.refNumber || 'UNTITLED')} - ${window.escapeAttr(r.auditAreaReplica || 'Unnamed Area')}
+            </option>
+        `).join('');
+    }
+
+    // Isolate our active work plan data row object dictionary parameters
+    const activeRow = planRows[activeIdx];
+    if (!activeRow) return;
+
+    const refNum = activeRow.refNumber;
+
+    // 3. Robust Relational Entity Mapping Computations
+    const auditTitle = activeRow.auditAreaReplica || "Untitled Scope Area Assignment";
+
+    // Cross-reference department from universe
+    let resolvedDepartment = "Operations / General Management";
+    const rowRefSuffix = activeRow.refNumber ? activeRow.refNumber.split('-').pop() : "";
+    const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === rowRefSuffix);
+    
+    if (matchedUniverseItem && matchedUniverseItem.processOwner) {
+        resolvedDepartment = matchedUniverseItem.processOwner;
+    }
+
+    // Structure a friendly, scan-optimized timeline layout text block string
+    const startStr = activeRow.startDate || "Not Scheduled";
+    const endStr = activeRow.endDate || "Not Scheduled";
+    const durationVal = activeRow.durationValue || 4;
+    const durationScale = activeRow.scale || 'Weeks';
+    const resolvedPeriodTimeline = `${startStr} to ${endStr} (${durationVal} ${durationScale})`;
+
+    // 4. Force DOM Insertion on matching banner elements
+    const lblTitle = document.getElementById("lbl-pull-title");
+    if (lblTitle) lblTitle.textContent = auditTitle.toUpperCase();
+
+    const lblDept = document.getElementById("lbl-pull-department");
+    if (lblDept) lblDept.textContent = resolvedDepartment.toUpperCase();
+
+    const lblPeriod = document.getElementById("lbl-pull-period");
+    if (lblPeriod) lblPeriod.textContent = resolvedPeriodTimeline.toUpperCase();
+
+    // --- 🛡️ REAL-TIME FIELD-LEVEL DECRYPTION INTERCEPTION MODULE ---
+    // Safely detox text fields if they contain the cryptographically bound cipher marker token
+    let plainObjectives = activeRow.auditObjectives || "";
+    let plainScope = activeRow.auditScopeBoundaries || "";
+    let plainRisks = activeRow.riskDescription || "";
+
+    try {
+        if (plainObjectives.startsWith("SENTINEL_CIPHER:")) {
+            const cipherText = plainObjectives.replace("SENTINEL_CIPHER:", "");
+            plainObjectives = await window.SentinelCrypto.decryptDataField(cipherText);
+        }
+        if (plainScope.startsWith("SENTINEL_CIPHER:")) {
+            const cipherText = plainScope.replace("SENTINEL_CIPHER:", "");
+            plainScope = await window.SentinelCrypto.decryptDataField(cipherText);
+        }
+        if (plainRisks.startsWith("SENTINEL_CIPHER:")) {
+            const cipherText = plainRisks.replace("SENTINEL_CIPHER:", "");
+            plainRisks = await window.SentinelCrypto.decryptDataField(cipherText);
+        }
+    } catch (cryptoErr) {
+        console.error("🔒 Cryptographic Exception: Failed to decode data-at-rest ciphertext arrays.", cryptoErr);
+    }
+
+    // 5. Hydrate narrative content parameters text area cards smoothly with clean plain text
+    const txtObjectives = document.getElementById("txt-intro-bg"); 
+    const txtScope = document.querySelector("[placeholder*='boundaries']");
+    const txtRisks = document.getElementById("lbl-pull-risks");
+
+    if (txtObjectives && !txtObjectives.matches(':focus')) {
+        txtObjectives.value = plainObjectives;
+    }
+    if (txtScope && !txtScope.matches(':focus')) {
+        txtScope.value = plainScope;
+    }
+    if (txtRisks) {
+        txtRisks.textContent = plainRisks || "No mapped risk framework narrative definitions declared.";
+    }
+
+       // --- 🚀 CRITICAL PIPELINE INHERITANCE MAP FOR SIGN-OFF FIELDS ---
+    // Extract workspace state specifically linked to this audit area's unique ref number
+    if (!planProgram.audits) planProgram.audits = {};
+    if (!planProgram.audits[refNum]) planProgram.audits[refNum] = {};
+    const programState = planProgram.audits[refNum];
+
+    // FIXED: Safely look up fallbacks within the cloud data payload instead of referencing missing 'state' object
+    const finalPreparedBy = programState.prepName || activeRow.leadAuditor || activeRow.auditorInput || "";
+    const finalReviewedBy = programState.revName  || activeRow.auditor1 || activeRow.auditor2 || "";
+    const finalApprovedBy = programState.appName  || activeRow.approver || "Head of Internal Audit";
+
+    // Inject evaluated textual string entries cleanly into your form fields
+    setInputValWithoutFocusLoss("sign-prep-name", finalPreparedBy);
+    setInputValWithoutFocusLoss("sign-prep-date", programState.prepName ? (programState.prepDate || "") : (activeRow.approvalDate || ""));
+    
+    setInputValWithoutFocusLoss("sign-rev-name", finalReviewedBy);
+    setInputValWithoutFocusLoss("sign-rev-date", programState.revDate || "");
+    
+    setInputValWithoutFocusLoss("sign-app-name", finalApprovedBy);
+    setInputValWithoutFocusLoss("sign-app-date", programState.appName ? (programState.appDate || "") : (activeRow.approvalDate || ""));
 }
 
 
@@ -327,12 +471,14 @@ async function commitProgramWorkspaceState() {
     programState.methodology = document.getElementById("txt-methodology").value;
     programState.evaluationCriteria = document.getElementById("txt-benchmarks").value;
 
-    programState.prepName = document.getElementById("sign-prep-name").value;
-    programState.prepDate = document.getElementById("sign-prep-date").value;
-    programState.revName = document.getElementById("sign-rev-name").value;
-    programState.revDate = document.getElementById("sign-rev-date").value;
-    programState.appName = document.getElementById("sign-app-name").value;
-    programState.appDate = document.getElementById("sign-app-date").value;
+    
+// Make sure these lines are inside your commitProgramWorkspaceState() function before you save:
+programState.prepName = document.getElementById("sign-prep-name").value;
+programState.prepDate = document.getElementById("sign-prep-date").value;
+programState.revName = document.getElementById("sign-rev-name").value;
+programState.revDate = document.getElementById("sign-rev-date").value;
+programState.appName = document.getElementById("sign-app-name").value;
+programState.appDate = document.getElementById("sign-app-date").value;
 
     try {
         await store.save();
@@ -413,9 +559,15 @@ function populateTargetRiskSelector(workPlanList) {
 /**
  * Safe text update routine preventing cursor reset focus issues during typing inputs
  */
+/**
+ * Safe text update routine preventing cursor reset focus issues during typing inputs
+ */
 function setTextAreaValWithoutFocusLoss(elementId, textValue) {
     const el = document.getElementById(elementId);
-    if (el && !el.matches(':focus')) el.value = textValue;
+    // FIXED: Enforce a strict fallback to an empty string if the value arrives undefined or null
+    if (el && !el.matches(':focus')) {
+        el.value = (textValue !== undefined && textValue !== null) ? textValue : "";
+    }
 }
 
 /**
@@ -423,7 +575,10 @@ function setTextAreaValWithoutFocusLoss(elementId, textValue) {
  */
 function setInputValWithoutFocusLoss(elementId, textValue) {
     const el = document.getElementById(elementId);
-    if (el && !el.matches(':focus')) el.value = textValue;
+    // FIXED: Enforce a strict fallback to an empty string if the value arrives undefined or null
+    if (el && !el.matches(':focus')) {
+        el.value = (textValue !== undefined && textValue !== null) ? textValue : "";
+    }
 }
 
 /**

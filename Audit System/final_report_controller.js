@@ -116,6 +116,15 @@ function renderFinalReportWorkspace(data) {
 
     const lblDuration = document.getElementById("lbl-pull-duration");
     if (lblDuration) lblDuration.textContent = `${targetRow.durationValue || 4} ${targetRow.scale || 'Weeks'}`;
+    // --- SECURE AUTHORIZATION SIGN-OFF PARAMETERS (FALLBACK EXTENDED MAPPING) ---
+    
+
+    const finalAuthorizedOfficer = finalState.authorizerName || previousDraftState.authorizerName || previousProgramState.appName || targetRow.approver || "";
+
+    setInputValWithoutFocusLoss("txt-auth-officer", finalAuthorizedOfficer);
+    setInputValWithoutFocusLoss("txt-auth-title", finalState.authorizerTitle || "Head of Internal Audit");
+    setInputValWithoutFocusLoss("txt-auth-token", finalState.secureToken || "");
+    setInputValWithoutFocusLoss("txt-auth-timestamp", finalState.timestamp || "");
 
     // --- SECURE AUTHORIZATION SIGN-OFF PARAMETERS ---
     setInputValWithoutFocusLoss("txt-auth-officer", finalState.authorizerName || "");
@@ -129,9 +138,26 @@ function renderFinalReportWorkspace(data) {
 }
 
 
+/**
+ * Safe text update routine preventing cursor reset focus issues during typing inputs
+ */
+function setTextAreaValWithoutFocusLoss(elementId, textValue) {
+    const el = document.getElementById(elementId);
+    // FIXED: Enforce a strict fallback to an empty string if the value arrives undefined or null
+    if (el && !el.matches(':focus')) {
+        el.value = (textValue !== undefined && textValue !== null) ? textValue : "";
+    }
+}
+
+/**
+ * Safe single-line input field update routine matching focus boundary criteria
+ */
 function setInputValWithoutFocusLoss(elementId, textValue) {
     const el = document.getElementById(elementId);
-    if (el && !el.matches(':focus')) el.value = textValue;
+    // FIXED: Enforce a strict fallback to an empty string if the value arrives undefined or null
+    if (el && !el.matches(':focus')) {
+        el.value = (textValue !== undefined && textValue !== null) ? textValue : "";
+    }
 }
 
 function populateTargetRiskSelector(workPlanList) {

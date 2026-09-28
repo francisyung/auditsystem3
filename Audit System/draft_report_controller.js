@@ -111,6 +111,21 @@ function renderDraftReportWorkspace(data) {
 
     // --- POPULATE ISOLATED EXECUTIVE SUMMARY SEGMENTS ---
     const segments = draftState.executiveSummarySegments || {};
+        // --- REVIEW AND SIGN-OFF INPUT LINES (WITH COMPLETE RE-MAPPED FALLBACK TRACKING) ---
+    
+    const draftPrepBy = draftState.reviewer1Name || previousProgramState.prepName || targetRow.leadAuditor || targetRow.auditorInput || "";
+    const draftRevBy  = draftState.reviewer2Name || previousProgramState.revName  || targetRow.auditor1 || targetRow.auditor2 || targetRow.auditor3 || "";
+    const draftAppBy  = draftState.authorizerName || previousProgramState.appName  || targetRow.approver || "";
+
+    setInputValWithoutFocusLoss("sign-rev1-name", draftPrepBy);
+    setInputValWithoutFocusLoss("sign-rev1-date", draftState.reviewer1Date || (previousProgramState.prepDate || ""));
+    
+    setInputValWithoutFocusLoss("sign-rev2-name", draftRevBy);
+    setInputValWithoutFocusLoss("sign-rev2-date", draftState.reviewer2Date || (previousProgramState.revDate || ""));
+    
+    setInputValWithoutFocusLoss("sign-auth-name", draftAppBy);
+    setInputValWithoutFocusLoss("sign-auth-date", draftState.authorizerDate || (previousProgramState.appDate || ""));
+
     setTextAreaValWithoutFocusLoss("txt-exec-intro",      segments.introduction || "");
     setTextAreaValWithoutFocusLoss("txt-exec-objectives", segments.objectives || "");
     setTextAreaValWithoutFocusLoss("txt-exec-findings",   segments.findings || "");
@@ -130,15 +145,28 @@ function renderDraftReportWorkspace(data) {
 }
 
 
+/**
+ * Safe text update routine preventing cursor reset focus issues during typing inputs
+ */
 function setTextAreaValWithoutFocusLoss(elementId, textValue) {
     const el = document.getElementById(elementId);
-    if (el && !el.matches(':focus')) el.value = textValue;
+    // FIXED: Enforce a strict fallback to an empty string if the value arrives undefined or null
+    if (el && !el.matches(':focus')) {
+        el.value = (textValue !== undefined && textValue !== null) ? textValue : "";
+    }
 }
 
+/**
+ * Safe single-line input field update routine matching focus boundary criteria
+ */
 function setInputValWithoutFocusLoss(elementId, textValue) {
     const el = document.getElementById(elementId);
-    if (el && !el.matches(':focus')) el.value = textValue;
+    // FIXED: Enforce a strict fallback to an empty string if the value arrives undefined or null
+    if (el && !el.matches(':focus')) {
+        el.value = (textValue !== undefined && textValue !== null) ? textValue : "";
+    }
 }
+
 
 function populateTargetRiskSelector(workPlanList) {
     const select = document.getElementById("sel-audit-target");
