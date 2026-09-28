@@ -24,7 +24,11 @@ document.addEventListener("DOMContentLoaded", () => {
 /**
  * Parses cloud snapshots to load metrics cards and checklist steps safely
  */
-function renderPlanProgramWorkspace(data) {
+/**
+ * Parses cloud snapshots to load metrics cards and checklist steps safely
+ * UPDATED: Injected async decryption intercepts to automatically decode cipher strings before rendering.
+ */
+async function renderPlanProgramWorkspace(data) { // 👈 Changed function to 'async'
     const workPlanList = data?.phase1_planning?.workPlan || [];
     const meta = data?.phase1_planning?.workPlanMetadata || {};
     const planProgram = data?.phase2_performing?.planProgram || {};
@@ -40,9 +44,31 @@ function renderPlanProgramWorkspace(data) {
 
     populateTargetRiskSelector(workPlanList);
 
-    const targetRow = workPlanList[activeTargetIndex] || workPlanList[0];
-    if (!targetRow) return;
+    const rawTargetRow = workPlanList[activeTargetIndex] || workPlanList[0];
+    if (!rawTargetRow) return;
     
+    // =========================================================================
+    // 🛡️ RE-ALIGNED DECRYPTION INTERCEPTOR OBJECT CLONE
+    // Automatically decrypts inherited data variables to clear cipher values on screen
+    // =========================================================================
+    const targetRow = { ...rawTargetRow };
+    try {
+        if (targetRow.auditObjectives && targetRow.auditObjectives.startsWith("SENTINEL_CIPHER:")) {
+            const cipherText = targetRow.auditObjectives.replace("SENTINEL_CIPHER:", "");
+            targetRow.auditObjectives = await window.SentinelCrypto.decryptDataField(cipherText);
+        }
+        if (targetRow.auditScopeBoundaries && targetRow.auditScopeBoundaries.startsWith("SENTINEL_CIPHER:")) {
+            const cipherText = targetRow.auditScopeBoundaries.replace("SENTINEL_CIPHER:", "");
+            targetRow.auditScopeBoundaries = await window.SentinelCrypto.decryptDataField(cipherText);
+        }
+        if (targetRow.riskDescription && targetRow.riskDescription.startsWith("SENTINEL_CIPHER:")) {
+            const cipherText = targetRow.riskDescription.replace("SENTINEL_CIPHER:", "");
+            targetRow.riskDescription = await window.SentinelCrypto.decryptDataField(cipherText);
+        }
+    } catch (cryptoErr) {
+        console.error("🔒 Cryptographic Exception: Failed to decode plan program inheritance vectors.", cryptoErr);
+    }
+
     const refNum = targetRow.refNumber;
 
     if (!planProgram.audits) planProgram.audits = {};
@@ -54,7 +80,12 @@ function renderPlanProgramWorkspace(data) {
         programState.trackingState = { status: "Draft", currentHolder: "officer", remarks: "" };
     }
 
+    // =========================================================================
+    // From here downwards, the rest of your original rendering code runs 100% the same,
+    // but reads 'targetRow' containing clean plain text definitions!
+    // =========================================================================
     const tState = programState.trackingState;
+
     const activeUserRole = localStorage.getItem("sentinel_active_role") || "officer";
     const isStageLocked = (activeUserRole !== tState.currentHolder || tState.status === "Approved");
 
