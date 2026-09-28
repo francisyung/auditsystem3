@@ -46,11 +46,18 @@ function renderWorkPlanWorkspace(data) {
             row.trackingState = { status: "Draft", currentHolder: "officer", remarks: "" };
         }
 
-        const itemState = row.trackingState;
+         const itemState = row.trackingState;
         const safeRefNum = window.escapeAttr(row.refNumber);
 
-        // Enforce field-level lockdowns strictly aligned to the specific item's owner and authorization state
-       const isItemLocked = (activeUserRole === "officer" && itemState.status === "Draft") ? "" : "disabled readonly opacity-60 pointer-events-none";
+        // =========================================================================
+        // 🛡️ RE-EDITABLE LOOP SEGREGATION SHIELD
+        // Fields are UNLOCKED *ONLY* if:
+        // 1. The logged-in role is strictly an "officer"
+        // 2. The item is in "Draft" OR has been sent back via "Returned_To_Officer"
+        // For any other status or supervisory role profile, freeze the data entirely!
+        // =========================================================================
+        const isEditableState = (itemState.status === "Draft" || itemState.status === "Returned_To_Officer");
+        const isItemLocked = (activeUserRole === "officer" && isEditableState) ? "" : "disabled readonly opacity-60 pointer-events-none";
 
         const tr = document.createElement("tr");
         tr.className = "border-b border-outline-variant/30 dark:border-slate-800 last:border-0 hover:bg-surface-container-low dark:hover:bg-slate-900/40 align-top transition-colors";
