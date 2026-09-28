@@ -44,16 +44,18 @@ function renderWorkPlanWorkspace(data) {
         // 🛡️ ITEM-ISOLATED INITIALIZATION: Assign a unique status tracking state per individual row if missing
         if (!row.trackingState) {
             row.trackingState = { status: "Draft", currentHolder: "officer", remarks: "" };
-        }
+        }Z
 
         const itemState = row.trackingState;
         const safeRefNum = window.escapeAttr(row.refNumber);
 
         // Enforce field-level lockdowns strictly aligned to the specific item's owner and authorization state
-        const isItemLocked = (activeUserRole !== itemState.currentHolder || itemState.status === "Approved") ? "disabled readonly opacity-60" : "";
+       const isItemLocked = (activeUserRole === "officer" && itemState.status === "Draft") ? "" : "disabled readonly opacity-60 pointer-events-none";
 
         const tr = document.createElement("tr");
         tr.className = "border-b border-outline-variant/30 dark:border-slate-800 last:border-0 hover:bg-surface-container-low dark:hover:bg-slate-900/40 align-top transition-colors";
+        
+        
         
         let riskBadgeClass = "bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-300";
         let displayLevel = row.riskLevel || "LOW";
@@ -148,19 +150,40 @@ function renderWorkPlanWorkspace(data) {
             <td class="p-2">
                 <textarea onchange="updatePlanField('${safeRefNum}', 'auditScopeBoundaries', this.value)" ${isItemLocked} rows="3" placeholder="Define boundaries..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none focus:ring-1 focus:ring-primary">${window.escapeAttr(row.auditScopeBoundaries || '')}</textarea>
             </td>
-            
-                       <!-- 7. Audit Duration Calendar (Continued) -->
+                        <!-- 7. Audit Duration Calendar (Restructured for Clear Visibility) -->
+            <td class="p-2 space-y-3 min-w-[180px] bg-slate-50/10 dark:bg-slate-900/5">
+                <!-- Duration Value & Scale Line Stack -->
                 <div class="space-y-1">
-                    <div class="flex items-center gap-1">
-                        <span class="text-[9px] uppercase font-bold text-slate-400">Start:</span>
-                        <input type="date" value="${row.startDate || ''}" ${isItemLocked} onchange="updatePlanField('${safeRefNum}', 'startDate', this.value)" class="flex-1 bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-[11px] rounded-lg p-1">
+                    <label class="block text-[9px] font-black uppercase text-slate-400">Project Duration:</label>
+                    <div class="grid grid-cols-2 gap-1">
+                        <input type="number" min="1" value="${row.durationValue || 4}" ${isItemLocked} 
+                               onchange="updatePlanNumericField('${safeRefNum}', 'durationValue', this.value)" 
+                               class="w-full bg-white dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 text-center font-bold">
+                        <select onchange="updatePlanField('${safeRefNum}', 'scale', this.value)" ${isItemLocked} 
+                                class="w-full text-xs font-semibold bg-white dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5 cursor-pointer">
+                            <option value="Weeks" ${row.scale === 'Weeks' ? 'selected' : ''}>Weeks</option>
+                            <option value="Months" ${row.scale === 'Months' ? 'selected' : ''}>Months</option>
+                        </select>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <span class="text-[9px] uppercase font-bold text-slate-400">End:</span>
-                        <input type="date" value="${row.endDate || ''}" class="flex-1 bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-[11px] rounded-lg p-1" readonly disabled>
+                </div>
+
+                <!-- Calendar Timestamps Section -->
+                <div class="space-y-1.5 border-t border-dashed border-outline-variant/30 pt-1.5">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[9px] uppercase font-black text-slate-400 w-10">Start:</span>
+                        <input type="date" value="${row.startDate || ''}" ${isItemLocked} 
+                               onchange="updatePlanField('${safeRefNum}', 'startDate', this.value)" 
+                               class="flex-1 bg-white dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-[11px] rounded-lg p-1 font-medium">
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[9px] uppercase font-black text-slate-400 w-10">End:</span>
+                        <input type="date" value="${row.endDate || ''}" 
+                               class="flex-1 bg-slate-50 dark:bg-slate-900/40 border border-outline-variant/40 dark:border-slate-700 text-[11px] rounded-lg p-1 text-slate-500 font-bold" 
+                               readonly disabled>
                     </div>
                 </div>
             </td>
+
             
             <!-- 8. Audit resources -->
             <td class="p-2 space-y-2">

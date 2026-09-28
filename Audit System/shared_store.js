@@ -665,18 +665,23 @@ class CloudAuditStoreManager {
         await this.save();
     }
 
+       // --- PHASE 1: PLANNING DIRECT UPDATE HANDLERS ---
     async updateWorkPlan(workPlanRowsArray, runningBudgetTotal, approvalMinutes, approvalDate) {
         if (!this.current) return;
         if (!this.current.phase1_planning) this.current.phase1_planning = {};
         
         const encryptedWorkPlanRows = await Promise.all(workPlanRowsArray.map(async (row) => {
             const rowCopy = { ...row };
+            
+            // 🛡️ Aligned cleanly to window.SentinelCrypto
             if (rowCopy.auditObjectives && !rowCopy.auditObjectives.startsWith("SENTINEL_CIPHER:")) {
                 const cipher = await window.SentinelCrypto.encryptDataField(rowCopy.auditObjectives);
                 rowCopy.auditObjectives = `SENTINEL_CIPHER:${cipher}`;
             }
+            
+            // 🔄 FIXED TYPO HERE: Swapped broken 'window.SentinelCipher' to 'window.SentinelCrypto'
             if (rowCopy.auditScopeBoundaries && !rowCopy.auditScopeBoundaries.startsWith("SENTINEL_CIPHER:")) {
-                const cipher = await window.SentinelCipher.encryptDataField(rowCopy.auditScopeBoundaries);
+                const cipher = await window.SentinelCrypto.encryptDataField(rowCopy.auditScopeBoundaries);
                 rowCopy.auditScopeBoundaries = `SENTINEL_CIPHER:${cipher}`;
             }
             return rowCopy;
@@ -684,10 +689,13 @@ class CloudAuditStoreManager {
 
         this.current.phase1_planning.workPlan = encryptedWorkPlanRows;
         this.current.phase1_planning.workPlanMetadata = {
-            cumulativeBudget: runningBudgetTotal, minuteNumberRef: approvalMinutes, approvalDate: approvalDate
+            cumulativeBudget: runningBudgetTotal, 
+            minuteNumberRef: approvalMinutes, 
+            approvalDate: approvalDate
         };
         await this.save();
     }
+
 
     // =========================================================================
     // 6. PHASE 2: PERFORMING / EXECUTION INTER-OPERABILITY PIPELINES
