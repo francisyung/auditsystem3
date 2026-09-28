@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel Core Audit System — User Management</title>
+    <!-- Tailwind CSS with Forms & Container Queries Plugins -->  
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>  
+
+    <!-- Fonts: Manrope (headlines) + Inter (body) -->  
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>  
+    <!-- Material Symbols Outlined -->  
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>  
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        surface: '#16181a',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Material Symbols Visual Anchor Loader -->
+    
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        @media print {
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-[#090b0d] dark:text-slate-100 font-sans min-h-screen transition-colors duration-200">
+
+    <!-- Header Navigation Layout Panel Bar -->
+    <header class="no-print bg-white dark:bg-[#111315] border-b border-slate-200 dark:border-slate-800/80 px-8 py-3 flex items-center justify-between shadow-sm">
+        <div class="flex items-center gap-2.5">
+            <span class="material-symbols-outlined text-sky-500 text-2xl">shield_person</span>
+            <div class="font-mono text-xs tracking-wider">
+                <span class="font-black text-sky-400">SENTINEL</span> CORE AUDIT SECURITY ENGINE
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <!-- Theme Layout Toggle Switch Button Component -->
+            <button onclick="window.Theme ? window.Theme.toggle() : document.documentElement.classList.toggle('dark')" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-colors">
+                <span class="material-symbols-outlined text-lg" data-theme-icon>dark_mode</span>
+            </button>
+            <div class="text-[10px] px-2.5 py-1 rounded-md bg-red-950/60 text-red-400 font-bold border border-red-800/40 uppercase tracking-widest font-mono">
+                System Realm: HIA_ROOT
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Administrative Workspace Context Grid Panel -->
+    <main class="p-6 max-w-[1600px] w-full mx-auto space-y-6">
+        
+        <!-- Action Row Dashboard Control Header Banner Section -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-slate-200 dark:border-slate-800 gap-4">
+            <div>
+                <h1 class="text-xl font-black tracking-wider text-slate-900 dark:text-sky-400 uppercase flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sky-500">manage_accounts</span> Central Security Administration Console
+                </h1>
+                <p class="text-xs text-slate-500 font-medium mt-1">Manage tenant directory credentials, override system isolation boundary settings, and modify authorization clearance profiles [1].</p>
+            </div>
+            <button onclick="routeBackToDashboardUniverse()" class="no-print px-4 py-2 text-xs font-black uppercase tracking-wider bg-slate-800 hover:bg-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-200 rounded-lg shadow transition-colors flex items-center gap-1.5 focus:outline-none border border-slate-700/50">
+                <span class="material-symbols-outlined text-xs">arrow_back</span> Return to Dashboard
+            </button>
+        </div>
+
+        <!-- User Directory Master Component Grid Box Layout Frame -->
+        <div class="bg-white dark:bg-[#16181a] border border-slate-200 dark:border-slate-800/80 rounded-2xl overflow-hidden shadow-xl transition-all duration-300">
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse text-left">
+                    <thead>
+                        <tr class="bg-slate-50 dark:bg-[#0f1112] border-b border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                            <th class="p-4 text-center w-12">#</th>
+                            <th class="p-4">User Profile Account / Unique Identity UID</th>
+                            <th class="p-4">Corporate Mapped Work Email</th>
+                            <th class="p-4">Assigned Security Clearance Profile Tier</th>
+                            <th class="p-4">Creation Date (KE)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbl-users-management-body" class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                        <!-- Dynamic grid metric tracking rows are compiled and injected here by admin_user_management.js -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Asynchronous Reactive Cloud Fetch Status Indicator Node -->
+            <div id="lbl-users-loading" class="p-12 text-center text-xs font-mono font-bold text-sky-500 bg-slate-50/50 dark:bg-slate-900/10 border-t border-slate-200 dark:border-slate-800/40">
+                <span class="inline-block w-2 h-2 bg-sky-500 rounded-full mr-2 animate-ping"></span> 
+                QUERYING ENCRYPTED SECURE WORKSPACE MEMBER NODES HANDSHAKE...
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Essential System Architecture Script Declarations -->
+    <!-- 1. The Core Infrastructure Module (Enforces real-time system logs) -->
+    <script type="module" src="shared_store.js"></script>
+    
+    <!-- 2. Authentication Context Matrix Loader Script Asset -->
+    <script type="module" src="firebase_script.js"></script>
+    
+    <!-- 3. The Isolated Administrative Grid View Matrix Logic Controller -->
+    <script type="module" src="admin_user_management.js"></script>
+
+</body>
+</html>

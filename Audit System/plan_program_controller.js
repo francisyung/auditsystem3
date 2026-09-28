@@ -1,18 +1,16 @@
 /**
  * Sentinel Core Audit Plan & Program Controller Module
  * Handles real-time cloud tracking and single-audit risk target parsing for Phase 2 Stage 1.
+ * PART 1 OF 2: PER-AUDIT ISOLATION, DATA RETRIEVAL & FIELD LOCKDOWN SHIELDS
  */
 
-// Volatile track index targeting the specific active audit line row from Phase 1
 let activeTargetIndex = 0; 
 
 document.addEventListener("DOMContentLoaded", () => {
     if (window.Theme) window.Theme.init();
     
-    // Connect live cloud listener subscription hook
     if (window.AuditStore) {
         window.AuditStore.subscribeToAudit((snapshotData) => {
-            // Read selection context tracker pointer key from master cloud planning layer
             let cloudIndex = snapshotData?.phase1_planning?.selectedExecutionId;
             if (cloudIndex !== undefined && cloudIndex !== null) {
                 activeTargetIndex = parseInt(cloudIndex);
@@ -23,10 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-
-/**
- * Parses cloud snapshots to load metrics cards and checklist steps
- */
 /**
  * Parses cloud snapshots to load metrics cards and checklist steps safely
  */
@@ -35,7 +29,6 @@ function renderPlanProgramWorkspace(data) {
     const meta = data?.phase1_planning?.workPlanMetadata || {};
     const planProgram = data?.phase2_performing?.planProgram || {};
     
-    // Fallback protection if no planning models are committed
     if (workPlanList.length === 0) {
         document.getElementById("empty-program-state")?.classList.remove("hidden");
         document.getElementById("active-program-workspace")?.classList.add("hidden");
@@ -45,22 +38,27 @@ function renderPlanProgramWorkspace(data) {
     document.getElementById("empty-program-state")?.classList.add("hidden");
     document.getElementById("active-program-workspace")?.classList.remove("hidden");
 
-    // Populate targeted selectable risk lines in the dropdown filter
     populateTargetRiskSelector(workPlanList);
 
-    // Isolate active target row parameters safely
     const targetRow = workPlanList[activeTargetIndex] || workPlanList[0];
     if (!targetRow) return;
     
     const refNum = targetRow.refNumber;
 
-    // --- PER-AUDIT ISOLATION LAYER ---
-    // Extract workspace state specifically linked to this audit area's unique ref number
     if (!planProgram.audits) planProgram.audits = {};
     if (!planProgram.audits[refNum]) planProgram.audits[refNum] = {};
     const programState = planProgram.audits[refNum];
 
-    // --- PIPELINE INHERITANCE: DATA FIELDS PULLED FROM PHASE 1 (WITH CRASH PROTECTION) ---
+    // Initialize group validation wrappers if absent from the audit node block
+    if (!programState.trackingState) {
+        programState.trackingState = { status: "Draft", currentHolder: "officer", remarks: "" };
+    }
+
+    const tState = programState.trackingState;
+    const activeUserRole = localStorage.getItem("sentinel_active_role") || "officer";
+    const isStageLocked = (activeUserRole !== tState.currentHolder || tState.status === "Approved");
+
+    // Populate data parameters pulled from Phase 1
     const elTitle = document.getElementById("lbl-pull-title");
     const elDept = document.getElementById("lbl-pull-department");
     const elPeriod = document.getElementById("lbl-pull-period");
@@ -71,23 +69,26 @@ function renderPlanProgramWorkspace(data) {
     if (elPeriod) elPeriod.textContent = `${targetRow.startDate || '—'} to ${targetRow.endDate || '—'}`;
     if (elDuration) elDuration.textContent = `${targetRow.durationValue || 4} ${targetRow.scale || 'Weeks'}`;
 
-    // --- CONSOLIDATED EDITABLE LOGIC ---
-    // If the user has saved an addition, use it. Otherwise, populate the textarea with the inherited Phase 1 value as default fallback text.
     const riskContent = programState.risksAdditions || targetRow.riskDescription || "";
     const objectiveContent = programState.auditObjectivesAdditions || targetRow.auditObjectives || "";
     const scopeContent = programState.auditScopeAdditions || targetRow.auditScopeBoundaries || "";
-    // --- AUTHENTICATION SIGN-OFF BLOCKS PATHS (WITH ENHANCED ALL-FIELD FALLBACKS) ---
-    // Safely reads the fields matching your image mapping data layout
-    const fallbackPreparedBy = programState.prepName || targetRow.leadAuditor || targetRow.auditorInput || "";
-    const fallbackReviewedBy = programState.revName  || targetRow.auditor1 || targetRow.auditor2 || targetRow.auditor3 || "";
-    const fallbackApprovedBy = programState.appName  || targetRow.approver || "Head of Internal Audit";
+
+    // 🛡️ RE-ALIGNED AUDITOR SEGREGATION DATA CORRELATION FIELDS
+    const fallbackPreparedBy = programState.prepName || targetRow.leadAuditor || ""; // LEAD
+    const fallbackReviewedBy = programState.revName  || targetRow.auditor1 || "";    // REVIEWER 1 (Audit Manager)
+    const fallbackApprovedBy = programState.appName  || targetRow.approver || "";    // APPROVER
+
+    
+    setInputValWithoutFocusLoss("sign-prep-date", programState.prepDate || targetRow.approvalDate || "");
+   
+    
+    
+    setInputValWithoutFocusLoss("sign-app-date", programState.appDate || targetRow.approvalDate || "");
 
     setInputValWithoutFocusLoss("sign-prep-name", fallbackPreparedBy);
     setInputValWithoutFocusLoss("sign-prep-date", programState.prepName ? (programState.prepDate || "") : (targetRow.approvalDate || ""));
-    
     setInputValWithoutFocusLoss("sign-rev-name", fallbackReviewedBy);
     setInputValWithoutFocusLoss("sign-rev-date", programState.revDate || "");
-    
     setInputValWithoutFocusLoss("sign-app-name", fallbackApprovedBy);
     setInputValWithoutFocusLoss("sign-app-date", programState.appName ? (programState.appDate || "") : (targetRow.approvalDate || ""));
 
@@ -99,7 +100,6 @@ function renderPlanProgramWorkspace(data) {
     setTextAreaValWithoutFocusLoss("txt-methodology", programState.methodology || "");
     setTextAreaValWithoutFocusLoss("txt-benchmarks", programState.evaluationCriteria || "");
 
-    // Populate Baseline Resource Lock Parameter Cards (Safely checked)
     const elBudget = document.getElementById("card-lock-budget");
     const elHeadcount = document.getElementById("card-lock-headcount");
     const elLead = document.getElementById("card-lock-lead");
@@ -112,33 +112,42 @@ function renderPlanProgramWorkspace(data) {
     if (elTeam) elTeam.textContent = [targetRow.auditor1, targetRow.auditor2].filter(Boolean).join(", ") || "—";
     if (elMinute) elMinute.textContent = meta.minuteNumberRef || "—";
 
-    // --- AUTHENTICATION SIGN-OFF BLOCKS PATHS ---
-    setInputValWithoutFocusLoss("sign-prep-name", programState.prepName || "");
-    setInputValWithoutFocusLoss("sign-prep-date", programState.prepDate || "");
-    setInputValWithoutFocusLoss("sign-rev-name", programState.revName || "");
-    setInputValWithoutFocusLoss("sign-rev-date", programState.revDate || "");
-    setInputValWithoutFocusLoss("sign-app-name", programState.appName || "");
-    setInputValWithoutFocusLoss("sign-app-date", programState.appDate || "");
+    // Enforce DOM field locks on narrative components dynamically based on validation states
+    document.querySelectorAll("textarea, #active-program-workspace input:not([id='txt-stage-remarks']), #active-program-workspace select:not([id='sel-audit-target'])").forEach(el => {
+        if (isStageLocked) {
+            el.setAttribute("disabled", "true");
+            el.classList.add("opacity-60", "bg-slate-100", "dark:bg-slate-900/50", "pointer-events-none");
+        } else {
+            el.removeAttribute("disabled");
+            el.classList.remove("opacity-60", "bg-slate-100", "dark:bg-slate-900/50", "pointer-events-none");
+        }
+    });
 
-    // --- RENDER EXECUTION CHECKLIST SUB-TABLE ---
-    renderProgramChecklistStepsTable(programState.steps || [], targetRow);
+    // Control structural addition visibility components
+    const btnAddRow = document.querySelector("button[onclick='addChecklistStepRow()']");
+    if (btnAddRow) {
+        if (isStageLocked) btnAddRow.classList.add("hidden");
+        else btnAddRow.classList.remove("hidden");
+    }
+
+    renderProgramChecklistStepsTable(programState.steps || [], targetRow, isStageLocked);
+    renderProgramWorkflowGatingControls(tState, activeUserRole, refNum);
 }
+/**
+ * Sentinel Core Audit Plan & Program Controller Module
+ * PART 2 OF 5: CANVAS RUNTIME INITIALIZATIONS, DECRYPTION INTERCEPTORS & CHECKSLIST RENDERING
+ */
 
 async function initializePhase2ProgramCanvas(data) {
-    // 1. Data extraction and safety fallback wrappers
     const planRows = data?.phase1_planning?.workPlan || [];
     const universeList = data?.phase1_planning?.universe || [];
     const planProgram = data?.phase2_performing?.planProgram || {};
     
-    // Resolve selected row pointer index key safely
     let activeIdx = data?.phase1_planning?.selectedExecutionId;
-    
-    // Fallback: If index pointer is unassigned, check for dynamic context or default to row 0
     if (activeIdx === undefined || activeIdx === null) {
         activeIdx = 0;
     }
     
-    // Halt logic loop gracefully if no operational scheduled lines exist
     if (planRows.length === 0) {
         document.getElementById("empty-program-state")?.classList.remove("hidden");
         document.getElementById("active-program-workspace")?.classList.add("hidden");
@@ -148,7 +157,6 @@ async function initializePhase2ProgramCanvas(data) {
     document.getElementById("empty-program-state")?.classList.add("hidden");
     document.getElementById("active-program-workspace")?.classList.remove("hidden");
 
-    // 2. Hydrate top-right select picker dropdown options element
     const selectTarget = document.getElementById("sel-audit-target");
     if (selectTarget) {
         selectTarget.innerHTML = planRows.map((r, i) => `
@@ -158,16 +166,12 @@ async function initializePhase2ProgramCanvas(data) {
         `).join('');
     }
 
-    // Isolate our active work plan data row object dictionary parameters
     const activeRow = planRows[activeIdx];
     if (!activeRow) return;
 
     const refNum = activeRow.refNumber;
-
-    // 3. Robust Relational Entity Mapping Computations
     const auditTitle = activeRow.auditAreaReplica || "Untitled Scope Area Assignment";
 
-    // Cross-reference department from universe
     let resolvedDepartment = "Operations / General Management";
     const rowRefSuffix = activeRow.refNumber ? activeRow.refNumber.split('-').pop() : "";
     const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === rowRefSuffix);
@@ -176,14 +180,12 @@ async function initializePhase2ProgramCanvas(data) {
         resolvedDepartment = matchedUniverseItem.processOwner;
     }
 
-    // Structure a friendly, scan-optimized timeline layout text block string
     const startStr = activeRow.startDate || "Not Scheduled";
     const endStr = activeRow.endDate || "Not Scheduled";
     const durationVal = activeRow.durationValue || 4;
     const durationScale = activeRow.scale || 'Weeks';
     const resolvedPeriodTimeline = `${startStr} to ${endStr} (${durationVal} ${durationScale})`;
 
-    // 4. Force DOM Insertion on matching banner elements
     const lblTitle = document.getElementById("lbl-pull-title");
     if (lblTitle) lblTitle.textContent = auditTitle.toUpperCase();
 
@@ -193,8 +195,6 @@ async function initializePhase2ProgramCanvas(data) {
     const lblPeriod = document.getElementById("lbl-pull-period");
     if (lblPeriod) lblPeriod.textContent = resolvedPeriodTimeline.toUpperCase();
 
-    // --- 🛡️ REAL-TIME FIELD-LEVEL DECRYPTION INTERCEPTION MODULE ---
-    // Safely detox text fields if they contain the cryptographically bound cipher marker token
     let plainObjectives = activeRow.auditObjectives || "";
     let plainScope = activeRow.auditScopeBoundaries || "";
     let plainRisks = activeRow.riskDescription || "";
@@ -216,7 +216,6 @@ async function initializePhase2ProgramCanvas(data) {
         console.error("🔒 Cryptographic Exception: Failed to decode data-at-rest ciphertext arrays.", cryptoErr);
     }
 
-    // 5. Hydrate narrative content parameters text area cards smoothly with clean plain text
     const txtObjectives = document.getElementById("txt-intro-bg"); 
     const txtScope = document.querySelector("[placeholder*='boundaries']");
     const txtRisks = document.getElementById("lbl-pull-risks");
@@ -231,18 +230,14 @@ async function initializePhase2ProgramCanvas(data) {
         txtRisks.textContent = plainRisks || "No mapped risk framework narrative definitions declared.";
     }
 
-       // --- 🚀 CRITICAL PIPELINE INHERITANCE MAP FOR SIGN-OFF FIELDS ---
-    // Extract workspace state specifically linked to this audit area's unique ref number
     if (!planProgram.audits) planProgram.audits = {};
     if (!planProgram.audits[refNum]) planProgram.audits[refNum] = {};
     const programState = planProgram.audits[refNum];
 
-    // FIXED: Safely look up fallbacks within the cloud data payload instead of referencing missing 'state' object
     const finalPreparedBy = programState.prepName || activeRow.leadAuditor || activeRow.auditorInput || "";
     const finalReviewedBy = programState.revName  || activeRow.auditor1 || activeRow.auditor2 || "";
     const finalApprovedBy = programState.appName  || activeRow.approver || "Head of Internal Audit";
 
-    // Inject evaluated textual string entries cleanly into your form fields
     setInputValWithoutFocusLoss("sign-prep-name", finalPreparedBy);
     setInputValWithoutFocusLoss("sign-prep-date", programState.prepName ? (programState.prepDate || "") : (activeRow.approvalDate || ""));
     
@@ -253,27 +248,15 @@ async function initializePhase2ProgramCanvas(data) {
     setInputValWithoutFocusLoss("sign-app-date", programState.appName ? (programState.appDate || "") : (activeRow.approvalDate || ""));
 }
 
-
-/**
- * UI Rendering
- * Builds table checklists matching individual program execution steps.
- */
-/**
- * UI Rendering
- * Builds table checklists matching individual program execution steps.
- */
-function renderProgramChecklistStepsTable(stepsArray, targetRow) {
-    // FIXED: Changed from "tbl-program-steps-body" to match your HTML "program-body"
+function renderProgramChecklistStepsTable(stepsArray, targetRow, isStageLocked) {
     const tbody = document.getElementById("program-body");
     if (!tbody) {
         console.warn("⚠️ HTML target element container '#program-body' was not found on the DOM layout tree.");
         return;
     }
     tbody.innerHTML = "";
-
     const refNum = targetRow.refNumber;
 
-    // Seed initial fallback row templates matching design rules if empty
     if (stepsArray.length === 0) {
         stepsArray = [{ 
             obj: "Verify structural perimeter rule update timestamps.", 
@@ -284,17 +267,24 @@ function renderProgramChecklistStepsTable(stepsArray, targetRow) {
             status: "Pending" 
         }];
         
-        const store = getAuditStore();
+        const store = window.AuditStore?.current;
         if (store) {
             if (!store.phase2_performing.planProgram.audits) store.phase2_performing.planProgram.audits = {};
             if (!store.phase2_performing.planProgram.audits[refNum]) store.phase2_performing.planProgram.audits[refNum] = {};
             store.phase2_performing.planProgram.audits[refNum].steps = stepsArray;
         }
     }
+/**
+ * Sentinel Core Audit Plan & Program Controller Module
+ * PART 3 OF 5: DYNAMIC FIELD RENDERERS & INLINE INJECTION COMPONENT LOOPS
+ */
 
-        stepsArray.forEach((step, index) => {
+    stepsArray.forEach((step, index) => {
         const tr = document.createElement("tr");
         tr.className = "border-b border-slate-200 dark:border-slate-800/60 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-900/40 align-middle transition-colors";
+        
+        // Conditional locking rule matching active tracking matrix permissions
+        const isElementLocked = isStageLocked ? "disabled readonly opacity-50" : "";
         
         tr.innerHTML = `
             <!-- 1. Serial Number Label Row -->
@@ -303,21 +293,21 @@ function renderProgramChecklistStepsTable(stepsArray, targetRow) {
             <!-- 2. Targeted Goal Objective Field Box -->
             <td class="p-2 min-w-[180px] max-w-[220px]">
                 <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0d0e10] p-1 shadow-sm focus-within:border-sky-500 transition-colors">
-                    ${window.cellInput(`step-\${index}-obj`, "Target Objective", step.obj || "", "text", "px-2 py-1 bg-transparent border-0 focus:ring-0 text-xs w-full")}
+                    <input type="text" name="step-${index}-obj" value="${window.escapeAttr(step.obj || '')}" placeholder="Target Objective" ${isElementLocked} class="px-2 py-1 bg-transparent border-0 focus:ring-0 text-xs w-full text-on-surface dark:text-slate-200">
                 </div>
             </td>
             
             <!-- 3. Associated Vectors Risk Box -->
             <td class="p-2 min-w-[180px] max-w-[220px]">
                 <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0d0e10] p-1 shadow-sm focus-within:border-sky-500 transition-colors">
-                    ${window.cellInput(`step-\${index}-risk`, "Risk Association", step.risk || "", "text", "px-2 py-1 bg-transparent border-0 focus:ring-0 text-xs w-full")}
+                    <input type="text" name="step-${index}-risk" value="${window.escapeAttr(step.risk || '')}" placeholder="Risk Association" ${isElementLocked} class="px-2 py-1 bg-transparent border-0 focus:ring-0 text-xs w-full text-on-surface dark:text-slate-200">
                 </div>
             </td>
             
             <!-- 4. Core Substantive Audit Activities -->
             <td class="p-2 min-w-[180px] max-w-[220px]">
                 <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0d0e10] p-1 shadow-sm focus-within:border-sky-500 transition-colors">
-                    ${window.cellInput(`step-\${index}-activity`, "Core Activity", step.activity || "", "text", "px-2 py-1 bg-transparent border-0 focus:ring-0 text-xs w-full")}
+                    <input type="text" name="step-${index}-activity" value="${window.escapeAttr(step.activity || '')}" placeholder="Core Activity" ${isElementLocked} class="px-2 py-1 bg-transparent border-0 focus:ring-0 text-xs w-full text-on-surface dark:text-slate-200">
                 </div>
             </td>
             
@@ -327,15 +317,17 @@ function renderProgramChecklistStepsTable(stepsArray, targetRow) {
                     name="step-${index}-instructions" 
                     rows="2" 
                     placeholder="Instructions..." 
-                    class="w-full bg-white dark:bg-[#0d0e10] border border-slate-200 dark:border-slate-700 text-xs rounded-lg p-2 focus:outline-none focus:border-sky-500 shadow-sm transition-colors resize-y min-h-[42px]"
+                    ${isElementLocked}
+                    class="w-full bg-white dark:bg-[#0d0e10] border border-slate-200 dark:border-slate-700 text-xs rounded-lg p-2 focus:outline-none focus:border-sky-500 shadow-sm transition-colors resize-y min-h-[42px] text-on-surface dark:text-slate-200"
                 >${window.escapeAttr(step.instructions || "")}</textarea>
             </td>
             
-            <!-- 6. Status Selection (Now cleanly placed under the Status / Remarks Column) -->
+            <!-- 6. Status Selection -->
             <td class="p-2 w-40">
                 <select 
                     name="step-${index}-status" 
-                    class="w-full text-xs font-semibold bg-white dark:bg-[#0d0e10] border border-slate-200 dark:border-slate-700 rounded-lg p-2 shadow-sm focus:outline-none focus:border-sky-500 cursor-pointer"
+                    ${isElementLocked}
+                    class="w-full text-xs font-semibold bg-white dark:bg-[#0d0e10] border border-slate-200 dark:border-slate-700 rounded-lg p-2 shadow-sm focus:outline-none focus:border-sky-500 cursor-pointer text-on-surface dark:text-slate-200"
                 >
                     <option value="Pending" ${step.status === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
                     <option value="In Progress" ${step.status === 'In Progress' ? 'selected' : ''}>⚡ In Progress</option>
@@ -343,32 +335,30 @@ function renderProgramChecklistStepsTable(stepsArray, targetRow) {
                 </select>
             </td>
             
-            <!-- 7. Interactive Actions Command Row (Now directly above REMOVE button) -->
+            <!-- 7. Interactive Actions Command Row -->
             <td class="p-3 text-center w-24 no-print">
                 <button 
                     onclick="removeChecklistStepRow(${index})" 
-                    class="px-2 py-1.5 text-[10px] font-black uppercase tracking-wider text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-md transition-colors"
+                    ${isStageLocked ? "disabled" : ""}
+                    class="px-2 py-1.5 text-[10px] font-black uppercase tracking-wider text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-md transition-colors ${isStageLocked ? 'hidden' : ''}"
                 >
                     Remove
                 </button>
             </td>
         `;
         
-        // Attach change listeners to cells to track inline input entries
         tr.querySelectorAll("input, select, textarea").forEach(inputElement => {
             inputElement.addEventListener("change", () => saveChecklistStepRowInlineData(index, tr));
         });
 
         tbody.appendChild(tr);
     });
-
 }
-
-
 /**
- * Data Mutations / CRUD Operations
- * FIXED: Enabled automatic sync commit so the procedure addition populates immediately on screen
+ * Sentinel Core Audit Plan & Program Controller Module
+ * PART 4 OF 5: CHECKLIST ROW CRUD HANDLERS & INLINE FIELD PERSISTENCE ENGINES
  */
+
 async function addChecklistStepRow() {
     const store = getAuditStore();
     if (!store) return;
@@ -396,7 +386,6 @@ async function addChecklistStepRow() {
     store.phase2_performing.planProgram.audits[refNum].steps = steps;
 
     try {
-        // Direct commit ensures real-time UI synchronization without reset wipes
         await window.AuditStore.save();
     } catch(err) {
         console.error("Failed to commit newly added step to cloud layer.", err);
@@ -432,21 +421,15 @@ function saveChecklistStepRowInlineData(index, trElement) {
     const step = store.phase2_performing?.planProgram?.audits?.[targetRow.refNumber]?.steps?.[index];
     if (!step) return;
 
-    // Use flexible, name-ending wildcards to bypass formatting issues from window.cellInput
-    step.obj = trElement.querySelector(`input[name*="obj"], [name$="obj"]`)?.value || trElement.querySelector(`input:nth-child(1)`)?.value || "";
-    step.risk = trElement.querySelector(`input[name*="risk"], [name$="risk"]`)?.value || "";
-    step.activity = trElement.querySelector(`input[name*="activity"], [name$="activity"]`)?.value || "";
+    step.obj = trElement.querySelector(`input[name*="obj"]`)?.value || "";
+    step.risk = trElement.querySelector(`input[name*="risk"]`)?.value || "";
+    step.activity = trElement.querySelector(`input[name*="activity"]`)?.value || "";
     step.instructions = trElement.querySelector(`textarea[name*="instructions"]`)?.value || "";
     step.status = trElement.querySelector(`select`)?.value || "Pending";
     
-    // Automatically save text changes behind the scenes cleanly
     window.AuditStore.save();
 }
 
-
-/**
- * Pushes general context narrative field sets to the active database structure model
- */
 async function commitProgramWorkspaceState() {
     const store = window.AuditStore;
     if (!store || !store.current) return;
@@ -471,34 +454,144 @@ async function commitProgramWorkspaceState() {
     programState.methodology = document.getElementById("txt-methodology").value;
     programState.evaluationCriteria = document.getElementById("txt-benchmarks").value;
 
-    
-// Make sure these lines are inside your commitProgramWorkspaceState() function before you save:
-programState.prepName = document.getElementById("sign-prep-name").value;
-programState.prepDate = document.getElementById("sign-prep-date").value;
-programState.revName = document.getElementById("sign-rev-name").value;
-programState.revDate = document.getElementById("sign-rev-date").value;
-programState.appName = document.getElementById("sign-app-name").value;
-programState.appDate = document.getElementById("sign-app-date").value;
+    programState.prepName = document.getElementById("sign-prep-name").value;
+    programState.prepDate = document.getElementById("sign-prep-date").value;
+    programState.revName = document.getElementById("sign-rev-name").value;
+    programState.revDate = document.getElementById("sign-rev-date").value;
+    programState.appName = document.getElementById("sign-app-name").value;
+    programState.appDate = document.getElementById("sign-app-date").value;
 
     try {
         await store.save();
-        alert("Audit execution checkpoints and narrative modifications synchronized up to Firestore cloud nodes! 🌐");
     } catch (err) {
-        alert("Failed to sync structural program data fields.");
+        console.error("Failed to sync structural program data fields.", err);
     }
+}
+/**
+ * Sentinel Core Audit Plan & Program Controller Module
+ * PART 5 OF 5: TARGETED STAGE WORKFLOW CONTROLS & UTILITY LOOKUP HOOKS
+ */
+
+/**
+ * Injects a floating validation bar at the bottom to transition the specific audit program through gates
+ */
+function renderProgramWorkflowGatingControls(trackingState, activeUserRole, refNum) {
+    let panel = document.getElementById("sentinel-program-workflow-panel");
+    if (!panel) {
+        panel = document.createElement("div");
+        panel.id = "sentinel-program-workflow-panel";
+        panel.className = "p-4 my-6 bg-slate-50 dark:bg-[#111315] border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 max-w-[1600px] mx-auto no-print shadow-sm";
+        const mainWorkspace = document.getElementById("active-program-workspace");
+        if (mainWorkspace) mainWorkspace.appendChild(panel);
+    }
+
+    const badgeColorMap = {
+        "Draft": "bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-400",
+        "Pending_Lead": "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300",
+        "Pending_Reviewer": "bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300",
+        "Pending_Approver": "bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300",
+        "Approved": "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300",
+        "Returned_To_Officer": "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300",
+        "Returned_To_Lead": "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+    };
+
+    const statusStyle = badgeColorMap[trackingState.status] || "bg-slate-100 text-slate-800";
+    let interfaceActionsHtml = "";
+    const isHolder = activeUserRole === trackingState.currentHolder;
+
+    if (isHolder && trackingState.status !== "Approved") {
+        interfaceActionsHtml = `
+            <div class="flex items-center gap-2">
+                <input type="text" id="txt-stage-remarks" placeholder="Enter review remarks..." class="bg-[#1e293b] border border-slate-700/50 p-2 text-xs rounded text-white focus:outline-none w-56">
+                ${activeUserRole === "officer" ? `
+                    <button onclick="commitProgramStageTransition('${refNum}', 'Pending_Lead')" class="px-3 py-2 text-xs font-black uppercase tracking-wider bg-sky-600 hover:bg-sky-700 text-white rounded">Submit Program</button>
+                ` : activeUserRole === "leadauditor" ? `
+                    <button onclick="commitProgramStageTransition('${refNum}', 'Pending_Reviewer')" class="px-3 py-2 text-xs font-black uppercase tracking-wider bg-sky-600 hover:bg-sky-700 text-white rounded">To Reviewer</button>
+                    <button onclick="commitProgramStageTransition('${refNum}', 'Returned_To_Officer')" class="px-3 py-2 text-xs font-black uppercase tracking-wider bg-amber-600 hover:bg-amber-700 text-white rounded">Return</button>
+                ` : activeUserRole === "reviewer" ? `
+                    <button onclick="commitProgramStageTransition('${refNum}', 'Pending_Approver')" class="px-3 py-2 text-xs font-black uppercase tracking-wider bg-indigo-600 hover:bg-indigo-700 text-white rounded">To Approver</button>
+                    <button onclick="commitProgramStageTransition('${refNum}', 'Returned_To_Lead')" class="px-3 py-2 text-xs font-black uppercase tracking-wider bg-amber-600 hover:bg-amber-700 text-white rounded">Return</button>
+                ` : activeUserRole === "approver" ? `
+                    <button onclick="commitProgramStageTransition('${refNum}', 'Approved')" class="px-3 py-2 text-xs font-black uppercase tracking-wider bg-emerald-600 hover:bg-emerald-700 text-white rounded">Approve & Sign</button>
+                    <button onclick="commitProgramStageTransition('${refNum}', 'Returned_To_Officer')" class="px-3 py-2 text-xs font-black uppercase tracking-wider bg-rose-600 hover:bg-rose-700 text-white rounded">Reject</button>
+                ` : ""}
+            </div>`;
+    } else {
+        interfaceActionsHtml = `<div class="text-xs text-slate-500 font-bold uppercase tracking-wider">
+            ${trackingState.status === "Approved" ? "✓ Execution Program Signed & Authorized" : `⏳ Awaiting verification by role [${trackingState.currentHolder.toUpperCase()}]`}
+        </div>`;
+    }
+
+    panel.innerHTML = `
+        <div class="flex items-center gap-3">
+            <span class="text-xs font-black uppercase tracking-widest text-slate-400">Program Status Gate:</span>
+            <span class="px-2.5 py-1 rounded text-xs font-black font-mono uppercase tracking-wider ${statusStyle}">
+                ${trackingState.status.replace(/_/g, ' ')}
+            </span>
+        </div>
+        ${interfaceActionsHtml}
+    `;
 }
 
 /**
- * Finalizes data entries and pipelines parameters directly into Stage 2 Draft Reports
+ * Executes secure tracking transitions upstream linked to specific audit entries
  */
+async function commitProgramStageTransition(refNum, targetStatus) {
+    const store = window.AuditStore;
+    if (!store || !store.current) return;
+
+    const remarksInput = document.getElementById("txt-stage-remarks");
+    const actualRemarks = remarksInput ? remarksInput.value.trim() : "";
+
+    if (!actualRemarks && targetStatus.startsWith("Returned")) {
+        alert("Action Required: Please provide explanatory remarks detailing your reason for rejecting or returning this configuration.");
+        return;
+    }
+
+    const actingUserRole = localStorage.getItem("sentinel_active_role") || "officer";
+    let nextHolder = actingUserRole;
+
+    if (targetStatus === "Pending_Lead") nextHolder = "leadauditor";
+    else if (targetStatus === "Pending_Reviewer") nextHolder = "reviewer";
+    else if (targetStatus === "Pending_Approver") nextHolder = "approver";
+    else if (targetStatus === "Approved") nextHolder = "officer";
+    else if (targetStatus === "Returned_To_Officer") nextHolder = "officer";
+    else if (targetStatus === "Returned_To_Lead") nextHolder = "leadauditor";
+
+    const programState = store.current.phase2_performing.planProgram.audits[refNum];
+    if (programState) {
+        programState.trackingState = {
+            status: targetStatus,
+            currentHolder: nextHolder,
+            remarks: actualRemarks || `Program validation passed cleanly to ${targetStatus}`
+        };
+    }
+
+    try {
+        await commitProgramWorkspaceState();
+        await store.writeSystemAuditLog(`Transitioned Program [${refNum}] state matrix to status [${targetStatus}] held by [${nextHolder}].`);
+        alert(`Audit Program status successfully updated to: ${targetStatus.replace(/_/g, ' ')}`);
+    } catch (err) {
+        alert("Failed to sync validation variables up to firestore collections.");
+    }
+}
+
 async function finalizeProgramAndProceedToDraft() {
     const store = window.AuditStore;
     if (!store || !store.current) return;
 
+    const workPlanList = store.current.phase1_planning?.workPlan || [];
+    const targetRow = workPlanList[activeTargetIndex] || workPlanList[0];
+    if (!targetRow) return;
+
+    const programState = store.current.phase2_performing?.planProgram?.audits?.[targetRow.refNumber];
+    if (programState?.trackingState?.status !== "Approved") {
+        alert("Pipeline Constraint: You cannot advance to the Draft Report phase until this program has been fully 'Approved' and signed off by the authorization authority.");
+        return;
+    }
+
     try {
         await commitProgramWorkspaceState();
-        
-        // Trigger the internal relational cloud data routing inheritance logic
         if (typeof store.carryToDraft === 'function') store.carryToDraft();
         window.location.href = "Draft_Audit_Report.html";
     } catch(err) {
@@ -522,17 +615,11 @@ function triggerWorkspaceReset() {
         }
     }
 }
-/**
- * Dynamically builds row target links based on available options inside the selector dropdown
- */
-/**
- * Dynamically builds row target links based on available options inside the selector dropdown
- */
+
 function populateTargetRiskSelector(workPlanList) {
     const select = document.getElementById("sel-audit-target");
     if (!select) return;
     
-    // If options are already loaded, just sync the current selection value state
     if (select.options.length > 0) {
         if (parseInt(select.value) !== activeTargetIndex) {
             select.value = activeTargetIndex;
@@ -541,49 +628,31 @@ function populateTargetRiskSelector(workPlanList) {
     }
 
     select.innerHTML = "";
-
     workPlanList.forEach((row, index) => {
         const opt = document.createElement("option");
         opt.value = index;
         opt.textContent = `[${row.refNumber}] ${row.auditAreaReplica}`;
-        if (index === activeTargetIndex) {
-            opt.selected = true;
-        }
+        if (index === activeTargetIndex) opt.selected = true;
         select.appendChild(opt);
     });
     
-    // Explicit safety sync
     select.value = activeTargetIndex;
 }
 
-/**
- * Safe text update routine preventing cursor reset focus issues during typing inputs
- */
-/**
- * Safe text update routine preventing cursor reset focus issues during typing inputs
- */
 function setTextAreaValWithoutFocusLoss(elementId, textValue) {
     const el = document.getElementById(elementId);
-    // FIXED: Enforce a strict fallback to an empty string if the value arrives undefined or null
     if (el && !el.matches(':focus')) {
         el.value = (textValue !== undefined && textValue !== null) ? textValue : "";
     }
 }
 
-/**
- * Safe single-line input field update routine matching focus boundary criteria
- */
 function setInputValWithoutFocusLoss(elementId, textValue) {
     const el = document.getElementById(elementId);
-    // FIXED: Enforce a strict fallback to an empty string if the value arrives undefined or null
     if (el && !el.matches(':focus')) {
         el.value = (textValue !== undefined && textValue !== null) ? textValue : "";
     }
 }
 
-/**
- * Event hook handler that swaps active context index spaces when choosing different audit metrics
- */
 function handleTargetRiskSwitch(selectedDropdownValueIndex) {
     activeTargetIndex = parseInt(selectedDropdownValueIndex);
     if (window.AuditStore && window.AuditStore.current) {
@@ -591,10 +660,6 @@ function handleTargetRiskSwitch(selectedDropdownValueIndex) {
     }
 }
 
-/**
- * Global Store Helper
- * Ensures safe, unified access to the application state memory payload.
- */
 function getAuditStore() {
     return window.AuditStore?.current;
 }

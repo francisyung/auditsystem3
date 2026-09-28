@@ -1,6 +1,7 @@
 /**
  * Sentinel Core Internal Audit Work Plan Controller
  * Governs scheduler matrices, dynamic role assignments, budget summation math, and cloud flows.
+ * PART 1 OF 2: CONDITIONAL INTERFACE RENDERERS & WORKFLOW ACCESS LOCKS
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -17,10 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
 /**
  * Loops and builds scheduling rows using inherited risk database vectors
  */
-//
-/**
- * Loops and builds scheduling rows using inherited risk database vectors
- */
 function renderWorkPlanWorkspace(data) {
     const planRows = data?.phase1_planning?.workPlan || [];
     const meta = data?.phase1_planning?.workPlanMetadata || {};
@@ -29,6 +26,16 @@ function renderWorkPlanWorkspace(data) {
 
     tbody.innerHTML = "";
 
+    // Establish stage-wide structural tracking variables if missing on database initialization
+    if (!data?.phase1_planning?.stageTrackingState) {
+        if (data) {
+            data.phase1_planning.stageTrackingState = { status: "Draft", currentHolder: "officer", remarks: "" };
+        }
+    }
+
+    const sState = data?.phase1_planning?.stageTrackingState || { status: "Draft", currentHolder: "officer" };
+    const activeUserRole = localStorage.getItem("sentinel_active_role") || "officer";
+
     if (planRows.length === 0) {
         document.getElementById("empty-plan-row")?.classList.remove("hidden");
         updateBudgetSummarySummaryTotals(0);
@@ -36,6 +43,9 @@ function renderWorkPlanWorkspace(data) {
     }
 
     document.getElementById("empty-plan-row")?.classList.add("hidden");
+
+    // Dynamic field lockdown conditional layer
+    const isStageLocked = (activeUserRole !== sState.currentHolder || sState.status === "Approved") ? "disabled readonly opacity-60" : "";
 
     planRows.forEach((row, idx) => {
         const tr = document.createElement("tr");
@@ -60,6 +70,9 @@ function renderWorkPlanWorkspace(data) {
         }
 
         const safeRefNum = window.escapeAttr(row.refNumber);
+
+        // Limit execution control buttons exclusively to fully verified operational blueprint schemas
+        const isLaunchButtonDisabled = sState.status !== "Approved" ? "opacity-30 pointer-events-none filter grayscale" : "";
 
         tr.innerHTML = `
             <!-- 1. S/number -->
@@ -87,19 +100,19 @@ function renderWorkPlanWorkspace(data) {
             
             <!-- 5. Audit Objectives -->
             <td class="p-2">
-                <textarea onchange="updatePlanField('${safeRefNum}', 'auditObjectives', this.value)" rows="3" placeholder="Enter objectives..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none focus:ring-1 focus:ring-primary">${window.escapeAttr(row.auditObjectives || '')}</textarea>
+                <textarea onchange="updatePlanField('${safeRefNum}', 'auditObjectives', this.value)" ${isStageLocked} rows="3" placeholder="Enter objectives..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none focus:ring-1 focus:ring-primary">${window.escapeAttr(row.auditObjectives || '')}</textarea>
             </td>
             
             <!-- 6. Audit Scope -->
             <td class="p-2">
-                <textarea onchange="updatePlanField('${safeRefNum}', 'auditScopeBoundaries', this.value)" rows="3" placeholder="Define boundaries..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none focus:ring-1 focus:ring-primary">${window.escapeAttr(row.auditScopeBoundaries || '')}</textarea>
+                <textarea onchange="updatePlanField('${safeRefNum}', 'auditScopeBoundaries', this.value)" ${isStageLocked} rows="3" placeholder="Define boundaries..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none focus:ring-1 focus:ring-primary">${window.escapeAttr(row.auditScopeBoundaries || '')}</textarea>
             </td>
             
-            <!-- 7. Audit Duration (With Target Automated Calculation Triggers) -->
+            <!-- 7. Audit Duration -->
             <td class="p-2 space-y-2">
                 <div class="flex gap-1.5">
-                    <input type="number" min="1" value="${row.durationValue || 4}" onchange="updatePlanNumericField('${safeRefNum}', 'durationValue', this.value)" class="w-16 bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 text-center">
-                    <select onchange="updatePlanField('${safeRefNum}', 'scale', this.value)" class="flex-1 text-xs bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5">
+                    <input type="number" min="1" value="${row.durationValue || 4}" ${isStageLocked} onchange="updatePlanNumericField('${safeRefNum}', 'durationValue', this.value)" class="w-16 bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 text-center">
+                    <select onchange="updatePlanField('${safeRefNum}', 'scale', this.value)" ${isStageLocked} class="flex-1 text-xs bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5">
                         <option value="Weeks" ${row.scale === 'Weeks' ? 'selected' : ''}>Weeks</option>
                         <option value="Months" ${row.scale === 'Months' ? 'selected' : ''}>Months</option>
                     </select>
@@ -107,11 +120,11 @@ function renderWorkPlanWorkspace(data) {
                 <div class="space-y-1">
                     <div class="flex items-center gap-1">
                         <span class="text-[9px] uppercase font-bold text-slate-400">Start:</span>
-                        <input type="date" value="${row.startDate || ''}" onchange="updatePlanField('${safeRefNum}', 'startDate', this.value)" class="flex-1 bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-[11px] rounded-lg p-1">
+                        <input type="date" value="${row.startDate || ''}" ${isStageLocked} onchange="updatePlanField('${safeRefNum}', 'startDate', this.value)" class="flex-1 bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-[11px] rounded-lg p-1">
                     </div>
                     <div class="flex items-center gap-1">
                         <span class="text-[9px] uppercase font-bold text-slate-400">End:</span>
-                        <input type="date" value="${row.endDate || ''}" onchange="updatePlanField('${safeRefNum}', 'endDate', this.value)" class="flex-1 bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-[11px] rounded-lg p-1" readonly disabled>
+                        <input type="date" value="${row.endDate || ''}" class="flex-1 bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-[11px] rounded-lg p-1" readonly disabled>
                     </div>
                 </div>
             </td>
@@ -120,31 +133,32 @@ function renderWorkPlanWorkspace(data) {
             <td class="p-2 space-y-2">
                 <div class="space-y-1">
                     <label class="block text-[9px] font-black uppercase text-slate-400">Budget (KES)</label>
-                    <input type="number" min="0" step="100" value="${row.budgetKsh || 0}" onchange="handleBudgetFieldModification('${safeRefNum}', this.value)" placeholder="Ksh" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs font-bold text-emerald-600 rounded-lg p-1.5">
+                    <input type="number" min="0" step="100" value="${row.budgetKsh || 0}" ${isStageLocked} onchange="handleBudgetFieldModification('${safeRefNum}', this.value)" placeholder="Ksh" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs font-bold text-emerald-600 rounded-lg p-1.5">
                 </div>
                 <div class="space-y-1">
                     <label class="block text-[9px] font-black uppercase text-slate-400">No. of Auditors</label>
-                    <input type="number" min="1" value="${row.noOfAuditors || 1}" onchange="updatePlanNumericField('${safeRefNum}', 'noOfAuditors', this.value)" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 text-center">
+                    <input type="number" min="1" value="${row.noOfAuditors || 1}" ${isStageLocked} onchange="updatePlanNumericField('${safeRefNum}', 'noOfAuditors', this.value)" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 text-center">
                 </div>
                 <div class="space-y-1">
                     <label class="block text-[9px] font-black uppercase text-slate-400">Physical Resources</label>
-                    <input type="text" value="${window.escapeAttr(row.physicalItResources || '')}" onchange="updatePlanField('${safeRefNum}', 'physicalItResources', this.value)" placeholder="e.g. Laptops, Scanners" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5">
+                    <input type="text" value="${window.escapeAttr(row.physicalItResources || '')}" ${isStageLocked} onchange="updatePlanField('${safeRefNum}', 'physicalItResources', this.value)" placeholder="e.g. Laptops" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5">
                 </div>
             </td>
             
             <!-- 9. Assignment of Auditors -->
             <td class="p-2 space-y-1.5">
-                <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Input</span><input type="text" value="${window.escapeAttr(row.auditorInput || '')}" onchange="updatePlanField('${safeRefNum}', 'auditorInput', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
-                <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Lead</span><input type="text" value="${window.escapeAttr(row.leadAuditor || '')}" onchange="updatePlanField('${safeRefNum}', 'leadAuditor', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
-                <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Reviewer 1</span><input type="text" value="${window.escapeAttr(row.auditor1 || '')}" onchange="updatePlanField('${safeRefNum}', 'auditor1', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
-                <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Reviewer 2</span><input type="text" value="${window.escapeAttr(row.auditor2 || '')}" onchange="updatePlanField('${safeRefNum}', 'auditor2', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
-                <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Reviewer 3</span><input type="text" value="${window.escapeAttr(row.auditor3 || '')}" onchange="updatePlanField('${safeRefNum}', 'auditor3', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
-                <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Approver</span><input type="text" value="${window.escapeAttr(row.approver || '')}" onchange="updatePlanField('${safeRefNum}', 'approver', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
+                <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Input</span><input type="text" value="${window.escapeAttr(row.auditorInput || '')}" ${isStageLocked} onchange="updatePlanField('${safeRefNum}', 'auditorInput', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
+                <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Input</span><input type="text" value="${window.escapeAttr(row.auditorInput || '')}" ${isStageLocked} onchange="updatePlanField('${safeRefNum}', 'auditorInput', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
+                <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Lead</span><input type="text" value="${window.escapeAttr(row.leadAuditor || '')}" ${isStageLocked} onchange="updatePlanField('${safeRefNum}', 'leadAuditor', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
+                <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Reviewer 1</span><input type="text" value="${window.escapeAttr(row.auditor1 || '')}" ${isStageLocked} onchange="updatePlanField('${safeRefNum}', 'auditor1', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
+                <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Reviewer 2</span><input type="text" value="${window.escapeAttr(row.auditor2 || '')}" ${isStageLocked} onchange="updatePlanField('${safeRefNum}', 'auditor2', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
+                <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Reviewer 3</span><input type="text" value="${window.escapeAttr(row.auditor3 || '')}" ${isStageLocked} onchange="updatePlanField('${safeRefNum}', 'auditor3', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
+                <div><span class="block text-[9px] uppercase font-bold text-slate-400 pl-0.5">Approver</span><input type="text" value="${window.escapeAttr(row.approver || '')}" ${isStageLocked} onchange="updatePlanField('${safeRefNum}', 'approver', this.value)" placeholder="Name" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1"></div>
             </td>
 
             <!-- NEW PIPELINE ACTION CELL: Launch Isolated Program Execution Stage -->
             <td class="p-3 text-center align-middle">
-                <button onclick="launchExecutionProgram(${idx})" class="px-3 py-2 text-[10px] font-black uppercase tracking-wider bg-primary dark:bg-sky-500 hover:opacity-90 text-white rounded-lg transition-all shadow flex items-center gap-1 mx-auto">
+                <button onclick="launchExecutionProgram(${idx})" class="${isLaunchButtonDisabled} px-3 py-2 text-[10px] font-black uppercase tracking-wider bg-primary dark:bg-sky-500 hover:opacity-90 text-white rounded-lg transition-all shadow flex items-center gap-1 mx-auto">
                     Launch <span class="material-symbols-outlined text-xs">rocket_launch</span>
                 </button>
             </td>
@@ -160,6 +174,112 @@ function renderWorkPlanWorkspace(data) {
     }
 
     calculateRunningBudgetTotal(planRows);
+    renderStageWorkflowControlPanel(sState, activeUserRole);
+}
+
+/**
+ * Injects a stage-wide floating validation bar to route the whole Work Plan collection at once
+ */
+function renderStageWorkflowControlPanel(stageTrackingState, activeUserRole) {
+    let panel = document.getElementById("sentinel-workplan-workflow-panel");
+    if (!panel) {
+        panel = document.createElement("div");
+        panel.id = "sentinel-workplan-workflow-panel";
+        panel.className = "p-4 my-6 bg-slate-50 dark:bg-[#111315] border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 max-w-[1600px] mx-auto no-print shadow-sm";
+        const tableContainer = document.querySelector("table")?.parentElement;
+        if (tableContainer) tableContainer.after(panel);
+    }
+
+    const badgeColorMap = {
+        "Draft": "bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-400",
+        "Pending_Lead": "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300",
+        "Pending_Reviewer": "bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300",
+        "Pending_Approver": "bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300",
+        "Approved": "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300",
+        "Returned_To_Officer": "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300"
+    };
+
+    const statusStyle = badgeColorMap[stageTrackingState.status] || "bg-slate-100 text-slate-800";
+    
+    let interfaceActionsHtml = "";
+    const isHolder = activeUserRole === stageTrackingState.currentHolder;
+
+    if (isHolder && stageTrackingState.status !== "Approved") {
+        interfaceActionsHtml = `
+            <div class="flex items-center gap-2">
+                <input type="text" id="txt-stage-remarks" placeholder="Enter workflow stage observations..." class="bg-[#1e293b] border border-slate-700/50 p-2 text-xs rounded text-white focus:outline-none w-56">
+                ${activeUserRole === "officer" ? `
+                    <button onclick="commitStageStateTransition('Pending_Lead')" class="px-3 py-2 text-xs font-black uppercase tracking-wider bg-sky-600 hover:bg-sky-700 text-white rounded">Submit Plan</button>
+                ` : activeUserRole === "leadauditor" ? `
+                    <button onclick="commitStageStateTransition('Pending_Reviewer')" class="px-3 py-2 text-xs font-black uppercase tracking-wider bg-sky-600 hover:bg-sky-700 text-white rounded">To Reviewer</button>
+                    <button onclick="commitStageStateTransition('Returned_To_Officer')" class="px-3 py-2 text-xs font-black uppercase tracking-wider bg-amber-600 hover:bg-amber-700 text-white rounded">Return</button>
+                ` : activeUserRole === "reviewer" ? `
+                    <button onclick="commitStageStateTransition('Pending_Approver')" class="px-3 py-2 text-xs font-black uppercase tracking-wider bg-indigo-600 hover:bg-indigo-700 text-white rounded">To Approver</button>
+                    <button onclick="commitStageStateTransition('Returned_To_Lead')" class="px-3 py-2 text-xs font-black uppercase tracking-wider bg-amber-600 hover:bg-amber-700 text-white rounded">Return</button>
+                ` : activeUserRole === "approver" ? `
+                    <button onclick="commitStageStateTransition('Approved')" class="px-3 py-2 text-xs font-black uppercase tracking-wider bg-emerald-600 hover:bg-emerald-700 text-white rounded">Authorize Plan</button>
+                    <button onclick="commitStageStateTransition('Returned_To_Officer')" class="px-3 py-2 text-xs font-black uppercase tracking-wider bg-rose-600 hover:bg-rose-700 text-white rounded">Reject</button>
+                ` : ""}
+            </div>`;
+    } else {
+        interfaceActionsHtml = `<div class="text-xs text-slate-500 font-bold uppercase tracking-wider">
+            ${stageTrackingState.status === "Approved" ? "✓ Operational Plan Authorized & Active" : `⏳ Awaiting tracking verification by role [${stageTrackingState.currentHolder.toUpperCase()}]`}
+        </div>`;
+    }
+
+    panel.innerHTML = `
+        <div class="flex items-center gap-3">
+            <span class="text-xs font-black uppercase tracking-widest text-slate-400">Stage Status Gate:</span>
+            <span class="px-2.5 py-1 rounded text-xs font-black font-mono uppercase tracking-wider ${statusStyle}">
+                ${stageTrackingState.status.replace(/_/g, ' ')}
+            </span>
+        </div>
+        ${interfaceActionsHtml}
+    `;
+}
+
+/**
+ * Transitions the entire collection stage upstream
+ */
+async function commitStageStateTransition(targetStatus) {
+    const store = window.AuditStore;
+    if (!store || !store.current) return;
+
+    const remarksInput = document.getElementById("txt-stage-remarks");
+    const actualRemarks = remarksInput ? remarksInput.value.trim() : "";
+
+    if (!actualRemarks && targetStatus.startsWith("Returned")) {
+        alert("Action Required: Please provide an explanatory remark detailing the reason for returning the stage design package.");
+        return;
+    }
+
+    const actingUserRole = localStorage.getItem("sentinel_active_role") || "officer";
+    let nextHolder = actingUserRole;
+
+    if (targetStatus === "Pending_Lead") nextHolder = "leadauditor";
+    else if (targetStatus === "Pending_Reviewer") nextHolder = "reviewer";
+    else if (targetStatus === "Pending_Approver") nextHolder = "approver";
+    else if (targetStatus === "Approved" || targetStatus.startsWith("Returned")) nextHolder = "officer";
+
+    store.current.phase1_planning.stageTrackingState = {
+        status: targetStatus,
+        currentHolder: nextHolder,
+        remarks: actualRemarks || `Stage transition processed cleanly to ${targetStatus}`
+    };
+
+    try {
+        const rows = store.current.phase1_planning.workPlan || [];
+        let computedSum = 0;
+        rows.forEach(r => computedSum += parseFloat(r.budgetKsh || 0));
+        const minutes = document.getElementById("txt-minutes")?.value || "";
+        const approvalDate = document.getElementById("txt-approval-date")?.value || "";
+
+                await store.updateWorkPlan(rows, computedSum, minutes, approvalDate);
+        await store.writeSystemAuditLog(`Transitioned Internal Work Plan stage-wide scope package to status [${targetStatus}] held by [${nextHolder}].`);
+        alert(`Stage state moved to ${targetStatus.replace(/_/g, ' ')} successfully.`);
+    } catch (err) {
+        alert("Failed to commit stage parameters up to cloud node layers.");
+    }
 }
 
 function updatePlanField(refNumber, fieldKey, val) {
@@ -167,27 +287,16 @@ function updatePlanField(refNumber, fieldKey, val) {
     if (!store || !store.current) return;
     
     const workPlan = store.current.phase1_planning.workPlan || [];
-    
-    // Strategy A: Find row by matching absolute unique reference number
     let targetRow = workPlan.find(w => w.refNumber === refNumber);
     
-    // Strategy B Fallback: If refNumber string lookup fails, attempt parsing out array index suffix
     if (!targetRow) {
-        const structuralIndexSuffix = refNumber.split('-').pop();
-        const parsedIndexIdx = parseInt(structuralIndexSuffix) - 1; 
-        if (workPlan[parsedIndexIdx]) {
-            targetRow = workPlan[parsedIndexIdx];
-        }
+        const indexIdx = parseInt(refNumber.split('-').pop()) - 1;
+        if (workPlan[indexIdx]) targetRow = workPlan[indexIdx];
     }
 
-    if (!targetRow) {
-        console.warn(`⚠️ Pipeline lookup failed. Row reference could not be localized: ${refNumber}`);
-        return;
-    }
-    
+    if (!targetRow) return;
     targetRow[fieldKey] = val;
 
-    // Run automated calendar verification math if a timeline metric changes
     if (fieldKey === 'startDate' || fieldKey === 'scale') {
         performAutomatedCalendarMath(targetRow);
     }
@@ -198,27 +307,16 @@ function updatePlanNumericField(refNumber, fieldKey, val) {
     if (!store || !store.current) return;
     
     const workPlan = store.current.phase1_planning.workPlan || [];
-    
-    // Strategy A: Find row by matching absolute unique reference number
     let targetRow = workPlan.find(w => w.refNumber === refNumber);
     
-    // Strategy B Fallback: Fallback safety lookup mapping
     if (!targetRow) {
-        const structuralIndexSuffix = refNumber.split('-').pop();
-        const parsedIndexIdx = parseInt(structuralIndexSuffix) - 1;
-        if (workPlan[parsedIndexIdx]) {
-            targetRow = workPlan[parsedIndexIdx];
-        }
+        const indexIdx = parseInt(refNumber.split('-').pop()) - 1;
+        if (workPlan[indexIdx]) targetRow = workPlan[indexIdx];
     }
 
-    if (!targetRow) {
-        console.warn(`⚠️ Pipeline lookup failed. Row reference could not be localized: ${refNumber}`);
-        return;
-    }
-    
+    if (!targetRow) return;
     targetRow[fieldKey] = parseInt(val) || 0;
 
-    // Run automated calendar verification math if duration numeric scalar changes
     if (fieldKey === 'durationValue') {
         performAutomatedCalendarMath(targetRow);
     }
@@ -229,33 +327,18 @@ function handleBudgetFieldModification(refNumber, numericValueValue) {
     if (!store || !store.current) return;
     
     const workPlan = store.current.phase1_planning.workPlan || [];
-    
-    // Strategy A: Find row by matching absolute unique reference number
     let targetRow = workPlan.find(w => w.refNumber === refNumber);
     
-    // Strategy B Fallback: Fallback safety lookup mapping
     if (!targetRow) {
-        const structuralIndexSuffix = refNumber.split('-').pop();
-        const parsedIndexIdx = parseInt(structuralIndexSuffix) - 1;
-        if (workPlan[parsedIndexIdx]) {
-            targetRow = workPlan[parsedIndexIdx];
-        }
+        const indexIdx = parseInt(refNumber.split('-').pop()) - 1;
+        if (workPlan[indexIdx]) targetRow = workPlan[indexIdx];
     }
 
-    if (!targetRow) {
-        console.warn(`⚠️ Pipeline lookup failed. Row reference could not be localized: ${refNumber}`);
-        return;
-    }
-    
+    if (!targetRow) return;
     targetRow.budgetKsh = parseFloat(numericValueValue) || 0;
     calculateRunningBudgetTotal(workPlan);
 }
 
-/**
- * Iterates through active arrays executing automated summation calculus equations
- *//**
- * Automatically computes end dates using start inputs and scaled duration bounds
- */
 function performAutomatedCalendarMath(row) {
     if (!row.startDate || !row.durationValue) return;
 
@@ -266,30 +349,23 @@ function performAutomatedCalendarMath(row) {
     const measurementScale = row.scale || "Weeks";
 
     if (measurementScale === "Weeks") {
-        // Add weeks (1 week = 7 days)
         baseDate.setDate(baseDate.getDate() + (scalarAmount * 7));
     } else if (measurementScale === "Months") {
-        // Add months safely across calendar year wrapping boundaries
         baseDate.setMonth(baseDate.getMonth() + scalarAmount);
     }
 
-    // Convert date object smoothly to local HTML standard pattern representation (YYYY-MM-DD)
     const computedYear = baseDate.getFullYear();
     const computedMonth = String(baseDate.getMonth() + 1).padStart(2, '0');
     const computedDay = String(baseDate.getDate()).padStart(2, '0');
 
     row.endDate = `${computedYear}-${computedMonth}-${computedDay}`;
 
-    // Force an immediate layout workspace re-render so the user sees the new end date on screen instantly
     const store = window.AuditStore;
     if (store && typeof renderWorkPlanWorkspace === 'function') {
         renderWorkPlanWorkspace(store.current);
     }
 }
 
-/**
- * Iterates through active arrays executing automated summation calculus equations
- */
 function calculateRunningBudgetTotal(rowsArray) {
     let sum = 0;
     rowsArray.forEach(r => {
@@ -300,7 +376,6 @@ function calculateRunningBudgetTotal(rowsArray) {
 
 function updateBudgetSummarySummaryTotals(totalAmount) {
     const formattedCurrency = new Intl.NumberFormat('en-KE', { style: 'currency', currency: 'KES' }).format(totalAmount);
-    
     const displayCard = document.getElementById("lbl-total-budget-card");
     const tableRowSum = document.getElementById("lbl-table-sum");
     
@@ -308,9 +383,6 @@ function updateBudgetSummarySummaryTotals(totalAmount) {
     if (tableRowSum) tableRowSum.textContent = formattedCurrency;
 }
 
-/**
- * Commits schedule states and inputs directly to Firestore
- */
 async function commitWorkPlanProgress() {
     const store = window.AuditStore;
     if (!store || !store.current) return;
@@ -324,20 +396,16 @@ async function commitWorkPlanProgress() {
 
     try {
         await store.updateWorkPlan(rows, computedSum, minutes, approvalDate);
-        alert("Internal Audit Work Plan configurations committed successfully to corporate cloud persistence layers! 🔒");
+        alert("Work Plan progress configuration committed successfully to corporate cloud persistence layers! 🔒");
     } catch (err) {
-        alert("Cloud communication exception encountered. Progress save aborted.");
+        alert("Cloud communication exception encountered. Save aborted.");
     }
 }
 
-/**
- * Persists the chosen active row index pointer to the cloud document tracking path, then advances routes
- */
 async function launchExecutionProgram(selectedIdx) {
     const store = window.AuditStore;
     if (!store || !store.current) return;
 
-    // Pull current spreadsheet input states to ensure dirty-form data safety before routing
     const rows = store.current.phase1_planning.workPlan || [];
     let computedSum = 0;
     rows.forEach(r => computedSum += parseFloat(r.budgetKsh || 0));
@@ -346,29 +414,18 @@ async function launchExecutionProgram(selectedIdx) {
     const approvalDate = document.getElementById("txt-approval-date")?.value || "";
 
     try {
-        // Initialize structural node safety check wrapper
         if (!store.current.phase1_planning) store.current.phase1_planning = {};
-        
-        // Write selection index directly into cloud configuration layer properties tracking token
         store.current.phase1_planning.selectedExecutionId = selectedIdx;
 
-        // Force a transaction upstream synchronization save
         await store.updateWorkPlan(rows, computedSum, minutes, approvalDate);
-        
-        // Fallback protection check handler for standard stage triggers
         if (typeof store.carryToDraft === 'function') store.carryToDraft();
         
-        // Dispatch document path location pointer route forward to Stage 2 Canvas Spreadsheet View
         window.location.href = "Audit_Plan&Program.html";
     } catch (err) {
-        console.error("Pipeline handoff validation error exception context trace:", err);
-        alert("Cloud pipeline tracking error: Failed to initialize selected audit execution line reference context.");
+        alert("Cloud pipeline tracking error: Failed to initialize selected audit execution line context.");
     }
 }
 
-/**
- * Transitions into Phase 2, Stage 1 (Legacy Button Catch Event Fallback Route Handler)
- */
 async function finalizePlanningAndAdvancePhase() {
     const store = window.AuditStore;
     if (!store || !store.current) return;
@@ -382,17 +439,14 @@ async function finalizePlanningAndAdvancePhase() {
     try {
         let computedSum = 0;
         rows.forEach(r => computedSum += parseFloat(r.budgetKsh || 0));
-        
         const minutes = document.getElementById("txt-minutes")?.value || "";
         const approvalDate = document.getElementById("txt-approval-date")?.value || "";
         
-        // Fallback protection defaults active item index state tracker index to row 0 if button hit blindly
         if (store.current.phase1_planning.selectedExecutionId === undefined) {
             store.current.phase1_planning.selectedExecutionId = 0;
         }
 
         await store.updateWorkPlan(rows, computedSum, minutes, approvalDate);
-        
         if (typeof store.carryToDraft === 'function') store.carryToDraft(); 
         window.location.href = "Audit_Plan&Program.html";
     } catch (err) {

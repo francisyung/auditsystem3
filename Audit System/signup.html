@@ -136,89 +136,91 @@
 <h2 class="font-headline font-bold text-2xl md:text-3xl text-primary mb-2">Create Account</h2>
 </div>
 <!-- The form for user signup -->
-<form action="#" class="space-y-4 md:space-y-6" id="signup-form" onsubmit="handleSignup(event)">
-    <!-- Full Name -->
-    <div class="space-y-1.5 md:space-y-2">
-        <label class="block font-headline font-semibold text-[10px] md:text-xs uppercase tracking-widest text-on-surface-variant" for="full_name">Full Name</label>
-        <div class="relative">
-            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">person</span>
-            <input class="w-full pl-12 pr-4 py-3 md:py-4 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-outline/50 font-body text-sm md:text-base" id="full_name" placeholder="Johnathan Doe" required="" type="text"/>
-        </div>
-    </div>
-    <!-- Work Email -->
-    <div class="space-y-1.5 md:space-y-2">
-        <label class="block font-headline font-semibold text-[10px] md:text-xs uppercase tracking-widest text-on-surface-variant" for="work_email">Work Email</label>
-        <div class="relative">
-            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">mail</span>
-            <input class="w-full pl-12 pr-4 py-3 md:py-4 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-outline/50 font-body text-sm md:text-base" id="work_email" placeholder="j.doe@company.com" required="" type="email"/>
-        </div>
-    </div>
-    <!-- Company Name -->
-    <div class="space-y-1.5 md:space-y-2">
-        <label class="block font-headline font-semibold text-[10px] md:text-xs uppercase tracking-widest text-on-surface-variant" for="company_name">Company Name</label>
-        <div class="relative">
-            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">business</span>
-            <input class="w-full pl-12 pr-4 py-3 md:py-4 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-outline/50 font-body text-sm md:text-base" id="company_name" placeholder="Sentinel Global Inc." required="" type="text"/>
-        </div>
-    </div>
-    <!-- Password -->
-    <div class="space-y-1.5 md:space-y-2">
-        <label class="block font-headline font-semibold text-[10px] md:text-xs uppercase tracking-widest text-on-surface-variant" for="password">Password</label>
-        <div class="relative">
-            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
-            <input class="w-full pl-12 pr-12 py-3 md:py-4 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-outline/50 font-body text-sm md:text-base" id="password" placeholder="••••••••••••" required="" type="password"/>
-            <button class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-primary transition-colors" type="button" onclick="togglePassword('password', this)">
-                <span class="material-symbols-outlined text-xl" data-icon="visibility">visibility</span>
-            </button>
-        </div>
-    </div>
-    <!-- Confirm Password -->
-    <div class="space-y-1.5 md:space-y-2">
-        <label class="block font-headline font-semibold text-[10px] md:text-xs uppercase tracking-widest text-on-surface-variant" for="confirm_password">Confirm Password</label>
-        <div class="relative">
-            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
-            <input class="w-full pl-12 pr-12 py-3 md:py-4 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-outline/50 font-body text-sm md:text-base" id="confirm_password" placeholder="••••••••••••" required="" type="password"/>
-            <button class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-primary transition-colors" type="button" onclick="togglePassword('confirm_password', this)">
-                <span class="material-symbols-outlined text-xl" data-icon="visibility">visibility</span>
-            </button>
-        </div>
-    </div>
-    <!-- Department -->
-    <div class="space-y-1.5 md:space-y-2">
-        <label class="block font-headline font-semibold text-[10px] md:text-xs uppercase tracking-widest text-on-surface-variant" for="department_id">Department</label>
-        <div class="relative">
-            <span class="material-symbols-outlined pointer-events-none absolute left-0 top-0 bottom-0 flex items-center justify-center w-12 text-outline text-[22px] leading-none z-10" aria-hidden="true">corporate_fare</span>
-            <span class="material-symbols-outlined pointer-events-none absolute right-0 top-0 bottom-0 flex items-center justify-center w-10 text-outline text-xl z-10" aria-hidden="true">expand_more</span>
-            <select class="w-full min-h-[48px] md:min-h-[52px] pl-12 pr-10 py-3 md:py-4 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-on-surface font-body text-sm md:text-base appearance-none cursor-pointer" id="department_id" required="">
-                <option value="">Select your department</option>
-                <option value="a0000001-0000-4000-8000-000000000001">Senior Auditor</option>
-                <option value="a0000002-0000-4000-8000-000000000002">Auditor Finance Department</option>
-                <option value="a0000003-0000-4000-8000-000000000003">IT Department</option>
-                <option value="a0000004-0000-4000-8000-000000000004">Legal Department</option>
-                <option value="a0000005-0000-4000-8000-000000000005">Finance Department</option>
-            </select>
-        </div>
-        <p class="text-xs text-on-surface-variant mt-1.5">Senior Auditor and Auditor Finance Department receive elevated system access.</p>
-    </div>
-    <!-- Terms & Conditions signup -->
-    <div class="flex items-start gap-3 py-1 md:py-2">
-        <input class="mt-1 w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary/20 bg-surface-container-low cursor-pointer" id="terms" required="" type="checkbox"/>
-        <label class="text-xs md:text-sm text-on-surface-variant leading-relaxed cursor-pointer select-none" for="terms">
-            I agree to the <a class="text-primary font-semibold hover:underline decoration-primary/30" href="#">Terms of Service</a> and <a class="text-primary font-semibold hover:underline decoration-primary/30" href="#">Privacy Policy</a>.
-        </label>
-    </div>
-    <!-- Action Button -->
-    <button id="signup-submit" class="w-full editorial-gradient text-white py-4 md:py-5 rounded-full font-headline font-bold text-base md:text-lg hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex justify-center items-center gap-2 group" type="submit">
-        <span>Create Account</span>
-        <span class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
-    </button>
-    <div class="pt-6 md:pt-8 text-center">
-        <p class="text-on-surface-variant font-body text-sm md:text-base">
-            Already using AuditLedger?
-            <a class="text-primary font-bold hover:underline ml-1" href="login.html">Login</a>
-        </p>
-    </div>
-</form>
+<form onsubmit="window.handleSignup(event)" class="space-y-3">
+                <!-- 1. Full Legal Name Field -->
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Full Identity Name</label>
+                    <div class="relative flex items-center">
+                        <span class="material-symbols-outlined absolute left-3 text-sm text-slate-500">person</span>
+                        <input type="text" id="full_name" placeholder="e.g. John Doe" class="w-full bg-slate-50 dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/50 p-2 pl-9 text-xs rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-sky-500 font-medium" required>
+                    </div>
+                </div>
+
+                <!-- 2. Work Email Address Mappings Field -->
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Corporate Work Email</label>
+                    <div class="relative flex items-center">
+                        <span class="material-symbols-outlined absolute left-3 text-sm text-slate-500">mail</span>
+                        <input type="email" id="work_email" placeholder="name@organization.com" class="w-full bg-slate-50 dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/50 p-2 pl-9 text-xs rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-sky-500 font-medium" required>
+                    </div>
+                </div>
+
+                <!-- 3. Company Name Affiliation -->
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Company / Organization Name</label>
+                    <div class="relative flex items-center">
+                        <span class="material-symbols-outlined absolute left-3 text-sm text-slate-500">business</span>
+                        <input type="text" id="company_name" placeholder="e.g. Kenya Revenue Authority" class="w-full bg-slate-50 dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/50 p-2 pl-9 text-xs rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-sky-500 font-medium" required>
+                    </div>
+                </div>
+
+                <!-- 4. Operational Assigned Core Departments Dropdown Menu -->
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Assigned Department</label>
+                    <div class="relative flex items-center">
+                        <span class="material-symbols-outlined absolute left-3 text-sm text-slate-500">corporate_fare</span>
+                        <select id="department_id" class="w-full bg-slate-50 dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/50 p-2 pl-9 text-xs rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-sky-500 font-semibold cursor-pointer" required>
+                            <!-- Options are hydrated smoothly from Firestore by firebase_script.js -->
+                            <option value="">Select your department</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 5. Interactive Testing Role Clearance Direct Selection Dropdown -->
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Initial Sandbox Security Role</label>
+                    <div class="relative flex items-center">
+                        <span class="material-symbols-outlined absolute left-3 text-sm text-slate-500">admin_panel_settings</span>
+                        <select id="user_testing_role" class="w-full bg-slate-50 dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/50 p-2 pl-9 text-xs rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-sky-500 font-semibold cursor-pointer" required>
+                            <option value="officer">👤 Officer (System Driver)</option>
+                            <option value="leadauditor">📝 Lead Auditor (1st Gate)</option>
+                            <option value="reviewer">🛡️ Reviewer (Audit Manager)</option>
+                            <option value="approver">👑 Approver (Sign-Off Authority)</option>
+                            <option value="management">🏢 Management (Dept Owner)</option>
+                            <option value="db_admin">⚙️ Database Admin (Logs Only)</option>
+                        </select>
+                    </div>
+                    <div class="text-[9px] text-slate-500 font-medium italic mt-0.5">Note: Roles enforce rigid linear Segregation of Duties checks across screens.</div>
+                </div>
+
+                <!-- 6. Password and Corroborative Password Fields Matrix -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Secret Password</label>
+                        <div class="relative flex items-center">
+                            <span class="material-symbols-outlined absolute left-3 text-sm text-slate-500">lock</span>
+                            <input type="password" id="password" placeholder="••••••" class="w-full bg-slate-50 dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/50 p-2 pl-9 text-xs rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-sky-500" required>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Confirm Password</label>
+                        <div class="relative flex items-center">
+                            <span class="material-symbols-outlined absolute left-3 text-sm text-slate-500">lock</span>
+                            <input type="password" id="confirm_password" placeholder="••••••" class="w-full bg-slate-50 dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/50 p-2 pl-9 text-xs rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-sky-500" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. Agreement Box Checkbox Node -->
+                <label class="flex items-center gap-2 pt-1 cursor-pointer select-none">
+                    <input type="checkbox" id="terms" class="rounded border-slate-300 text-sky-500 focus:ring-sky-500 h-3.5 w-3.5 bg-transparent" required>
+                    <span class="text-[11px] text-slate-400 font-medium">I agree to the internal systems data terms and policy parameters.</span>
+                </label>
+                                <!-- Core Trigger Submission Button -->
+                <button type="submit" id="signup-submit" class="w-full py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-black text-xs uppercase tracking-wider rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1 mt-2 focus:outline-none">
+                    Create Account <span class="material-symbols-outlined text-sm font-black">arrow_forward</span>
+                </button>
+            </form>
 </div>
 </div>
 </div>

@@ -134,19 +134,20 @@
                 <!-- Master Spreadsheet View Data Grid Elements Container Layer -->
                 <div class="overflow-x-auto w-full border border-outline-variant/20 dark:border-slate-800 rounded-xl">
                     <table class="w-full min-w-[1100px] border-collapse text-left table-fixed">
-                        <thead>
-                            <tr class="bg-surface-container-low dark:bg-slate-900 border-b border-outline-variant/40 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-on-surface-variant dark:text-slate-400">
-                                <th class="p-4 w-16 text-center">
-                                    <input type="checkbox" onchange="toggleSelectAllVisible(this)" class="rounded border-outline-variant/40 text-primary focus:ring-primary h-4 w-4 bg-transparent cursor-pointer" title="Select All Visible">
-                                </th>
-                                <th class="p-4 w-44">Serial / Ref ID</th>
-                                <th class="p-4 w-1/4">Audit Area / Subject</th>
-                                <th class="p-4 w-1/5">Process Owner(s)</th>
-                                <th class="p-4 w-40 text-center">Audited Before</th>
-                                <th class="p-4 w-48">Reference Number(s)</th>
-                                <th class="p-4 w-1/4">Remarks</th>
-                            </tr>
-                        </thead>
+                       <thead>
+  <tr class="text-left bg-slate-50 dark:bg-slate-900/60 font-black text-[11px] uppercase tracking-wider">
+    <th class="p-4 text-center w-12"><input type="checkbox" onchange="toggleSelectAllVisible(this)"></th>
+    <th class="p-4 w-24">SERIAL / REF ID</th>
+    <th class="p-4">AUDIT AREA / SUBJECT</th>
+    <th class="p-4">PROCESS OWNER(S)</th>
+    <th class="p-4 text-center">AUDITED BEFORE</th>
+    <th class="p-4 text-center">REFERENCE NUMBER(S)</th> <!-- Aligns with your AUD-001 numbers data -->
+    <th class="p-4 text-center">WORKFLOW STATUS</th>    <!-- Aligns with your PENDING / DRAFT statuses badge -->
+    <th class="p-4">REMARKS</th>
+    <th class="p-4 text-center w-40">ACTION CONSOLE</th>   <!-- Aligns with your missing buttons matrix -->
+  </tr>
+</thead>
+
                         <tbody id="tbl-universe-body">
                             <!-- Dynamic Content Rows Built via Cloud Snapshot Callbacks -->
                         </tbody>

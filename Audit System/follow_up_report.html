@@ -283,10 +283,11 @@
     </main>  
 
     <script>  
-      /**
+  /**
  * Sentinel Core Follow-Up Audit Report Controller Module
  * Handles multi-tenant row isolation tracking, real-time math equations index, 
  * evidence logs persistence, and closure approvals for Phase 3.
+ * PART 1 OF 3: STAGE STATUS GATES, INHERITANCE PATHS & DISABLING SHIELDS
  */
 
 // Track index targeting the specific active audit line row from Phase 1
@@ -308,12 +309,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /**
- * Main Controller Workflow Renderer
- */
-/**
- * Main Controller Workflow Renderer (Hardened Layout Population)
- */
-/**
  * Main Controller Workspace Content Frame Renderer (Fully Formatted Alignment Block)
  */
 function renderFollowUpWorkspace(data) {
@@ -321,6 +316,7 @@ function renderFollowUpWorkspace(data) {
     const universeList = data?.phase1_planning?.universe || [];
     const planProgram  = data?.phase2_performing?.planProgram || {};
     const draftReport  = data?.phase2_performing?.draftReport || {};
+    const finalReport  = data?.phase2_performing?.finalReport || {};
     const followupRoot = data?.phase3_followup || {};
 
     if (workPlanList.length === 0) {
@@ -334,11 +330,12 @@ function renderFollowUpWorkspace(data) {
     
     const refNum = targetRow.refNumber;
 
-    // --- PIPELINE DATA INHERITANCE MAPS ---
+    // Pipeline Data Inheritance Maps
     const previousProgramState = planProgram.audits?.[refNum] || {};
     const previousDraftState   = draftReport.audits?.[refNum] || {};
+    const previousFinalState   = finalReport.audits?.[refNum] || {};
 
-    // --- PHASE 3 REMEDIATION ISOLATION LAYER ---
+    // Phase 3 Remediation Isolation Layer
     if (!followupRoot.audits) followupRoot.audits = {};
     if (!followupRoot.audits[refNum]) {
         followupRoot.audits[refNum] = {
@@ -348,7 +345,16 @@ function renderFollowUpWorkspace(data) {
     }
     const followupState = followupRoot.audits[refNum];
 
-    // --- HEADER BANNERS INJECTION ROUTINES ---
+    // Establish linear gate loops matching required architectural constraints if blank on boot
+    if (!followupState.trackingState) {
+        followupState.trackingState = { status: "Draft", currentHolder: "officer", remarks: "" };
+    }
+
+    const tState = followupState.trackingState;
+    const activeUserRole = localStorage.getItem("sentinel_active_role") || "officer";
+    const isStageLocked = (activeUserRole !== tState.currentHolder || tState.status === "Approved");
+
+    // Header Banners Injection Routines
     let resolvedDepartment = "Operations / General Management";
     const rowRefSuffix = refNum ? refNum.split('-').pop() : "";
     const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === rowRefSuffix);
@@ -360,43 +366,46 @@ function renderFollowUpWorkspace(data) {
     const deptText  = resolvedDepartment.toUpperCase();
     const periodText = `${targetRow.startDate || '—'} to ${targetRow.endDate || '—'}`;
 
-    // --- TARGET MATCHING ELEMENT SELECTORS (UPDATED ACCORDING TO HTML FILE DEFINITIONS) ---
     const elTitle = document.getElementById("ui-ref-area") || document.getElementById("lbl-pull-title");
     if (elTitle) elTitle.textContent = titleText;
-
     const elDept = document.getElementById("ui-auditee-dept") || document.getElementById("lbl-pull-department");
     if (elDept) elDept.textContent = deptText;
-
     const elPeriod = document.getElementById("ui-audit-dates") || document.getElementById("lbl-pull-period");
     if (elPeriod) elPeriod.textContent = periodText;
 
-    // --- POPULATE CLOSURE SIGN-OFF VALUES ---
+    // Populate Closure Sign-off Values
     const approval = followupState.approval || {};
-        // --- POPULATE CLOSURE SIGN-OFF VALUES (COMPLETE PIPELINE CLOSURE LOOP) ---
-
+    const followUpApproverName = approval.name || previousFinalState.authorizerName || targetRow.approver || "";
     
-    // Scans your data structure index to map your image entries directly onto the closure signature fields
-    const followUpApproverName = approval.name || previousFinalState.authorizerName || previousDraftState.authorizerName || targetRow.approver || "";
-
     setInputValWithoutFocusLoss("txt-app-name", followUpApproverName);
     setInputValWithoutFocusLoss("txt-app-title", approval.designation || "Head of Internal Audit");
     setInputValWithoutFocusLoss("txt-app-token", approval.token || "");
     setInputValWithoutFocusLoss("txt-app-date", approval.date || (previousFinalState.timestamp ? previousFinalState.timestamp.split(" ")[0] : ""));
 
-    setInputValWithoutFocusLoss("txt-app-name", approval.name || "");
-    setInputValWithoutFocusLoss("txt-app-title", approval.designation || "");
-    setInputValWithoutFocusLoss("txt-app-token", approval.token || "");
-    setInputValWithoutFocusLoss("txt-app-date", approval.date || "");
+    // Enforce DOM field locks based on validation step matching profiles
+    document.querySelectorAll("#tbl-followup-body select, #tbl-followup-body textarea, #tbl-followup-body input, .sign-block input").forEach(el => {
+        if (isStageLocked) {
+            el.setAttribute("disabled", "true");
+            el.classList.add("opacity-60", "bg-slate-100", "dark:bg-slate-900/50", "pointer-events-none");
+        } else {
+            el.removeAttribute("disabled");
+            el.classList.remove("opacity-60", "bg-slate-100", "dark:bg-slate-900/50", "pointer-events-none");
+        }
+    });
 
-    // --- GENERATE AND SYNC REMEDIATION TRACKS MATRIX ---
+    const btnGenHash = document.querySelector("button[onclick='window.generateSecureFollowUpApprovalHash()']");
+    if (btnGenHash) {
+        if (isStageLocked) btnGenHash.classList.add("hidden");
+        else btnGenHash.classList.remove("hidden");
+    }
+
+    // Generate and Sync Remediation Tracks Matrix
     const findings = previousDraftState.findings || [];
     const trackingRows = [];
-
     findings.forEach((block, objIdx) => {
         const obsArray = block.observations || [];
         obsArray.forEach((obsNode, obsIdx) => {
             const compositeKey = `${objIdx}_${obsIdx}`;
-            
             let preExistingFollowupRow = followupState.rows?.find(r => r.key === compositeKey);
             
             if (!preExistingFollowupRow) {
@@ -408,7 +417,6 @@ function renderFollowUpWorkspace(data) {
                     extendedTimeline: ""
                 };
             }
-
             trackingRows.push({
                 objective: block.objective || "—",
                 observation: obsNode.observation || "—",
@@ -424,40 +432,33 @@ function renderFollowUpWorkspace(data) {
 
     followupState.rows = trackingRows.map(r => r.followupData);
 
-    // --- RENDER WORKSPACE CALCULATIONS TABLE & METRICS ---
-    renderFollowUpMatrixGridTable(trackingRows, refNum);
+    renderFollowUpMatrixGridTable(trackingRows, refNum, isStageLocked);
     calculateRemediationIndexMetrics(trackingRows);
+    renderFollowUpWorkflowGateBarPanel(tState, activeUserRole, refNum);
 }
 /**
- * Safe text update routine preventing cursor reset focus issues during typing inputs
+ * Sentinel Core Follow-Up Audit Report Controller Module
+ * PART 2 OF 3: ACCESSIBILITY INPUT FIELDS, MATRIX DATA GRIDS & INLINE OVERRIDES
  */
+
 function setTextAreaValWithoutFocusLoss(elementId, textValue) {
     const el = document.getElementById(elementId);
-    // FIXED: Enforce a strict fallback to an empty string if the value arrives undefined or null
     if (el && !el.matches(':focus')) {
         el.value = (textValue !== undefined && textValue !== null) ? textValue : "";
     }
 }
 
-/**
- * Safe single-line input field update routine matching focus boundary criteria
- */
 function setInputValWithoutFocusLoss(elementId, textValue) {
     const el = document.getElementById(elementId);
-    // FIXED: Enforce a strict fallback to an empty string if the value arrives undefined or null
     if (el && !el.matches(':focus')) {
         el.value = (textValue !== undefined && textValue !== null) ? textValue : "";
     }
 }
 
-
 /**
  * Builds table grid dynamically using isolated dataset components
  */
-/**
- * Builds table grid dynamically using isolated dataset components
- */
-function renderFollowUpMatrixGridTable(trackingRows, refNum) {
+function renderFollowUpMatrixGridTable(trackingRows, refNum, isStageLocked) {
     const tbody = document.getElementById("tbl-followup-body");
     if (!tbody) return;
     tbody.innerHTML = "";
@@ -467,12 +468,13 @@ function renderFollowUpMatrixGridTable(trackingRows, refNum) {
         return;
     }
 
+    const isElementLockedAttr = isStageLocked ? "disabled readonly opacity-60 pointer-events-none" : "";
+
     trackingRows.forEach((row, index) => {
         const tr = document.createElement("tr");
         tr.className = "border-b border-slate-200 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-900/40 align-top text-xs transition-colors";
         
         const fd = row.followupData;
-
         tr.innerHTML = `
             <td class="p-3 text-center font-mono font-bold text-slate-400 align-middle bg-slate-50/40 dark:bg-slate-900/10 w-12">${index + 1}</td>
             <td class="p-3 font-medium text-slate-600 dark:text-slate-400 max-w-xs">${window.escapeAttr(row.objective)}</td>
@@ -488,8 +490,8 @@ function renderFollowUpMatrixGridTable(trackingRows, refNum) {
             
             <!-- Follow-up Option Selection Dropdown -->
             <td class="p-2 w-44">
-                <select name="row-${fd.key}-status" onchange="updateFollowUpInlineField('${refNum}', '${fd.key}', 'statusOfImplementation', this.value)"
-                        class="w-full text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0d0e10] p-1.5 focus:outline-none focus:border-sky-500 cursor-pointer">
+                <select name="row-${fd.key}-status" ${isElementLockedAttr} onchange="updateFollowUpInlineField('${refNum}', '${fd.key}', 'statusOfImplementation', this.value)"
+                        class="w-full text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0d0e10] p-1.5 focus:outline-none focus:border-sky-500 cursor-pointer text-on-surface dark:text-slate-200">
                     <option value="Not Implemented" ${fd.statusOfImplementation === 'Not Implemented' ? 'selected' : ''}>❌ Not Implemented</option>
                     <option value="Partially Implemented" ${fd.statusOfImplementation === 'Partially Implemented' ? 'selected' : ''}>⚡ Partially Implemented</option>
                     <option value="Implemented" ${fd.statusOfImplementation === 'Implemented' ? 'selected' : ''}>✅ Implemented / Closed</option>
@@ -498,99 +500,268 @@ function renderFollowUpMatrixGridTable(trackingRows, refNum) {
             
             <!-- Evidence Reference Log Input Box -->
             <td class="p-2 min-w-[200px]">
-                <textarea placeholder="Enter evidence paper refs or remarks..." onchange="updateFollowUpInlineField('${refNum}', '${fd.key}', 'evidenceText', this.value)"
-                          rows="2" class="w-full bg-white dark:bg-[#0d0e10] border border-slate-200 dark:border-slate-700 text-xs rounded-lg p-2 focus:outline-none focus:border-sky-500 shadow-sm transition-colors resize-y min-h-[42px]">${window.escapeAttr(fd.evidenceText || "")}</textarea>
+                <textarea placeholder="Enter evidence paper refs or remarks..." ${isElementLockedAttr} onchange="updateFollowUpInlineField('${refNum}', '${fd.key}', 'evidenceText', this.value)"
+                          rows="2" class="w-full bg-white dark:bg-[#0d0e10] border border-slate-200 dark:border-slate-700 text-xs rounded-lg p-2 focus:outline-none focus:border-sky-500 shadow-sm transition-colors resize-y min-h-[42px] text-on-surface dark:text-slate-200">${window.escapeAttr(fd.evidenceText || "")}</textarea>
             </td>
             
             <!-- Audit Tracking Actions Remarks Dropdown -->
             <td class="p-2 w-40">
                 <div class="space-y-1">
-                    <select name="row-${fd.key}-remarks" onchange="updateFollowUpInlineField('${refNum}', '${fd.key}', 'auditRemarks', this.value)"
-                            class="w-full text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0d0e10] p-1.5 focus:outline-none focus:border-sky-500 cursor-pointer">
+                    <select name="row-${fd.key}-remarks" ${isElementLockedAttr} onchange="updateFollowUpInlineField('${refNum}', '${fd.key}', 'auditRemarks', this.value)"
+                            class="w-full text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0d0e10] p-1.5 focus:outline-none focus:border-sky-500 cursor-pointer text-on-surface dark:text-slate-200">
                         <option value="Open" ${fd.auditRemarks === 'Open' ? 'selected' : ''}>🚨 Open Target</option>
                         <option value="Escalated" ${fd.auditRemarks === 'Escalated' ? 'selected' : ''}>⚠️ Escalated Board</option>
                         <option value="Resolved" ${fd.auditRemarks === 'Resolved' ? 'selected' : ''}>🔒 Resolved / Lock</option>
                     </select>
-                    <!-- FIXED: Removed backslashes and corrected parameter quote structures below -->
-                    <input type="text" value="${window.escapeAttr(fd.extendedTimeline || "")}" placeholder="Extended Date..." onchange="updateFollowUpInlineField('${refNum}', '${fd.key}', 'extendedTimeline', this.value)"
-                           class="w-full bg-white dark:bg-[#0d0e10] border border-slate-200 dark:border-slate-700 rounded-lg p-1 text-[11px] placeholder-slate-400 focus:outline-none focus:border-sky-500" />
+                    <input type="text" value="${window.escapeAttr(fd.extendedTimeline || "")}" ${isElementLockedAttr} placeholder="Extended Date..." onchange="updateFollowUpInlineField('${refNum}', '${fd.key}', 'extendedTimeline', this.value)"
+                           class="w-full bg-white dark:bg-[#0d0e10] border border-slate-200 dark:border-slate-700 rounded-lg p-1 text-[11px] placeholder-slate-400 focus:outline-none focus:border-sky-500 text-on-surface dark:text-slate-200" />
                 </div>
             </td>
         `;
         tbody.appendChild(tr);
     });
 }
+
 /**
  * Real-Time Inline Workspace Mutator Handler
  */
 function updateFollowUpInlineField(refNum, rowKey, fieldKey, valText) {
     const store = window.AuditStore;
     if (!store?.current) return;
-
     const followupState = store.current.phase3_followup?.audits?.[refNum];
     const targetRowData = followupState?.rows?.find(r => r.key === rowKey);
-
     if (targetRowData) {
         targetRowData[fieldKey] = valText;
-        store.save(); // Continuous real-time database synchronization execution
+        store.save(); 
         
-        // Dynamic re-summation calculation trigger pass
         if (fieldKey === 'statusOfImplementation') {
             const tempRows = followupState.rows.map(r => ({ followupData: r }));
             calculateRemediationIndexMetrics(tempRows);
         }
     }
 }
+/**
+ * Sentinel Core Follow-Up Audit Report Controller Module
+ * PART 3 OF 3: DASHBOARD INDEX METRICS CALCULUS, GATING PANELS & PLATFORMS FINALIZATION
+ */
 
 /**
  * Dynamic Dashboard Metric Equations Execution Logic
- * Computes: Status = [Closed / (Open + Closed)] × 100
+ * Computes: Status Index = [Closed / (Open + Closed)] × 100
  */
 function calculateRemediationIndexMetrics(trackingRows) {
     const totalCount = trackingRows.length;
     if (totalCount === 0) return;
-
     const closedCount = trackingRows.filter(r => r.followupData.statusOfImplementation === "Implemented").length;
     
     // Formula calculation
     const completionPercentage = ((closedCount / totalCount) * 100).toFixed(1);
-
+    
     // Dynamic badge layout value injection
     const elCounts = document.getElementById("lbl-solved-counts");
     if (elCounts) elCounts.textContent = `${closedCount} / ${totalCount} Observations Solved`;
-
     const elIndex = document.getElementById("lbl-index-percentage");
     if (elIndex) elIndex.textContent = `${completionPercentage}% Complete`;
 }
 
 /**
- * Commits Closure Approval Fields Upstream
+ * Injects a stage-wide floating validation bar to route the whole Remediation Follow-Up collection at once
  */
-async function commitFollowUpWorkspaceState() {
+/**
+ * Injects a stage-wide floating validation bar to route the whole Remediation Follow-Up collection at once
+ */
+function renderFollowUpWorkflowGateBarPanel(trackingState, activeUserRole, refNum) {
+    let panel = document.getElementById("sentinel-followup-workflow-panel");
+    if (!panel) {
+        panel = document.createElement("div");
+        panel.id = "sentinel-followup-workflow-panel";
+        panel.className = "p-4 my-6 bg-slate-50 dark:bg-[#111315] border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 max-w-[1600px] mx-auto no-print shadow-sm";
+        const tableContainer = document.getElementById("tbl-followup-body")?.parentElement;
+        if (tableContainer) tableContainer.after(panel);
+    }
+    
+    const badgeColorMap = {
+        "Draft": "bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-400",
+        "Pending_Lead": "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 font-bold",
+        "Pending_Reviewer": "bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300",
+        "Pending_Approver": "bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300",
+        "Approved": "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 font-bold",
+        "Returned_To_Officer": "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300"
+    };
+    
+    const statusStyle = badgeColorMap[trackingState.status] || "bg-slate-100 text-slate-800";
+    let interfaceActionsHtml = "";
+    const isHolder = activeUserRole === trackingState.currentHolder;
+    
+    if (isHolder && trackingState.status !== "Approved") {
+        let buttonsHtml = "";
+        
+        if (activeUserRole === "officer") {
+            buttonsHtml = "<button onclick=\"commitFollowUpStageTransition('" + refNum + "', 'Pending_Lead')\" class=\"px-3 py-2 text-xs font-black uppercase tracking-wider bg-sky-600 hover:bg-sky-700 text-white rounded\">Submit Follow-Up</button>";
+        } else if (activeUserRole === "leadauditor") {
+            buttonsHtml = "<button onclick=\"commitFollowUpStageTransition('" + refNum + "', 'Pending_Reviewer')\" class=\"px-3 py-2 text-xs font-black uppercase tracking-wider bg-sky-600 hover:bg-sky-700 text-white rounded mr-2\">To Reviewer</button>" +
+                          "<button onclick=\"commitFollowUpStageTransition('" + refNum + "', 'Returned_To_Officer')\" class=\"px-3 py-2 text-xs font-black uppercase tracking-wider bg-amber-600 hover:bg-amber-700 text-white rounded\">Return</button>";
+        } else if (activeUserRole === "reviewer") {
+            buttonsHtml = "<button onclick=\"commitFollowUpStageTransition('" + refNum + "', 'Pending_Approver')\" class=\"px-3 py-2 text-xs font-black uppercase tracking-wider bg-indigo-600 hover:bg-indigo-700 text-white rounded mr-2\">To Approver</button>" +
+                          "<button onclick=\"commitFollowUpStageTransition('" + refNum + "', 'Returned_To_Lead')\" class=\"px-3 py-2 text-xs font-black uppercase tracking-wider bg-amber-600 hover:bg-amber-700 text-white rounded\">Return</button>";
+        } else if (activeUserRole === "approver") {
+            buttonsHtml = "<button onclick=\"commitFollowUpStageTransition('" + refNum + "', 'Approved')\" class=\"px-3 py-2 text-xs font-black uppercase tracking-wider bg-emerald-600 hover:bg-emerald-700 text-white rounded mr-2\">Approve & Close Audit</button>" +
+                          "<button onclick=\"commitFollowUpStageTransition('" + refNum + "', 'Returned_To_Officer')\" class=\"px-3 py-2 text-xs font-black uppercase tracking-wider bg-rose-600 hover:bg-rose-700 text-white rounded\">Reject</button>";
+        }
+        
+        interfaceActionsHtml = `
+            <div class="flex items-center gap-2">
+                <input type="text" id="txt-stage-remarks" placeholder="Enter review remarks..." class="bg-[#1e293b] border border-slate-700/50 p-2 text-xs rounded text-white focus:outline-none w-56">
+                ${buttonsHtml}
+            </div>`;
+    } else {
+        let displayMessage = "⏳ Awaiting verification by role [" + trackingState.currentHolder.toUpperCase() + "]";
+        if (trackingState.status === "Approved") {
+            displayMessage = "✓ Remediation Loop Formally Approved & Closed";
+        }
+        interfaceActionsHtml = `<div class="text-xs text-slate-500 font-bold uppercase tracking-wider">${displayMessage}</div>`;
+    }
+    
+    const visibleStatusText = trackingState.status.replace(/_/g, ' ');
+    
+    panel.innerHTML = `
+        <div class="flex items-center gap-3">
+            <span class="text-xs font-black uppercase tracking-widest text-slate-400">Stage Status Gate:</span>
+            <span class="px-2.5 py-1 rounded text-xs font-black font-mono uppercase tracking-wider ${statusStyle}">
+                ${visibleStatusText}
+            </span>
+        </div>
+        ${interfaceActionsHtml}
+    `;
+}
+/**
+ * Transitions the entire follow up stage upstream
+ */
+async function commitFollowUpStageTransition(refNum, targetStatus) {
     const store = window.AuditStore;
     if (!store || !store.current) return;
 
+    const activeRefKey = String(refNum).trim();
+    const remarksInput = document.getElementById("txt-stage-remarks");
+    const actualRemarks = remarksInput ? remarksInput.value.trim() : "";
+
+    if (!actualRemarks && targetStatus.startsWith("Returned")) {
+        alert("Action Required: Please input explicit review comments clarifying your reasons for returning this remediation package.");
+        return;
+    }
+
+    const actingUserRole = localStorage.getItem("sentinel_active_role") || "officer";
+    let nextHolder = actingUserRole;
+
+    // Linear Gate Architecture Policy Rules mapping
+    if (targetStatus === "Pending_Lead") nextHolder = "leadauditor";
+    else if (targetStatus === "Pending_Reviewer") nextHolder = "reviewer";
+    else if (targetStatus === "Pending_Approver") nextHolder = "approver";
+    else if (targetStatus === "Approved" || targetStatus.startsWith("Returned")) nextHolder = "officer";
+
+    // 1. Establish structural node initialization blocks safely on Phase 3
+    if (!store.current.phase3_followup) store.current.phase3_followup = { audits: {} };
+    if (!store.current.phase3_followup.audits) store.current.phase3_followup.audits = {};
+    if (!store.current.phase3_followup.audits[activeRefKey]) {
+        if (typeof store.carryToFollowUp === 'function') {
+            store.carryToFollowUp();
+        }
+    }
+
+    if (!store.current.phase3_followup.audits[activeRefKey]) {
+        store.current.phase3_followup.audits[activeRefKey] = { 
+            rows: [], 
+            approval: {} 
+        };
+    }
+
+    const followupState = store.current.phase3_followup.audits[activeRefKey];
+    
+    // 🛡️ SECONDARY GUARD: Initialize trackingState if it doesn't exist inside the block
+    if (!followupState.trackingState) {
+        followupState.trackingState = { status: "Draft", currentHolder: "officer", remarks: "" };
+    }
+
+   
+
+
+    // Update tracking parameters on Phase 3 follow-up node matrix 
+    followupState.trackingState.status = targetStatus;
+    followupState.trackingState.currentHolder = nextHolder;
+    followupState.trackingState.remarks = actualRemarks || `Remediation tracking step moved to status profile: ${targetStatus}`;
+
+    // 2. DUAL-BINDING SYNC: Align Phase 1 row tracker context instantly so dashboards mirror live values
+    const activeWorkPlanRow = store.current.phase1_planning?.workPlan?.[activeTargetIndex];
+    if (activeWorkPlanRow) {
+        if (!activeWorkPlanRow.trackingState) activeWorkPlanRow.trackingState = {};
+        activeWorkPlanRow.trackingState.status = targetStatus;
+        activeWorkPlanRow.trackingState.currentHolder = nextHolder;
+    }
+
+    try {
+        // Run clean workspace commit focusing directly on Phase 3 elements
+        await commitFollowUpWorkspaceState(activeRefKey);
+        
+        // Break deep serialization inequalities to wipe active engine memory caches
+        store.current = JSON.parse(JSON.stringify(store.current));
+        
+        await store.save();
+        await store.writeSystemAuditLog(`Transitioned Phase 3 Follow-Up Document [${activeRefKey}] to status status matrix [${targetStatus}] held by [${nextHolder}].`);
+        
+        alert(`Follow-up state moved to ${targetStatus.replace(/_/g, ' ')} successfully.`);
+        
+        // Re-render interface window using explicit callback function tracker
+        if (typeof renderFollowUpWorkspace === "function") {
+            renderFollowUpWorkspace(store.current);
+        } else {
+            window.location.reload();
+        }
+    } catch (err) {
+        console.error("Aborting state transition operation:", err);
+        alert("Failed to commit stage parameters up to cloud node layers.");
+    }
+}/**
+ * Commits Closure Approval Fields Upstream
+ */
+async function commitFollowUpWorkspaceState(explicitRefNum) {
+    const store = window.AuditStore;
+    if (!store || !store.current) return;
+
+    // Resolve the active audit row reference key from Phase 1
     const targetRow = store.current.phase1_planning?.workPlan?.[activeTargetIndex];
     if (!targetRow) return;
 
-    const followupState = store.current.phase3_followup.audits?.[targetRow.refNumber];
-    if (!followupState) return;
+    const activeRefKey = explicitRefNum || targetRow.refNumber;
+    
+    // 🛡️ REALIGN TARGET DIRECTLY TO PHASE 3 REMEDIATION DATA BLOCKS
+    if (!store.current.phase3_followup) store.current.phase3_followup = { audits: {} };
+    if (!store.current.phase3_followup.audits) store.current.phase3_followup.audits = {};
+    if (!store.current.phase3_followup.audits[activeRefKey]) {
+        store.current.phase3_followup.audits[activeRefKey] = { rows: [], approval: {} };
+    }
+
+    const followupState = store.current.phase3_followup.audits[activeRefKey];
+    
+    // Read input elements safely checking DOM boundaries before binding values
+    const elOfficer = document.getElementById("txt-auth-officer");
+    const elTitle = document.getElementById("txt-auth-title");
+    const elToken = document.getElementById("txt-auth-token");
+    const elDate = document.getElementById("txt-auth-timestamp");
 
     if (!followupState.approval) followupState.approval = {};
-
-    followupState.approval.name = document.getElementById("txt-app-name").value;
-    followupState.approval.designation = document.getElementById("txt-app-title").value;
-    followupState.approval.token = document.getElementById("txt-app-token").value;
-    followupState.approval.date = document.getElementById("txt-app-date").value;
+    
+    if (elOfficer) followupState.approval.name = elOfficer.value;
+    if (elTitle)   followupState.approval.designation = elTitle.value;
+    if (elToken)   followupState.approval.token = elToken.value;
+    if (elDate)    followupState.approval.date = elDate.value;
 
     try {
         await store.save();
-        alert("Follow-Up tracking metrics and structural sign-off verification hashes committed safely to corporate database! 🔒");
     } catch (err) {
-        alert("Failed to sync final follow up report configurations.");
+        console.error("🔒 Shield Error: Failed to synchronize physical DOM inputs to Phase 3 cloud storage nodes.", err);
+        throw err; // Escalate to trigger safe catch warnings downstream
     }
 }
-
 /**
  * Advanced Verification Layer: Generates a secure token signature hash
  */
@@ -601,9 +772,8 @@ window.generateSecureFollowUpApprovalHash = function() {
         return;
     }
     
-    const randomHashToken = "SENTINEL-CLOSE-" + Math.random().toString(36).substring(2, 10).toUpperCase() + "-" + new Date().getFullYear();
+    const randomHashToken = "CLOSE-CERT-" + Math.random().toString(36).substring(2, 10).toUpperCase() + "-" + new Date().getFullYear();
     const currentISOString = new Date().toISOString().split('T')[0];
-
     document.getElementById("txt-app-token").value = randomHashToken;
     document.getElementById("txt-app-date").value = currentISOString;
     
@@ -611,6 +781,7 @@ window.generateSecureFollowUpApprovalHash = function() {
 };
 
 window.commitFollowUpWorkspaceState = commitFollowUpWorkspaceState;
+
 
  
        

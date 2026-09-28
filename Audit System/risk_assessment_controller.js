@@ -1,6 +1,7 @@
 /**
  * Sentinel Core Risk Assessment Matrix Controller
  * Manages calculations, color logic, and cloud data streams for Stage 2.
+ * PART 1 OF 2: CONDITIONAL WORKSPACE CELL RENDERERS & FIELD MIGRATION SHIELDS
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -13,10 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
 let riskFieldSaveTimeout = null;
-/**
- * Loops and builds matrix rows using current cloud data collections
- */
+
 /**
  * Loops and builds matrix rows using current cloud data collections
  */
@@ -34,23 +34,31 @@ function renderRiskAssessmentWorkspace(data) {
     }
 
     document.getElementById("empty-risk-row")?.classList.add("hidden");
+    const activeUserRole = localStorage.getItem("sentinel_active_role") || "officer";
 
     // --- AUTOMATIC SORTING & INDEX PRESERVATION LOGIC ---
-    const mappedRisks = riskRows.map((row) => {
+    const mappedRisks = riskRows.map((row, realOriginalIndex) => {
         const L = parseInt(row.likelihood || 1);
         const I = parseInt(row.impact || 1);
         return {
             row,
-            score: L * I
+            score: L * I,
+            originalIndex: realOriginalIndex
         };
     });
 
     mappedRisks.sort((a, b) => b.score - a.score);
 
-    mappedRisks.forEach(({ row, score }) => {
+    mappedRisks.forEach(({ row, score, originalIndex }) => {
         const tr = document.createElement("tr");
         tr.className = "border-b border-outline-variant/30 dark:border-slate-800 last:border-0 hover:bg-surface-container-low dark:hover:bg-slate-900/40 align-top transition-colors";
         
+        // Initialize tracking state variables if absent on incoming records
+        if (!row.trackingState) {
+            row.trackingState = { status: "Draft", currentHolder: "officer", historyLogs: [] };
+        }
+
+        const tState = row.trackingState;
         const L = parseInt(row.likelihood || 1);
         const I = parseInt(row.impact || 1);
         
@@ -70,27 +78,41 @@ function renderRiskAssessmentWorkspace(data) {
 
         // --- ENHANCED AUDIT AREA EXTRACTION LOGIC ---
         let derivedAuditArea = "Unmapped Area";
-        
-        // Strategy A: Direct matching via universe index keys
         const riskIdSuffix = row.riskId ? row.riskId.split('-').pop() : "";
         const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === riskIdSuffix);
         
         if (matchedUniverseItem && matchedUniverseItem.auditArea) {
             derivedAuditArea = matchedUniverseItem.auditArea;
         } else if (row.riskDescription && row.riskDescription.includes("scope item:")) {
-            // Strategy B: Parse text out of existing description field string
             derivedAuditArea = row.riskDescription.split("scope item:").pop().trim();
         }
 
-        // Escaped safe version of the risk ID string for use inside HTML inline attributes
         const safeRiskId = window.escapeAttr(row.riskId);
 
-        tr.innerHTML = `
+        // Enforce input isolation layers based on runtime gate holders
+        const isElementLocked = (activeUserRole !== tState.currentHolder || tState.status === "Approved") ? "disabled readonly opacity-50" : "";
+        const isCheckboxDisabled = (tState.status !== "Approved") ? "disabled opacity-20 pointer-events-none" : "";
+
+        // Build the validation console container for gatekeepers
+        let workflowControlPanelHtml = "";
+        if (activeUserRole === tState.currentHolder && tState.status !== "Approved") {
+            if (activeUserRole === "officer") {
+                workflowControlPanelHtml = `
+                    <button onclick="dispatchRiskGateTransition('${originalIndex}', 'Pending_Lead', 'Submitted risk parameters to Lead Auditor')" class="w-full px-2 py-1.5 text-[10px] font-black uppercase tracking-wider bg-sky-600 hover:bg-sky-700 text-white rounded shadow transition-all">Submit Risk</button>`;
+            } else {
+                workflowControlPanelHtml = buildRiskGatekeeperConsoleLayout(originalIndex, tState, activeUserRole);
+            }
+        } else {
+            const trackerMessage = tState.status === "Approved" ? "✓ Authorized" : `Held by [${tState.currentHolder.toUpperCase()}]`;
+            workflowControlPanelHtml = `<div class="text-[9px] font-mono font-black uppercase text-slate-500 tracking-widest text-center py-1">${trackerMessage}</div>`;
+        }
+
+                tr.innerHTML = `
             <!-- Selection Checkbox Column -->
             <td class="p-3 text-center align-middle">
                 <input type="checkbox" 
                        onchange="toggleRiskInclusion('${safeRiskId}', this.checked)" 
-                       ${row.isCommittedToPlan ? 'checked' : ''} 
+                       ${row.isCommittedToPlan ? 'checked' : ''} ${isCheckboxDisabled}
                        class="rounded border-outline-variant/40 text-primary focus:ring-primary h-4 w-4 bg-transparent cursor-pointer">
             </td>
 
@@ -104,85 +126,134 @@ function renderRiskAssessmentWorkspace(data) {
 
             <!-- 3. Risk Identification -->
             <td class="p-2">
-                <input type="text" value="${window.escapeAttr(row.riskIdentification || '')}" onchange="updateRiskField('${safeRiskId}', 'riskIdentification', this.value)" placeholder="e.g. Data Breach Vector" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs font-bold rounded-lg p-1.5 focus:outline-none">
+                <input type="text" value="${window.escapeAttr(row.riskIdentification || '')}" ${isElementLocked} onchange="updateRiskField('${safeRiskId}', 'riskIdentification', this.value)" placeholder="e.g. Broken Firewalls" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs font-medium rounded-lg p-1.5 focus:outline-none">
             </td>
             
             <!-- 4. Risk Description -->
             <td class="p-2">
-                <textarea onchange="updateRiskField('${safeRiskId}', 'riskDescription', this.value)" rows="2" placeholder="Risk impacts statement..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">${window.escapeAttr(row.riskDescription || '')}</textarea>
+                <textarea onchange="updateRiskField('${safeRiskId}', 'riskDescription', this.value)" ${isElementLocked} rows="2" placeholder="Risk impacts statement..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">${window.escapeAttr(row.riskDescription || '')}</textarea>
             </td>
             
             <!-- 5. Risk Causes/Triggers -->
             <td class="p-2">
-                <textarea onchange="updateRiskField('${safeRiskId}', 'riskCauses', this.value)" rows="2" placeholder="Triggers or root vectors..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">${window.escapeAttr(row.riskCauses || '')}</textarea>
+                <textarea onchange="updateRiskField('${safeRiskId}', 'riskCauses', this.value)" ${isElementLocked} rows="2" placeholder="Triggers or root vectors..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">${window.escapeAttr(row.riskCauses || '')}</textarea>
             </td>
             
-            <!-- 5. Risk Category -->
+            <!-- 6. Risk Category -->
             <td class="p-2">
-                <select onchange="updateRiskField('${safeRiskId}', 'riskCategory', this.value)" class="w-full text-xs bg-slate-50 dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5 focus:ring-primary">
+                <select onchange="updateRiskField('${safeRiskId}', 'riskCategory', this.value)" ${isElementLocked} class="w-full text-xs bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5 focus:ring-primary">
                     <option value="IT" ${row.riskCategory === 'IT' ? 'selected' : ''}>IT / Cyber</option>
                     <option value="Financial" ${row.riskCategory === 'Financial' ? 'selected' : ''}>Financial</option>
                     <option value="Operational" ${row.riskCategory === 'Operational' ? 'selected' : ''}>Operational</option>
                     <option value="Compliance" ${row.riskCategory === 'Compliance' ? 'selected' : ''}>Compliance</option>
                     <option value="Strategic" ${row.riskCategory === 'Strategic' ? 'selected' : ''}>Strategic</option>
-                    <option value="Reputational" ${row.riskCategory === 'Reputational' ? 'selected' : ''}>Reputational</option>
                 </select>
             </td>
             
-            <!-- 6. Type of Existing Controls -->
+            <!-- 7. Type of Existing Controls -->
             <td class="p-2">
-                <textarea onchange="updateRiskField('${safeRiskId}', 'existingControls', this.value)" rows="2" placeholder="Current mitigating controls..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">${window.escapeAttr(row.existingControls || '')}</textarea>
+                <textarea onchange="updateRiskField('${safeRiskId}', 'existingControls', this.value)" ${isElementLocked} rows="2" placeholder="Mitigating controls..." class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">${window.escapeAttr(row.existingControls || '')}</textarea>
             </td>
             
-            <!-- 7. Likelihood -->
-            <td class="p-2 w-24">
-                <select onchange="updateRiskMetrics('${safeRiskId}', 'likelihood', this.value)" class="w-full text-xs bg-slate-50 dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5">
+            <!-- 8. Likelihood -->
+            <td class="p-2 w-20">
+                <select onchange="updateRiskMetrics('${safeRiskId}', 'likelihood', this.value)" ${isElementLocked} class="w-full text-xs bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5">
                     <option value="1" ${L === 1 ? 'selected' : ''}>Low (1)</option>
                     <option value="2" ${L === 2 ? 'selected' : ''}>Mod (2)</option>
                     <option value="3" ${L === 3 ? 'selected' : ''}>High (3)</option>
                 </select>
             </td>
             
-            <!-- 8. Impact -->
-            <td class="p-2 w-24">
-                <select onchange="updateRiskMetrics('${safeRiskId}', 'impact', this.value)" class="w-full text-xs bg-slate-50 dark:bg-[#0d0e10] border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5">
+            <!-- 9. Impact -->
+            <td class="p-2 w-20">
+                <select onchange="updateRiskMetrics('${safeRiskId}', 'impact', this.value)" ${isElementLocked} class="w-full text-xs bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 rounded-lg p-1.5">
                     <option value="1" ${I === 1 ? 'selected' : ''}>Low (1)</option>
                     <option value="2" ${I === 2 ? 'selected' : ''}>Mod (2)</option>
                     <option value="3" ${I === 3 ? 'selected' : ''}>High (3)</option>
                 </select>
             </td>
             
-            <!-- 9 & 10. Risk Rating/Score & Colour Code -->
+            <!-- 10. Risk Ranking/Score (This matches Rating / Colour / Risk Ranking headers) -->
             <td class="p-3 text-center align-middle">
                 <span class="inline-flex items-center px-3 py-1 rounded text-xs font-black uppercase tracking-wider ${scoreBadgeClass}">
-                    ${score}
+                    ${score} - ${ratingText}
                 </span>
             </td>
             
             <!-- 11. Risk Owner -->
             <td class="p-2">
-                <input type="text" value="${window.escapeAttr(row.riskOwner || '')}" onchange="updateRiskField('${safeRiskId}', 'riskOwner', this.value)" placeholder="e.g. Director IT" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">
+                <input type="text" value="${window.escapeAttr(row.riskOwner || '')}" ${isElementLocked} onchange="updateRiskField('${safeRiskId}', 'riskOwner', this.value)" placeholder="e.g. IT Lead" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">
             </td>
             
             <!-- 12. Directorate/Department -->
             <td class="p-2">
-                <input type="text" value="${window.escapeAttr(row.department || '')}" onchange="updateRiskField('${safeRiskId}', 'department', this.value)" placeholder="e.g. Technology Infrastructure" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">
+                <input type="text" value="${window.escapeAttr(row.department || '')}" ${isElementLocked} onchange="updateRiskField('${safeRiskId}', 'department', this.value)" placeholder="e.g. Infrastructure" class="w-full bg-slate-50 dark:bg-[#0d0e10] border border-outline-variant/40 dark:border-slate-700 text-xs rounded-lg p-1.5 focus:outline-none">
             </td>
             
-            <!-- 13. Risk Ranking -->
-            <td class="p-3 text-center align-middle">
-                <span class="inline-flex items-center px-3 py-1 rounded text-xs font-black uppercase tracking-wider ${scoreBadgeClass}">
-                    ${ratingText}
-                </span>
-            </td>
+            <!-- 13. Action Console (Moves the Submit button completely out of the score row space) -->
+            <td class="p-2 min-w-[170px] align-middle">${workflowControlPanelHtml}</td>
         `;
+
         tbody.appendChild(tr);
     });
 
     updateRiskSelectionCounter(riskRows);
 }
 
+/**
+ * Builds review buttons and comment sheets for verifying user profiles
+ */
+function buildRiskGatekeeperConsoleLayout(originalIndex, trackingState, activeUserRole) {
+    let consoleHtml = `<div class="flex flex-col gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded border border-slate-700/30 max-w-[200px] mx-auto">
+        <input type="text" id="txt-risk-comment-${originalIndex}" placeholder="Remarks..." 
+               class="w-full bg-[#1e293b] border border-slate-700/50 p-1 text-[10px] rounded text-white focus:outline-none">`;
 
+    if (activeUserRole === "leadauditor") {
+        consoleHtml += `
+            <div class="flex items-center gap-1 justify-between mt-1">
+                <button onclick="dispatchRiskGateTransition('${originalIndex}', 'Pending_Reviewer')" class="w-1/2 px-1 py-0.5 text-[9px] font-black uppercase bg-sky-600 hover:bg-sky-700 text-white rounded">Verify</button>
+                <button onclick="dispatchRiskGateTransition('${originalIndex}', 'Returned_To_Officer')" class="w-1/2 px-1 py-0.5 text-[9px] font-black uppercase bg-amber-600 hover:bg-amber-700 text-white rounded">Return</button>
+            </div>`;
+    } else if (activeUserRole === "reviewer") {
+        consoleHtml += `
+            <div class="flex items-center gap-1 justify-between mt-1">
+                <button onclick="dispatchRiskGateTransition('${originalIndex}', 'Pending_Approver')" class="w-1/2 px-1 py-0.5 text-[9px] font-black uppercase bg-indigo-600 hover:bg-indigo-700 text-white rounded">Forward</button>
+                <button onclick="dispatchRiskGateTransition('${originalIndex}', 'Returned_To_Lead')" class="w-1/2 px-1 py-0.5 text-[9px] font-black uppercase bg-amber-600 hover:bg-amber-700 text-white rounded">Return</button>
+            </div>`;
+    } else if (activeUserRole === "approver") {
+        consoleHtml += `
+            <div class="flex items-center gap-1 justify-between mt-1">
+                <button onclick="dispatchRiskGateTransition('${originalIndex}', 'Approved')" class="w-1/2 px-1 py-0.5 text-[9px] font-black uppercase bg-emerald-600 hover:bg-emerald-700 text-white rounded">Authorize</button>
+                <button onclick="dispatchRiskGateTransition('${originalIndex}', 'Returned_To_Officer')" class="w-1/2 px-1 py-0.5 text-[9px] font-black uppercase bg-rose-600 hover:bg-rose-700 text-white rounded">Reject</button>
+            </div>`;
+    }
+
+    consoleHtml += `</div>`;
+    return consoleHtml;
+}
+
+/**
+ * Fires the state mutations upstream to the centralized store engine core
+ */
+async function dispatchRiskGateTransition(originalIndex, targetStatus, fallbackComment = "") {
+    const commentInput = document.getElementById(`txt-risk-comment-${originalIndex}`);
+    const actualComment = commentInput ? commentInput.value.trim() : "";
+
+    if (!actualComment && targetStatus.startsWith("Returned")) {
+        alert("Action Required: Please input a descriptive review comment clarifying your reason for returning this record.");
+        return;
+    }
+
+    const compiledComment = actualComment || fallbackComment || `Passed review verification into status ${targetStatus}`;
+
+    try {
+        if (window.AuditStore) {
+            await window.AuditStore.routeWorkflowStateChange("riskRegister", parseInt(originalIndex), targetStatus, compiledComment);
+        }
+    } catch (err) {
+        console.error("Workflow transmission failure context trace:", err);
+    }
+}
 
 /**
  * Persists general text updates to the local state model context
@@ -196,15 +267,12 @@ function updateRiskField(riskId, fieldKey, val) {
     
     if (!targetRow) return;
     
-    // 1. Instantly update the local memory state so UI modifications aren't lost
     targetRow[fieldKey] = val;
     
-    // 2. Clear any previous pending cloud save timer to reset the countdown
     if (riskFieldSaveTimeout) {
         clearTimeout(riskFieldSaveTimeout);
     }
     
-    // 3. Queue up a new cloud database write that runs 500ms after the last edit activity
     riskFieldSaveTimeout = setTimeout(async () => {
         try {
             await store.updateRiskRegister(riskRegister);
@@ -228,8 +296,6 @@ async function updateRiskMetrics(riskId, weightKey, numericStringValue) {
     if (!targetRow) return;
 
     targetRow[weightKey] = numericStringValue;
-    
-    // Compute total score metrics inline
     targetRow.riskScore = parseInt(targetRow.likelihood || 1) * parseInt(targetRow.impact || 1);
     
     try {
@@ -259,7 +325,6 @@ async function toggleRiskInclusion(riskId, booleanIsChecked) {
         console.error("Cloud synchronization timeout on row check mutation.");
     }
 }
-
 
 function updateRiskSelectionCounter(rowsArray) {
     const selectedCount = rowsArray.filter(r => r.isCommittedToPlan).length;
@@ -298,9 +363,6 @@ async function triggerRiskMatrixSort() {
 }
 
 /**
- * Pushes selected risks down the pipeline into Phase 1, Stage 3
- */
-/**
  * Pushes selected risks down the pipeline into Phase 1, Stage 3 without erasing old entries
  */
 async function commitRisksAndAdvanceStage() {
@@ -309,8 +371,6 @@ async function commitRisksAndAdvanceStage() {
 
     const fullRegister = store.current.phase1_planning.riskRegister || [];
     const universeList = store.current.phase1_planning.universe || [];
-    
-    // Retrieve any pre-existing rows from your work plan collection to protect them
     const existingWorkPlan = store.current.phase1_planning.workPlan || [];
     
     const selectedRisks = fullRegister.filter(r => r.isCommittedToPlan);
@@ -320,16 +380,12 @@ async function commitRisksAndAdvanceStage() {
         return;
     }
 
-    // Map checked items into scheduling array entities
     const updatedWorkPlanRows = selectedRisks.map(risk => {
         const riskIdSuffix = risk.riskId ? risk.riskId.split('-').pop() : "";
         const targetRefNumber = `AUD-2026-${riskIdSuffix}`;
         
-        // If this work plan record has already been built and edited before, preserve it!
-        const preExistingRecord = existingWorkPlan.find(w => w.refNumber === targetRefNumber);
-        if (preExistingRecord) {
-            return preExistingRecord;
-        }
+                const preExistingRecord = existingWorkPlan.find(w => w.refNumber === targetRefNumber);
+        if (preExistingRecord) return preExistingRecord;
 
         const matchedUniverseItem = universeList.find(u => u.serialNo && u.serialNo.split('-').pop() === riskIdSuffix);
         const resolvedAuditArea = matchedUniverseItem ? matchedUniverseItem.auditArea : "Untitled Mapped Title";
@@ -373,5 +429,3 @@ async function commitRisksAndAdvanceStage() {
         alert("Pipeline error. Failed to commit data mappings to cloud workspace scheduler.");
     }
 }
-
-

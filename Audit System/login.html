@@ -120,50 +120,42 @@
 <h2 class="text-lg sm:text-xl font-bold text-on-surface mb-1">Secure Authentication</h2>
 <p class="text-on-surface-variant text-xs sm:text-sm">Please enter your enterprise credentials to continue.</p>
 </div>
- <form action="#" class="space-y-4 sm:space-y-6" id="login-form" onsubmit="handleLogin(event)">
-            <!-- Email Field -->
-            <div class="space-y-1.5 sm:space-y-2">
-                <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant ml-1" for="email">Work Email</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <span class="material-symbols-outlined text-outline text-lg" data-icon="mail">mail</span>
-                    </div>
-                    <input class="block w-full pl-11 pr-4 py-3 sm:py-3.5 bg-surface-container-low border-none rounded-xl text-on-surface text-sm placeholder-outline focus:ring-2 focus:ring-primary-container transition-all" id="email" name="email" placeholder="name@company.com" required="" type="email"/>
+  <form onsubmit="window.handleLogin(event)" class="space-y-4">
+            
+            <!-- 1. Corporate Login Email Input Field -->
+            <div class="space-y-1">
+                <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Work Email</label>
+                <div class="relative flex items-center">
+                    <span class="material-symbols-outlined absolute left-3 text-sm text-slate-500">mail</span>
+                    <input type="email" id="email" placeholder="name@organization.com" class="w-full bg-slate-50 dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/50 p-2.5 pl-9 text-xs rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-sky-500 font-medium" required>
                 </div>
             </div>
-            <!-- Password Field -->
-            <div class="space-y-1.5 sm:space-y-2">
-                <div class="flex justify-between items-center px-1">
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant" for="password">Password</label>
-                    <div class="text-xs sm:text-sm">
-                        <a class="font-semibold text-primary hover:text-primary-container transition-colors" href="#" onclick="openForgotPasswordModal(event)">Forgot password?</a>
-                    </div>
+
+            <!-- 2. Cryptographic Secret Password Input Field -->
+            <div class="space-y-1">
+                <div class="flex justify-between items-center select-none">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 tracking-wider">Password</label>
+                    <button type="button" onclick="alert('Testing Phase: Please contact your database administrator to reset lost testing profiles.')" class="text-[10px] font-bold text-sky-500 dark:text-sky-400 hover:underline focus:outline-none">Forgot password?</button>
                 </div>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <span class="material-symbols-outlined text-outline text-lg" data-icon="lock">lock</span>
-                    </div>
-                    <input class="block w-full pl-11 pr-12 py-3 sm:py-3.5 bg-surface-container-low border-none rounded-xl text-on-surface text-sm placeholder-outline focus:ring-2 focus:ring-primary-container transition-all" id="password" name="password" placeholder="••••••••" required="" type="password"/>
-                    <button class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-primary transition-colors" type="button" onclick="togglePassword('password', this)">
-                        <span class="material-symbols-outlined text-lg" data-icon="visibility">visibility</span>
+                <div class="relative flex items-center">
+                    <span class="material-symbols-outlined absolute left-3 text-sm text-slate-500">lock</span>
+                    <input type="password" id="password" placeholder="••••••••" class="w-full bg-slate-50 dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700/50 p-2.5 pl-9 pr-10 text-xs rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-sky-500 font-mono" required>
+                    <button type="button" onclick="window.togglePassword('password', this)" class="absolute right-3 text-slate-500 hover:text-slate-300 flex items-center justify-center focus:outline-none">
+                        <span class="material-symbols-outlined text-sm">visibility</span>
                     </button>
                 </div>
             </div>
-            <!-- Options (Remember me - if you want to implement persistent sessions) -->
-            <div class="flex items-center">
-                <input class="h-4 w-4 text-primary focus:ring-primary border-outline-variant rounded" id="remember-me" name="remember-me" type="checkbox"/>
-                <label class="ml-2 block text-xs sm:text-sm text-on-surface-variant font-medium" for="remember-me">Remember me</label>
-            </div>
-            <!-- Submit Button -->
-            <button id="login-submit" type="submit" class="w-full flex justify-center py-3.5 sm:py-4 px-4 rounded-full text-sm font-bold text-on-primary bg-gradient-to-r from-primary to-primary-container shadow-md hover:shadow-lg transition-all active:scale-[0.98]">
-                Sign In to Ledger
+
+            <!-- 3. Remember Me Checkbox Selector Tracking Button Component -->
+            <label class="flex items-center gap-2 py-1 cursor-pointer select-none">
+                <input type="checkbox" id="remember-me" class="rounded border-slate-300 text-sky-500 focus:ring-sky-500 h-3.5 w-3.5 bg-transparent">
+                <span class="text-[11px] text-slate-400 font-medium">Remember my session cache state on this device</span>
+            </label>
+
+            <!-- Submission Trigger Button Component -->
+            <button type="submit" id="login-submit" class="w-full py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-black text-xs uppercase tracking-wider rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1 focus:outline-none">
+                Sign In to Ledger <span class="material-symbols-outlined text-sm font-black">arrow_forward</span>
             </button>
-            <div class="pt-6 sm:pt-8 text-center">
-                <p class="text-on-surface-variant font-body text-sm sm:text-base">
-                    Don't have an account yet?
-                    <a class="text-primary font-bold hover:underline ml-1" href="signup.html">Sign Up</a>
-                </p>
-            </div>
         </form>
 </div>
 <!-- Sign Up CTA -->
