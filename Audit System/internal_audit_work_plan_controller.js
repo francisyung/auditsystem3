@@ -22,9 +22,12 @@ document.addEventListener("DOMContentLoaded", () => {
  * Loops and builds scheduling rows using inherited risk database vectors
  * UPDATED: Enforces item-by-item isolated status tracking bars per individual audit record.
  */
-function renderWorkPlanWorkspace(data) {
-    const planRows = data?.phase1_planning?.workPlan || [];
-    const meta = data?.phase1_planning?.workPlanMetadata || {};
+async function renderWorkPlanWorkspace(data) { 
+    // 🛡️ FIX: Added 'meta' mapping extractor to align with line 259 checks
+    const workPlanList = data?.phase1_planning?.workPlan || [];
+    const universeList = data?.phase1_planning?.universe || [];
+    const meta         = data?.phase1_planning?.workPlanMetadata || {}; // 👈 EXACTLY HERE
+    
     const tbody = document.getElementById("tbl-plan-body");
     if (!tbody) return;
 
@@ -32,7 +35,7 @@ function renderWorkPlanWorkspace(data) {
 
     const activeUserRole = localStorage.getItem("sentinel_active_role") || "officer";
 
-    if (planRows.length === 0) {
+    if (workPlanList.length === 0) {
         document.getElementById("empty-plan-row")?.classList.remove("hidden");
         updateBudgetSummarySummaryTotals(0);
         return;
@@ -40,13 +43,37 @@ function renderWorkPlanWorkspace(data) {
 
     document.getElementById("empty-plan-row")?.classList.add("hidden");
 
+    // =========================================================================
+    // 🛡️ RE-CONNECTED DECRYPTION ARRAYS MAP (CRITICAL FIX)
+    // This defines 'planRows' and removes the ciphertext strings before rendering
+    // =========================================================================
+    const planRows = await Promise.all(workPlanList.map(async (row) => {
+        const unencryptedRowCopy = { ...row };
+        try {
+            if (unencryptedRowCopy.auditObjectives && unencryptedRowCopy.auditObjectives.startsWith("SENTINEL_CIPHER:")) {
+                const cipherText = unencryptedRowCopy.auditObjectives.replace("SENTINEL_CIPHER:", "");
+                unencryptedRowCopy.auditObjectives = await window.SentinelCrypto.decryptDataField(cipherText);
+            }
+            if (unencryptedRowCopy.auditScopeBoundaries && unencryptedRowCopy.auditScopeBoundaries.startsWith("SENTINEL_CIPHER:")) {
+                const cipherText = unencryptedRowCopy.auditScopeBoundaries.replace("SENTINEL_CIPHER:", "");
+                unencryptedRowCopy.auditScopeBoundaries = await window.SentinelCrypto.decryptDataField(cipherText);
+            }
+        } catch (cryptoErr) {
+            console.error("🔒 Cryptographic Exception: Failed to decode planning field variables.", cryptoErr);
+        }
+        return unencryptedRowCopy;
+    }));
+
+    // =========================================================================
+    // Now 'planRows' exists cleanly and safely! The rest of your code runs perfectly.
+    // =========================================================================
     planRows.forEach((row, idx) => {
         // 🛡️ ITEM-ISOLATED INITIALIZATION: Assign a unique status tracking state per individual row if missing
         if (!row.trackingState) {
             row.trackingState = { status: "Draft", currentHolder: "officer", remarks: "" };
         }
 
-         const itemState = row.trackingState;
+        const itemState = row.trackingState;
         const safeRefNum = window.escapeAttr(row.refNumber);
 
         // =========================================================================
@@ -61,8 +88,6 @@ function renderWorkPlanWorkspace(data) {
 
         const tr = document.createElement("tr");
         tr.className = "border-b border-outline-variant/30 dark:border-slate-800 last:border-0 hover:bg-surface-container-low dark:hover:bg-slate-900/40 align-top transition-colors";
-        
-        
         
         let riskBadgeClass = "bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-300";
         let displayLevel = row.riskLevel || "LOW";

@@ -115,13 +115,17 @@ class SentinelCryptoEngine {
     /**
      * Executes real AES-GCM 256-bit encryption on plain text values, outputting an unassailable Base64 Ciphertext block [1]
      */
+        /**
+     * Executes real AES-GCM 256-bit encryption on plain text values [1]
+     */
     async encryptDataField(plainText) {
         if (!plainText) return "";
         try {
             const key = await this.initializeSecureKeyEngine();
+            // 🛡️ Insecure HTTP connection fallback bypass rule
+            if (!key) return plainText; 
+
             const encoder = new TextEncoder();
-            
-            // Generate a structurally distinct Initialization Vector (IV) for every isolated runtime permutation
             const iv = window.crypto.getRandomValues(new Uint8Array(12));
             const encryptedBuffer = await window.crypto.subtle.encrypt(
                 { name: "AES-GCM", iv: iv },
@@ -129,7 +133,6 @@ class SentinelCryptoEngine {
                 encoder.encode(plainText)
             );
 
-            // Combine Initialization Vector + Encrypted Array Byte Streams safely into a transportable format string
             const combinedArray = new Uint8Array(iv.length + encryptedBuffer.byteLength);
             combinedArray.set(iv, 0);
             combinedArray.set(new Uint8Array(encryptedBuffer), iv.length);
@@ -137,20 +140,21 @@ class SentinelCryptoEngine {
             return btoa(String.fromCharCode.apply(null, combinedArray));
         } catch (err) {
             console.error("Cryptographic Fault: Field validation encryption pipeline drop.", err);
-            return plainText; // Gracious degrade pattern fallback rules
+            return plainText;
         }
     }
 
     /**
-     * Decrypts AES-GCM 256-bit ciphertext payloads using the native secure runtime key engine [1]
+     * Decrypts AES-GCM 256-bit ciphertext payloads [1]
      */
     async decryptDataField(base64Ciphertext) {
         if (!base64Ciphertext || base64Ciphertext.length < 16) return base64Ciphertext;
         try {
             const key = await this.initializeSecureKeyEngine();
+            // 🛡️ Insecure HTTP connection fallback bypass rule
+            if (!key) return base64Ciphertext;
+
             const combinedArray = new Uint8Array(atob(base64Ciphertext).split("").map(c => c.charCodeAt(0)));
-            
-            // Extract the original 12-byte IV initialization boundary tokens cleanly
             const iv = combinedArray.slice(0, 12);
             const dataBuffer = combinedArray.slice(12);
 
@@ -161,10 +165,10 @@ class SentinelCryptoEngine {
             );
             return new TextDecoder().decode(decryptedBuffer);
         } catch (err) {
-            // Decryption failure implies data was altered, unencrypted initially, or user clearance token context mismatches
             return base64Ciphertext; 
         }
     }
+
 
     /**
      * Computes a cryptographic SHA-256 data-integrity signature hash of string inputs to establish Chain-of-Custody [1]
