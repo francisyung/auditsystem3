@@ -226,10 +226,13 @@ async function initializePhase2ProgramCanvas(data) {
     const lblPeriod = document.getElementById("lbl-pull-period");
     if (lblPeriod) lblPeriod.textContent = resolvedPeriodTimeline.toUpperCase();
 
-    let plainObjectives = activeRow.auditObjectives || "";
+   let plainObjectives = activeRow.auditObjectives || "";
     let plainScope = activeRow.auditScopeBoundaries || "";
     let plainRisks = activeRow.riskDescription || "";
 
+    // =========================================================================
+    // 🛡️ RE-SYNCHRONIZED CANVAS DECRYPTION ENGINES (PREVENTS OVERWRITE)
+    // =========================================================================
     try {
         if (plainObjectives.startsWith("SENTINEL_CIPHER:")) {
             const cipherText = plainObjectives.replace("SENTINEL_CIPHER:", "");
@@ -244,13 +247,15 @@ async function initializePhase2ProgramCanvas(data) {
             plainRisks = await window.SentinelCrypto.decryptDataField(cipherText);
         }
     } catch (cryptoErr) {
-        console.error("🔒 Cryptographic Exception: Failed to decode data-at-rest ciphertext arrays.", cryptoErr);
+        console.error("🔒 Cryptographic Exception: Canvas layer decode failed.", cryptoErr);
     }
 
-    const txtObjectives = document.getElementById("txt-intro-bg"); 
-    const txtScope = document.querySelector("[placeholder*='boundaries']");
-    const txtRisks = document.getElementById("lbl-pull-risks");
+     // Target your DOM elements accurately using their explicit layout IDs
+    const txtObjectives = document.getElementById("txt-add-objectives") || document.getElementById("txt-intro-bg"); 
+    const txtScope = document.getElementById("txt-add-scope") || document.querySelector("[placeholder*='boundaries']");
+    const txtRisks = document.getElementById("txt-add-risks") || document.getElementById("lbl-pull-risks");
 
+    // Force injection of pure, clean plain text strings into the inputs
     if (txtObjectives && !txtObjectives.matches(':focus')) {
         txtObjectives.value = plainObjectives;
     }
@@ -258,7 +263,11 @@ async function initializePhase2ProgramCanvas(data) {
         txtScope.value = plainScope;
     }
     if (txtRisks) {
-        txtRisks.textContent = plainRisks || "No mapped risk framework narrative definitions declared.";
+        if (txtRisks.tagName === "TEXTAREA" || txtRisks.tagName === "INPUT") {
+            if (!txtRisks.matches(':focus')) txtRisks.value = plainRisks;
+        } else {
+            txtRisks.textContent = plainRisks;
+        }
     }
 
     if (!planProgram.audits) planProgram.audits = {};
