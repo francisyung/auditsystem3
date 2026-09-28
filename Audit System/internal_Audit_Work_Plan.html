@@ -113,22 +113,27 @@
                 <!-- Master Scheduler Spreadsheet View Data Grid Elements Layer -->
 <div class="overflow-x-auto w-full border border-outline-variant/20 dark:border-slate-800 rounded-xl">
     <table class="w-full min-w-[1850px] border-collapse text-left table-fixed">
-        <thead>
-            <tr class="bg-surface-container-low dark:bg-slate-900 border-b border-outline-variant/40 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-on-surface-variant dark:text-slate-400">
-            <th class="p-3 w-12 text-center">S/N</th>
-            <th class="p-3 w-36">Reference No</th>
-            <th class="p-3 w-56">Audit Area Particulars</th>
-            <th class="p-3 w-64">Risk Description</th>
-            <th class="p-3 w-28 text-center">Level of Risk</th>
-            <th class="p-3 w-80">Audit Objectives</th>
-            <th class="p-3 w-80">Audit Scope Boundaries</th>
-            <th class="p-3 w-52">Duration & Timestamps</th>
-            <th class="p-3 w-64">Budget & Allocated Resources</th>
-            <th class="p-3 w-60">Auditor Role Mapping</th>
-            <!-- Added Action Column Target -->
-            <th class="p-3 w-36 text-center">Execution Action</th>
-        </tr>
-        </thead>
+       <thead>
+    <tr class="bg-surface-container-low dark:bg-slate-900 border-b border-outline-variant/40 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-on-surface-variant dark:text-slate-400">
+        <th class="p-3 w-12 text-center">S/N</th>
+        <th class="p-3 w-36">Reference No</th>
+        <th class="p-3 w-56">Audit Area Particulars</th>
+        <th class="p-3 w-64">Risk Description</th>
+        <th class="p-3 w-28 text-center">Level of Risk</th>
+        <th class="p-3 w-80">Audit Objectives</th>
+        <th class="p-3 w-80">Audit Scope Boundaries</th>
+        <th class="p-3 w-52">Duration & Timestamps</th>
+        <th class="p-3 w-64">Budget & Allocated Resources</th>
+        <th class="p-3 w-60">Auditor Role Mapping</th>
+        
+        <!-- 🛡️ ADDED: Re-balanced column title tracking isolated status parameters -->
+        <th class="p-3 w-40 text-center bg-slate-100/50 dark:bg-slate-900/40 border-x border-outline-variant/10 shadow-sm text-primary dark:text-sky-400 font-black">Workflow Status Gate</th>
+        
+        <!-- Action Column Target -->
+        <th class="p-3 w-36 text-center">Execution Action</th>
+    </tr>
+</thead>
+
         <tbody id="tbl-plan-body">
             <!-- Injected programmatically by controller modules loop mapping -->
         </tbody>
