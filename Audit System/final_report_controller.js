@@ -26,7 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
 /**
  * Parses cloud snapshots to load baseline data metrics and corporate verification states safely without data blending
  */
-function renderFinalReportWorkspace(data) {
+/**
+ * Parses cloud snapshots to load baseline data metrics and corporate verification states safely without data blending
+ * UPDATED: Injected asynchronous AES-GCM decryption interceptors to convert cipher strings back to human plain text.
+ */
+async function renderFinalReportWorkspace(data) { // 👈 Changed function definition to 'async'
     const workPlanList = data?.phase1_planning?.workPlan || [];
     const universeList = data?.phase1_planning?.universe || [];
     const planProgram = data?.phase2_performing?.planProgram || {};
@@ -44,15 +48,42 @@ function renderFinalReportWorkspace(data) {
 
     populateTargetRiskSelector(workPlanList);
 
-    const targetRow = workPlanList[activeTargetIndex] || workPlanList[0];
-    if (!targetRow) return;
+    const rawTargetRow = workPlanList[activeTargetIndex] || workPlanList[0];
+    if (!rawTargetRow) return;
     
+    // =========================================================================
+    // 🛡️ CENTRAL PIPELINE AES-GCM DECRYPTION INTERCEPTOR OBJECT
+    // Decodes encrypted database rows on the fly before they map onto your UI
+    // =========================================================================
+    const targetRow = { ...rawTargetRow };
+    try {
+        if (targetRow.auditObjectives && targetRow.auditObjectives.startsWith("SENTINEL_CIPHER:")) {
+            const cipherText = targetRow.auditObjectives.replace("SENTINEL_CIPHER:", "");
+            targetRow.auditObjectives = await window.SentinelCrypto.decryptDataField(cipherText);
+        }
+        if (targetRow.auditScopeBoundaries && targetRow.auditScopeBoundaries.startsWith("SENTINEL_CIPHER:")) {
+            const cipherText = targetRow.auditScopeBoundaries.replace("SENTINEL_CIPHER:", "");
+            targetRow.auditScopeBoundaries = await window.SentinelCrypto.decryptDataField(cipherText);
+        }
+        if (targetRow.riskDescription && targetRow.riskDescription.startsWith("SENTINEL_CIPHER:")) {
+            const cipherText = targetRow.riskDescription.replace("SENTINEL_CIPHER:", "");
+            targetRow.riskDescription = await window.SentinelCrypto.decryptDataField(cipherText);
+        }
+    } catch (cryptoErr) {
+        console.error("🔒 Cryptographic Exception: Failed to decode final report background fields.", cryptoErr);
+    }
+
     const refNum = targetRow.refNumber;
 
     const previousProgramState = planProgram.audits?.[refNum] || {};
     const previousDraftState   = draftReport.audits?.[refNum] || {};
 
+    // =========================================================================
+    // From here downwards, the rest of your original layout code remains exactly the same,
+    // but reads 'targetRow' containing beautiful, clear plain text definitions!
+    // =========================================================================
     if (!finalReport.audits) finalReport.audits = {};
+
     if (!finalReport.audits[refNum]) {
         finalReport.audits[refNum] = { verificationFlags: {} };
     }
