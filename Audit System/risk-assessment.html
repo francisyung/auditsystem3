@@ -41,39 +41,51 @@
 
     <!-- Universal Corporate Navigation Bar Component -->
     <aside class="w-72 bg-white dark:bg-[#1a1c1e] border-r border-outline-variant/20 dark:border-slate-800 flex flex-col no-print">
-        <div class="p-6 border-b border-outline-variant/10 dark:border-slate-800/60 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-primary dark:bg-sky-500 flex items-center justify-center text-white">
-                <span class="material-symbols-outlined text-lg">security</span>
-            </div>
-            <div>
-                <h1 class="text-sm font-black uppercase tracking-wider text-primary dark:text-sky-400">Sentinel</h1>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enterprise Audit</p>
-            </div>
+    <div class="p-6 border-b border-outline-variant/10 dark:border-slate-800/60 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-primary dark:bg-sky-500 flex items-center justify-center text-white">
+            <span class="material-symbols-outlined text-lg">security</span>
         </div>
-
-        <nav class="flex-1 space-y-1 p-4">  
-            <div class="px-3 py-2 text-[10px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase select-none">Planning Phase</div>
-            <a class="flex items-center px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="audit-universe.html">  
-                <span class="material-symbols-outlined mr-3">public</span>  
-                <span class="font-medium text-sm">Stage 1: Audit Universe</span>  
-            </a>  
-            <a class="flex items-center px-4 py-2.5 text-primary dark:text-sky-300 font-bold border-r-4 border-primary bg-slate-50 dark:bg-slate-900/40 rounded transition-colors" href="risk-assessment.html">  
-                <span class="material-symbols-outlined mr-3">list_alt</span>  
-                <span class="font-medium text-sm">Stage 2: Risk Register</span>  
-            </a>  
-            <a class="flex items-center px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="internal_Audit_Work_Plan.html">  
-                <span class="material-symbols-outlined mr-3">dashboard</span>  
-                <span class="font-medium text-sm">Stage 3: Work Plan Scheduler</span>  
-            </a>  
-        </nav>
-
-        <div class="p-4 border-t border-outline-variant/10 dark:border-slate-800">
-            <button onclick="window.Theme.toggle()" class="w-full flex items-center justify-center gap-2 p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold rounded-xl transition-all">
-                <span class="material-symbols-outlined text-sm" data-theme-icon>dark_mode</span> Interface Theme Mode
-            </button>
+        <div>
+            <h1 class="text-sm font-black uppercase tracking-wider text-primary dark:text-sky-400">Sentinel</h1>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enterprise Audit</p>
         </div>
-    </aside>
+    </div>
 
+    <!-- Main Navigation Panel Section -->
+    <nav class="flex-1 space-y-1 p-4">  
+        <div class="px-3 py-2 text-[10px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase select-none">Planning Phase</div>
+        <a class="flex items-center px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="audit-universe.html">  
+            <span class="material-symbols-outlined mr-3">public</span>  
+            <span class="font-medium text-sm">Stage 1: Audit Universe</span>  
+        </a>  
+        <a class="flex items-center px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="risk-assessment.html">  
+            <span class="material-symbols-outlined mr-3">list_alt</span>  
+            <span class="font-medium text-sm">Stage 2: Risk Register</span>  
+        </a>  
+        <a class="flex items-center px-4 py-2.5 text-primary dark:text-sky-300 font-bold border-r-4 border-primary bg-slate-50 dark:bg-slate-900/40 rounded transition-colors" href="internal_Audit_Work_Plan.html">  
+            <span class="material-symbols-outlined mr-3">dashboard</span>  
+            <span class="font-medium text-sm">Stage 3: Work Plan Scheduler</span>  
+        </a>  
+
+        <!-- MOVED & RAISED UP: Placed directly within navigation stack to avoid floating overlay conflicts -->
+        <div class="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/40">
+            <div class="px-3 py-1.5 text-[10px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase select-none">Configuration</div>
+            <a class="flex items-center px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" href="settings.html">  
+                <span class="material-symbols-outlined mr-3">settings</span>  
+                <span class="font-medium text-sm">System Settings</span>  
+            </a>  
+            <div id="sentinel-admin-nav-slot"></div>
+        </div>
+    </nav>
+
+    <!-- Footer Controls Block -->
+    <div class="p-4 border-t border-outline-variant/10 dark:border-slate-800">
+        <!-- Interface Theme Button -->
+        <button onclick="window.Theme.toggle()" class="w-full flex items-center justify-center gap-2 p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold rounded-xl transition-all">
+            <span class="material-symbols-outlined text-sm" data-theme-icon>dark_mode</span> Interface Theme Mode
+        </button>
+    </div>
+</aside>
     <!-- Primary Layout Content View Container -->
     <main class="flex-1 flex flex-col overflow-y-auto bg-surface dark:bg-[#0d0e10]">
         
@@ -81,7 +93,8 @@
             <div class="flex items-center gap-3">
                 <span class="material-symbols-outlined text-2xl text-primary dark:text-sky-400">shield_with_heart</span>
                 <div>
-                    <h2 class="text-sm font-black text-on-surface dark:text-slate-200 uppercase tracking-wider">Kenya Revenue Authority (KRA)</h2>
+                    <h2 class="text-sm font-black text-on-surface dark:text-slate-200 uppercase tracking-wider">Sentinel
+                 Enterprise Audit</h2>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phase 1 — Vulnerability Weight Metrics Workspace</p>
                 </div>
             </div>
@@ -152,7 +165,7 @@
             </section>
         </div>
     </main>
-
+<script type="module" src="firebase_script.js"></script>
     <script type="module">
         import "./shared_store.js";
  </script>

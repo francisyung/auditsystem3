@@ -112,21 +112,26 @@ function renderDraftReportWorkspace(data) {
 
     const segments = draftState.executiveSummarySegments || {};
     
-   
-    // 🛡️ DYNAMIC INHERITANCE PROFILE PIPELINE MAPPINGS
-    const draftPrepBy = draftState.reviewer1Name || targetRow.leadAuditor || ""; // LEAD AUDITOR
-    const draftRevBy  = draftState.reviewer2Name || targetRow.auditor1 || "";    // AUDIT MANAGER
-    const draftAppBy  = draftState.authorizerName || targetRow.approver || "";   // APPROVER AUTHORITY
+    // Resolve dynamic parent approval metrics dates safely
+    const parentApprovalDate = data?.phase1_planning?.workPlanMetadata?.approvalDate || "";
 
-    setInputValWithoutFocusLoss("sign-rev1-name", draftPrepBy);
-    setInputValWithoutFocusLoss("sign-rev1-date", draftState.reviewer1Date || targetRow.approvalDate || "");
-    setInputValWithoutFocusLoss("sign-rev2-name", draftRevBy);
+    // 🛡️ DYNAMIC INHERITANCE PROFILE PIPELINE MAPPINGS (FIXED WORKSPACE LOGIC)
+    if (!draftState.reviewer1Name) draftState.reviewer1Name = targetRow.leadAuditor || "";
+    if (!draftState.reviewer1Date) draftState.reviewer1Date = draftState.reviewer1Name ? parentApprovalDate : "";
+    
+    if (!draftState.reviewer2Name) draftState.reviewer2Name = targetRow.auditor1 || "";
+    
+    if (!draftState.authorizerName) draftState.authorizerName = targetRow.approver || "";
+    if (!draftState.authorizerDate) draftState.authorizerDate = draftState.authorizerName ? parentApprovalDate : "";
+
+    // Render cleanly onto layout UI inputs
+    setInputValWithoutFocusLoss("sign-rev1-name", draftState.reviewer1Name);
+    setInputValWithoutFocusLoss("sign-rev1-date", draftState.reviewer1Date);
+    setInputValWithoutFocusLoss("sign-rev2-name", draftState.reviewer2Name);
     setInputValWithoutFocusLoss("sign-rev2-date", draftState.reviewer2Date || "");
-    setInputValWithoutFocusLoss("sign-auth-name", draftAppBy);
-    setInputValWithoutFocusLoss("sign-auth-date", draftState.authorizerDate || targetRow.approvalDate || "");
+    setInputValWithoutFocusLoss("sign-auth-name", draftState.authorizerName);
+    setInputValWithoutFocusLoss("sign-auth-date", draftState.authorizerDate);
 
-    
-    
     setTextAreaValWithoutFocusLoss("txt-exec-intro",      segments.introduction || "");
     setTextAreaValWithoutFocusLoss("txt-exec-objectives", segments.objectives || "");
     setTextAreaValWithoutFocusLoss("txt-exec-findings",   segments.findings || "");
@@ -147,6 +152,7 @@ function renderDraftReportWorkspace(data) {
     renderAppendicesMatrixTable(draftState.appendices || [], isInternalAuditLocked);
     renderDraftReportWorkflowPanelConsole(tState, activeUserRole, refNum);
 }
+
 /**
  * Sentinel Core Draft Audit Report Controller Module
  * PART 2 OF 5: FOCUS-SAFE UTILITIES, RISK LOOKUPS & FINDINGS GRID HEADINGS

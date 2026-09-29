@@ -29,7 +29,7 @@ const TARGET_ORG_ID = "kra-internal-audit-node";
  */
 function getTargetSchemaBlueprint() {
     return {
-        orgName: "Kenya Revenue Authority",
+        orgName: "Sentinel Enterprise Audit",
         lastUpdated: new Date().toISOString(),
         
         // --- PHASE 1: MACRO SYSTEM PLANNING & INHERITANCE TRACKS ---

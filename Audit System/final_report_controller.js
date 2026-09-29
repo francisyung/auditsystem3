@@ -424,10 +424,16 @@ async function commitFinalWorkspaceState() {
     
     const finalState = finalReport.audits[targetRow.refNumber];
     
-    finalState.authorizerName = document.getElementById("txt-auth-officer").value;
-    finalState.authorizerTitle = document.getElementById("txt-auth-title").value;
-    finalState.secureToken = document.getElementById("txt-auth-token").value;
-    finalState.timestamp = document.getElementById("txt-auth-timestamp").value;
+    // Read local input elements safely
+    const inputOfficer = document.getElementById("txt-auth-officer")?.value || "";
+    const inputTitle = document.getElementById("txt-auth-title")?.value || "";
+
+    // Persistence Check: Fallback to targetRow values if the form fields were left completely blank
+    finalState.authorizerName = inputOfficer || finalState.authorizerName || targetRow.approver || "";
+    finalState.authorizerTitle = inputTitle || finalState.authorizerTitle || "Head of Internal Audit";
+    
+    finalState.secureToken = document.getElementById("txt-auth-token")?.value || "";
+    finalState.timestamp = document.getElementById("txt-auth-timestamp")?.value || "";
 
     try {
         await store.save();
@@ -435,6 +441,7 @@ async function commitFinalWorkspaceState() {
         console.error("Failed to sync structural final report data fields.", err);
     }
 }
+
 /**
  * Sentinel Core Final Audit Report Controller Module
  * PART 4 OF 4: AUDIT COMPLIANCE GATING TOOLBARS, CRYPTO SIGNATURES & MOVEMENT FILTERS

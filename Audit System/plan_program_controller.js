@@ -478,6 +478,7 @@ async function commitProgramWorkspaceState() {
     const targetRow = workPlanList[activeTargetIndex] || workPlanList[0];
     if (!targetRow) return;
 
+    const meta = store.current.phase1_planning?.workPlanMetadata || {};
     const refNum = targetRow.refNumber;
     const planProgram = store.current.phase2_performing.planProgram;
 
@@ -486,20 +487,34 @@ async function commitProgramWorkspaceState() {
     
     const programState = planProgram.audits[refNum];
     
-    programState.risksAdditions = document.getElementById("txt-add-risks").value;
-    programState.auditObjectivesAdditions = document.getElementById("txt-add-objectives").value;
-    programState.auditScopeAdditions = document.getElementById("txt-add-scope").value;
+    programState.risksAdditions = document.getElementById("txt-add-risks")?.value || "";
+    programState.auditObjectivesAdditions = document.getElementById("txt-add-objectives")?.value || "";
+    programState.auditScopeAdditions = document.getElementById("txt-add-scope")?.value || "";
     
-    programState.introductionBackground = document.getElementById("txt-intro-bg").value;
-    programState.methodology = document.getElementById("txt-methodology").value;
-    programState.evaluationCriteria = document.getElementById("txt-benchmarks").value;
+    programState.introductionBackground = document.getElementById("txt-intro-bg")?.value || "";
+    programState.methodology = document.getElementById("txt-methodology")?.value || "";
+    programState.evaluationCriteria = document.getElementById("txt-benchmarks")?.value || "";
 
-    programState.prepName = document.getElementById("sign-prep-name").value;
-    programState.prepDate = document.getElementById("sign-prep-date").value;
-    programState.revName = document.getElementById("sign-rev-name").value;
-    programState.revDate = document.getElementById("sign-rev-date").value;
-    programState.appName = document.getElementById("sign-app-name").value;
-    programState.appDate = document.getElementById("sign-app-date").value;
+    // Read current input data values safely
+    const inputPrepName = document.getElementById("sign-prep-name")?.value || "";
+    const inputPrepDate = document.getElementById("sign-prep-date")?.value || "";
+    const inputRevName = document.getElementById("sign-rev-name")?.value || "";
+    const inputRevDate = document.getElementById("sign-rev-date")?.value || "";
+    const inputAppName = document.getElementById("sign-app-name")?.value || "";
+    const inputAppDate = document.getElementById("sign-app-date")?.value || "";
+
+    // Resolve structural inheritance date from metadata configurations layer
+    const targetApprovalDate = meta.approvalDate || "";
+
+    // Persistence Check: Keep existing data or merge Phase 1 vectors safely if empty
+    programState.prepName = inputPrepName || programState.prepName || targetRow.leadAuditor || "";
+    programState.prepDate = inputPrepDate || programState.prepDate || (programState.prepName ? targetApprovalDate : "");
+    
+    programState.revName = inputRevName || programState.revName || targetRow.auditor1 || "";
+    programState.revDate = inputRevDate || programState.revDate || "";
+    
+    programState.appName = inputAppName || programState.appName || targetRow.approver || "";
+    programState.appDate = inputAppDate || programState.appDate || (programState.appName ? targetApprovalDate : "");
 
     try {
         await store.save();
@@ -507,6 +522,7 @@ async function commitProgramWorkspaceState() {
         console.error("Failed to sync structural program data fields.", err);
     }
 }
+
 /**
  * Sentinel Core Audit Plan & Program Controller Module
  * PART 5 OF 5: TARGETED STAGE WORKFLOW CONTROLS & UTILITY LOOKUP HOOKS

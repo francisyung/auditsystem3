@@ -3,12 +3,12 @@
     login: 'login.html',
     signup: 'signup.html',
     dashboard: 'Audit_Plan&Program.html',
-    deptDashboard: 'Internal_Audit_Work_Plan.html',
+    deptDashboard: 'internal_Audit_Work_Plan.html', // FIXED: Capitalization case corrected to match sidebar anchor files
     riskRegister: 'risk-assessment.html',
-
-    settings: 'Final_Audit_Report.html',
+    settings: 'settings.html',                     // FIXED: Remapped from final report to valid settings file path
     reports: 'Draft_Audit_Report.html',
     auditunivers: 'audit-universe.html',
+    adminConsole: 'admin-user-management.html'      // NEW: Added central admin interface routing tag entry
   };
 
   function hrefFor(key) {
@@ -143,3 +143,4 @@
     initAppShell();
   });
 })();
+

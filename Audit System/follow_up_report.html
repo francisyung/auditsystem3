@@ -281,7 +281,7 @@
 
         </div>  
     </main>  
-
+<script type="module" src="firebase_script.js"></script>
     <script>  
   /**
  * Sentinel Core Follow-Up Audit Report Controller Module
@@ -308,6 +308,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+/**
+ * Main Controller Workspace Content Frame Renderer (Fully Formatted Alignment Block)
+ */
 /**
  * Main Controller Workspace Content Frame Renderer (Fully Formatted Alignment Block)
  */
@@ -373,17 +376,32 @@ function renderFollowUpWorkspace(data) {
     const elPeriod = document.getElementById("ui-audit-dates") || document.getElementById("lbl-pull-period");
     if (elPeriod) elPeriod.textContent = periodText;
 
-    // Populate Closure Sign-off Values
-    const approval = followupState.approval || {};
-    const followUpApproverName = approval.name || previousFinalState.authorizerName || targetRow.approver || "";
-    
-    setInputValWithoutFocusLoss("txt-app-name", followUpApproverName);
-    setInputValWithoutFocusLoss("txt-app-title", approval.designation || "Head of Internal Audit");
-    setInputValWithoutFocusLoss("txt-app-token", approval.token || "");
-    setInputValWithoutFocusLoss("txt-app-date", approval.date || (previousFinalState.timestamp ? previousFinalState.timestamp.split(" ")[0] : ""));
+    // =========================================================================
+    // 🛡️ RE-ORIENTED FOLLOW-UP CLOSURE APPROVAL LOGS (FIXED ELEMENT LINKAGE)
+    // =========================================================================
+    if (!followupState.approval) {
+        followupState.approval = { name: "", designation: "", token: "", date: "" };
+    }
+    const approval = followupState.approval;
+
+    // Direct Inheritance Layer mapping Phase 1 variables into local state nodes
+    const followUpApproverName  = approval.name || previousFinalState.authorizerName || targetRow.approver || "";
+    const followUpApproverTitle = approval.designation || "Head of Internal Audit";
+    const followUpApproverDate  = approval.date || (previousFinalState.timestamp ? previousFinalState.timestamp.split(" ")[0] : "");
+
+    // Secure memory state retention to prevent blank overwrite glitches
+    if (!approval.name) approval.name = followUpApproverName;
+    if (!approval.designation) approval.designation = followUpApproverTitle;
+    if (!approval.date) approval.date = followUpApproverDate;
+
+    // Populate visual UI layout input boxes using their actual DOM template IDs
+    setInputValWithoutFocusLoss("fu-auth-name",  approval.name);
+    setInputValWithoutFocusLoss("fu-auth-desig", approval.designation);
+    setInputValWithoutFocusLoss("fu-auth-sign",  approval.token || "");
+    setInputValWithoutFocusLoss("fu-auth-date",  approval.date);
 
     // Enforce DOM field locks based on validation step matching profiles
-    document.querySelectorAll("#tbl-followup-body select, #tbl-followup-body textarea, #tbl-followup-body input, .sign-block input").forEach(el => {
+    document.querySelectorAll("#tbl-followup-body select, #tbl-followup-body textarea, #tbl-followup-body input, input[id^='fu-auth-']").forEach(el => {
         if (isStageLocked) {
             el.setAttribute("disabled", "true");
             el.classList.add("opacity-60", "bg-slate-100", "dark:bg-slate-900/50", "pointer-events-none");
@@ -431,7 +449,6 @@ function renderFollowUpWorkspace(data) {
     });
 
     followupState.rows = trackingRows.map(r => r.followupData);
-
     renderFollowUpMatrixGridTable(trackingRows, refNum, isStageLocked);
     calculateRemediationIndexMetrics(trackingRows);
     renderFollowUpWorkflowGateBarPanel(tState, activeUserRole, refNum);
@@ -723,6 +740,9 @@ async function commitFollowUpStageTransition(refNum, targetStatus) {
 }/**
  * Commits Closure Approval Fields Upstream
  */
+/**
+ * Commits Closure Approval Fields Upstream
+ */
 async function commitFollowUpWorkspaceState(explicitRefNum) {
     const store = window.AuditStore;
     if (!store || !store.current) return;
@@ -730,30 +750,31 @@ async function commitFollowUpWorkspaceState(explicitRefNum) {
     // Resolve the active audit row reference key from Phase 1
     const targetRow = store.current.phase1_planning?.workPlan?.[activeTargetIndex];
     if (!targetRow) return;
-
     const activeRefKey = explicitRefNum || targetRow.refNumber;
     
-    // 🛡️ REALIGN TARGET DIRECTLY TO PHASE 3 REMEDIATION DATA BLOCKS
+    // Establish structural node initialization blocks safely on Phase 3
     if (!store.current.phase3_followup) store.current.phase3_followup = { audits: {} };
     if (!store.current.phase3_followup.audits) store.current.phase3_followup.audits = {};
     if (!store.current.phase3_followup.audits[activeRefKey]) {
         store.current.phase3_followup.audits[activeRefKey] = { rows: [], approval: {} };
     }
-
     const followupState = store.current.phase3_followup.audits[activeRefKey];
-    
-    // Read input elements safely checking DOM boundaries before binding values
-    const elOfficer = document.getElementById("txt-auth-officer");
-    const elTitle = document.getElementById("txt-auth-title");
-    const elToken = document.getElementById("txt-auth-token");
-    const elDate = document.getElementById("txt-auth-timestamp");
-
     if (!followupState.approval) followupState.approval = {};
+
+    // Read matching input element variables straight out of the DOM tree structure
+    const elOfficer = document.getElementById("fu-auth-name");
+    const elTitle   = document.getElementById("fu-auth-desig");
+    const elToken   = document.getElementById("fu-auth-sign");
+    const elDate    = document.getElementById("fu-auth-date");
     
-    if (elOfficer) followupState.approval.name = elOfficer.value;
-    if (elTitle)   followupState.approval.designation = elTitle.value;
-    if (elToken)   followupState.approval.token = elToken.value;
-    if (elDate)    followupState.approval.date = elDate.value;
+    // Read local parameters or implement state fallbacks cleanly to block blank value drop errors
+    const inputOfficerName = elOfficer ? elOfficer.value : "";
+    const inputOfficerTitle = elTitle ? elTitle.value : "";
+
+    followupState.approval.name = inputOfficerName || followupState.approval.name || targetRow.approver || "";
+    followupState.approval.designation = inputOfficerTitle || followupState.approval.designation || "Head of Internal Audit";
+    if (elToken) followupState.approval.token = elToken.value;
+    if (elDate)  followupState.approval.date = elDate.value;
 
     try {
         await store.save();
@@ -762,11 +783,12 @@ async function commitFollowUpWorkspaceState(explicitRefNum) {
         throw err; // Escalate to trigger safe catch warnings downstream
     }
 }
+
 /**
  * Advanced Verification Layer: Generates a secure token signature hash
  */
 window.generateSecureFollowUpApprovalHash = function() {
-    const name = document.getElementById("txt-app-name").value;
+    const name = document.getElementById("fu-auth-name").value;
     if (!name) {
         alert("Please provide the Approving Officer's name to generate the closure verification hash signature.");
         return;
@@ -774,17 +796,20 @@ window.generateSecureFollowUpApprovalHash = function() {
     
     const randomHashToken = "CLOSE-CERT-" + Math.random().toString(36).substring(2, 10).toUpperCase() + "-" + new Date().getFullYear();
     const currentISOString = new Date().toISOString().split('T')[0];
-    document.getElementById("txt-app-token").value = randomHashToken;
-    document.getElementById("txt-app-date").value = currentISOString;
+    
+    document.getElementById("fu-auth-sign").value = randomHashToken;
+    document.getElementById("fu-auth-date").value = currentISOString;
     
     commitFollowUpWorkspaceState();
 };
+
 
 window.commitFollowUpWorkspaceState = commitFollowUpWorkspaceState;
 
 
  
        
-    </script>  
+    </script> 
+     
 </body>
 </html>

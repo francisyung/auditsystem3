@@ -348,6 +348,10 @@ class CloudAuditStoreManager {
      * Connects a real-time reactive pipeline stream from Firestore.
      * HARDENED ANTI-REGRESSION SHIELD: Neutralizes back-button data wipeouts.
      */
+       /**
+     * Connects a real-time reactive pipeline stream from Firestore.
+     * HARDENED SECURITY & SEGREGATION LAYER: Prevents db_admins from viewing audit data tables.
+     */
     subscribeToAudit(uiRenderCallback) {
         const docRef = this.getDocRef();
         
@@ -356,6 +360,8 @@ class CloudAuditStoreManager {
         }
 
         this.unsubscribe = onSnapshot(docRef, async (snapshot) => {
+            const activeClearanceRole = localStorage.getItem("sentinel_active_role") || "officer";
+
             if (snapshot.exists()) {
                 const incomingCloudData = snapshot.data();
                 
@@ -363,13 +369,12 @@ class CloudAuditStoreManager {
                 if (this.current && 
                     incomingCloudData?.phase1_planning?.universe?.length === 0 && 
                     this.current?.phase1_planning?.universe?.length > 0) {
-                    console.warn("🛡️ Sentinel Threat Shield: Blocked a destructive blank array overwrite initialization attempt via backward navigation tracking streams.");
+                    console.warn("🛡️ Sentinel Threat Shield: Blocked a destructive blank array overwrite initialization attempt.");
                     return;
                 }
                 
                 this.current = incomingCloudData;
             } else {
-                // CYBERSECURITY ACCESS CONTROL CONSTRAINT: Double check with manual read before initialization
                 try {
                     const secondaryVerificationCheck = await getDoc(docRef);
                     if (!secondaryVerificationCheck.exists()) {
@@ -385,8 +390,42 @@ class CloudAuditStoreManager {
                     return;
                 }
             }
-            if (typeof uiRenderCallback === "function") {
-                uiRenderCallback(this.current);
+
+            // =========================================================================
+            // 🛡️ DATA SEGREGATION ENFORCEMENT
+            // If the user is a Database Admin, intercept and hide all underlying audit records!
+            // =========================================================================
+            if (activeClearanceRole === "db_admin") {
+                console.log("🛡️ Role Enforcement: Hiding default application view matrix elements from system administrator profile.");
+                
+                // Hide or blur normal data containers from view automatically
+                const dataContainers = document.querySelectorAll("main table, main .grid, .audit-data-pane, #audit-universe-table, .main-content-card");
+                dataContainers.forEach(container => {
+                    container.style.display = "none";
+                });
+
+                // Inject a dynamic access fallback card notice context into the viewport layout frame
+                let warningBanner = document.getElementById("sentinel-admin-segregation-notice");
+                if (!warningBanner) {
+                    warningBanner = document.createElement("div");
+                    warningBanner.id = "sentinel-admin-segregation-notice";
+                    warningBanner.className = "p-12 text-center max-w-xl mx-auto border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-[#1a1c1e] my-12 shadow-sm space-y-3";
+                    warningBanner.innerHTML = `
+                        <span class="material-symbols-outlined text-4xl text-sky-500">gavel</span>
+                        <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">System Telemetry Sandboxed View</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Under compliance protocols, Database Administrators are granted exclusive access to telemetry monitoring arrays. Auditing operational records has been restricted.</p>
+                    `;
+                    const mainContentWrapper = document.querySelector("main") || document.body;
+                    mainContentWrapper.insertBefore(warningBanner, document.getElementById("sentinel-admin-terminal-console-panel"));
+                }
+            } else {
+                // Remove warning notice if switching back to normal roles
+                document.getElementById("sentinel-admin-segregation-notice")?.remove();
+                
+                // Render app workspace for authorized standard operational groups
+                if (typeof uiRenderCallback === "function") {
+                    uiRenderCallback(this.current);
+                }
             }
             
             // Render append-only log panel view live for authorized admin profiles
@@ -395,8 +434,67 @@ class CloudAuditStoreManager {
         }, (error) => {
             console.error("Critical Cloud Matrix Synchronization Exception Raised:", error);
         });
+    }
 
-        
+    /**
+     * Enforces explicit segregation gates by reading active authentication role parameters.
+     * FIXED: Upgraded from manual 'getDoc' check blocks to a live, multi-tenant continuous onSnapshot stream.
+     */
+    evaluateAndDrawAdminConsoleTerminalPane() {
+        const activeClearanceRole = localStorage.getItem("sentinel_active_role") || "officer";
+        if (activeClearanceRole !== "db_admin") {
+            document.getElementById("sentinel-admin-terminal-console-panel")?.remove();
+            if (this.unsubscribeTelemetryLogs) {
+                this.unsubscribeTelemetryLogs();
+                this.unsubscribeTelemetryLogs = null;
+            }
+            return;
+        }
+
+        let terminalContainer = document.getElementById("sentinel-admin-terminal-console-panel");
+        if (!terminalContainer) {
+            terminalContainer = document.createElement("div");
+            terminalContainer.id = "sentinel-admin-terminal-console-panel";
+            terminalContainer.className = "p-6 mt-8 bg-[#090b0d] border-2 border-slate-800 rounded-2xl font-mono shadow-2xl space-y-3 no-print max-w-[1600px] w-full mx-auto";
+            const mainContentWrapper = document.querySelector("main") || document.body;
+            mainContentWrapper.appendChild(terminalContainer);
+        }
+
+        // =========================================================================
+        // 🔄 FIXED: ATTACH CONTINUOUS RE-STREAMING LISTENER HANDLES FOR THE LOG RECORDS
+        // =========================================================================
+        if (!this.unsubscribeTelemetryLogs) {
+            this.unsubscribeTelemetryLogs = onSnapshot(this.getLogsDocRef(), (logsSnapshot) => {
+                const logsArray = logsSnapshot.data()?.trailStreamLogs || [];
+                
+                // Sort array elements chronologically to place newest actions at the top layer
+                const latestTrailingLogsRows = logsArray.slice(-10).reverse();
+
+                const logRowsHtmlString = latestTrailingLogsRows.map(log => {
+                    return `<div class="text-[11px] text-green-400/90 leading-relaxed truncate animate-fade-in">
+                        <span class="text-slate-500 font-bold">[SECURE STREAM]</span> ${window.escapeAttr(log.entryPayload)} 
+                        <br><span class="text-[9px] text-amber-500/70 pl-4">└── 🛡️ SHA-256 Sign: ${log.hashIntegrityFingerprint} (Verified Immutable)</span>
+                    </div>`;
+                }).join('');
+
+                terminalContainer.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                        <div class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-sky-400">
+                            <span class="material-symbols-outlined text-sm animate-spin">terminal</span> Sentinel Operational Audit Log (Live Real-Time Telemetry Feed)
+                        </div>
+                        <div class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-sky-300 font-bold border border-slate-700 uppercase tracking-widest">
+                            ⚡ LIVE TELEMETRY_STREAMING
+                        </div>
+                    </div>
+                    <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                        ${logRowsHtmlString || '<div class="text-xs text-slate-600 italic">Awaiting secure logging stream packets handshake...</div>'}
+                    </div>
+                `;
+            }, (err) => {
+                console.error("Telemetry Stream Error:", err);
+                terminalContainer.innerHTML = `<div class="text-xs text-red-400">Failed to stream secure cloud logging data live.</div>`;
+            });
+        }
     }
 
     /**
@@ -451,51 +549,7 @@ class CloudAuditStoreManager {
      * Inserts an immutable append-only JSON live tracking logger console row visible EXCLUSIVELY to DB Admins.
      * PROTECTED STRATEGY: No deletion or truncation options exist within this terminal execution layout tree.
      */
-    async evaluateAndDrawAdminConsoleTerminalPane() {
-        const activeClearanceRole = localStorage.getItem("sentinel_active_role") || "officer";
-        if (activeClearanceRole !== "db_admin") {
-            document.getElementById("sentinel-admin-terminal-console-panel")?.remove();
-            return;
-        }
-
-        let terminalContainer = document.getElementById("sentinel-admin-terminal-console-panel");
-        if (!terminalContainer) {
-            terminalContainer = document.createElement("div");
-            terminalContainer.id = "sentinel-admin-terminal-console-panel";
-            terminalContainer.className = "p-6 mt-8 bg-[#090b0d] border-2 border-slate-800 rounded-2xl font-mono shadow-2xl space-y-3 no-print max-w-[1600px] w-full mx-auto";
-            const mainContentWrapper = document.querySelector("main") || document.body;
-            mainContentWrapper.appendChild(terminalContainer);
-        }
-
-        try {
-            const logsSnapshot = await getDoc(this.getLogsDocRef());
-            const logsArray = logsSnapshot.data()?.trailStreamLogs || [];
-            const latestTrailingLogsRows = logsArray.slice(-5).reverse();
-
-            const logRowsHtmlString = latestTrailingLogsRows.map(log => {
-                return `<div class="text-[11px] text-green-400/90 leading-relaxed truncate">
-                    <span class="text-slate-500 font-bold">[SECURE STREAM]</span> ${window.escapeAttr(log.entryPayload)} 
-                    <br><span class="text-[9px] text-amber-500/70 pl-4">└── 🛡️ SHA-256 Sign: ${log.hashIntegrityFingerprint} (Verified Immutable)</span>
-                </div>`;
-            }).join('');
-
-            terminalContainer.innerHTML = `
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                    <div class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-sky-400">
-                        <span class="material-symbols-outlined text-sm">terminal</span> Sentinel Operational Audit Log (Immutable History Trail Viewer)
-                    </div>
-                    <div class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-sky-300 font-bold border border-slate-700 uppercase tracking-widest">
-                        Role Clear: DB_ADMIN_TELEMETRY
-                    </div>
-                </div>
-                <div class="space-y-2 max-h-52 overflow-y-auto pr-1">
-                    ${logRowsHtmlString || '<div class="text-xs text-slate-600 italic">Awaiting secure logging stream packets handshake...</div>'}
-                </div>
-            `;
-        } catch (err) {
-            terminalContainer.innerHTML = `<div class="text-xs text-red-400">Failed to stream secure cloud logging data.</div>`;
-        }
-    }
+    
     /**
      * Intrusion Detection System Banner Ticker
      * Automatically injects a real-time cybersecurity indicator ticker row across your layout viewports.
@@ -1006,10 +1060,41 @@ window.evaluateAndInjectAdminNavigationLink = function() {
     headerActionCluster.insertBefore(adminNavButton, headerActionCluster.firstChild);
     console.log("🛡️ Sentinel Guard: Elevated db_admin navigation link injected successfully into top header workspace.");
 };
+/**
+ * Evaluates active security role context parameters on boot.
+ * If user clearance matches 'db_admin', dynamically appends the Admin Console button to the navigation cluster.
+ */
+window.evaluateAndInjectSidebarAdminConsole = function() {
+    const activeUserRole = localStorage.getItem("sentinel_active_role") || "officer";
+    const navigationSlot = document.getElementById("sentinel-admin-nav-slot");
+    
+    if (!navigationSlot) return; // Only process on pages displaying the system sidebar container
+    navigationSlot.innerHTML = ""; // Clear existing elements to avoid double injection triggers
+
+    // If the active role context does not carry Database Administration parameters, stop execution
+    if (activeUserRole !== "db_admin") return;
+
+    // Build the secure menu link anchor programmatically
+    const adminLinkElement = document.createElement("a");
+    adminLinkElement.href = "admin-user-management.html";
+    adminLinkElement.className = "flex items-center px-4 py-2.5 mt-1 text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors animate-fade-in";
+    
+    adminLinkElement.innerHTML = `
+        <span class="material-symbols-outlined mr-3 text-sky-500">manage_accounts</span>  
+        <span class="font-medium text-sm font-bold text-sky-600 dark:text-sky-400">Admin Console</span>
+    `;
+
+    // Commit the child link cleanly inside the targeted workspace container
+    navigationSlot.appendChild(adminLinkElement);
+    console.log("🛡️ Sentinel Gateway: Admin Console navigation node injected successfully into sidebar framework.");
+};
+
+
 
 // Hook the utility function straight into your Theme initialization stream block
 const parentThemeInit = window.Theme.init;
 window.Theme.init = function() {
     if (typeof parentThemeInit === "function") parentThemeInit.apply(this, arguments);
     window.evaluateAndInjectAdminNavigationLink();
+    window.evaluateAndInjectSidebarAdminConsole();
 };
