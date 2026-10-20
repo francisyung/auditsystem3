@@ -63,10 +63,8 @@ function analyzeForSqlInjection(inputString) {
 // 🔐 INTEGRATED AUTHENTICATION STATE TRACKER & SECURE CLEAN-ROUTE GUARD WALL
 // =========================================================================
 onAuthStateChanged(auth, async (user) => {
-  // FIXED: Standardize path extraction to cleanly capture raw folders or explicit file names
   const cleanPathName = window.location.pathname.toLowerCase();
   
-  // Evaluates clean server paths (/login) alongside explicit local filesystem files (/login.html)
   const isPublicPage = 
     cleanPathName === "" || 
     cleanPathName === "/" || 
@@ -79,6 +77,15 @@ onAuthStateChanged(auth, async (user) => {
     console.log("🛡️ Sentinel Auth: User logged into workspace:", user.email, user.uid);
     localStorage.setItem("sentinel_active_user_email", user.email);
     localStorage.removeItem(`login_fails_${user.email}`);
+
+    // 👇 ADD THIS TEMPORARY BYPASS BLOCK FOR TESTING
+    if (user.email.endsWith("@sentinel.test") || user.email === "admin@test.com") {
+        localStorage.setItem("sentinel_super_master", "true");
+        if (isPublicPage) {
+            window.location.href = "audit-universe.html";
+        }
+        return; // Exits early and skips the strict Firestore document checks entirely
+    }
 
     // =========================================================================
     // 🛡️ CRITICAL REAL-TIME ACCOUNT STATUS & RESTRICTION MATRIX CHECK
