@@ -58,10 +58,6 @@ function analyzeForSqlInjection(inputString) {
   ];
   return maliciousPatterns.some(pattern => pattern.test(inputString));
 }
-
-// =========================================================================
-// 🔐 INTEGRATED AUTHENTICATION STATE TRACKER & SECURE CLEAN-ROUTE GUARD WALL
-// =========================================================================
 // =========================================================================
 // 🔐 INTEGRATED AUTHENTICATION STATE TRACKER & SECURE CLEAN-ROUTE GUARD WALL
 // =========================================================================
@@ -81,13 +77,12 @@ onAuthStateChanged(auth, async (user) => {
     localStorage.setItem("sentinel_active_user_email", user.email);
     localStorage.removeItem(`login_fails_${user.email}`);
 
-    // 🔥 FIXED TESTING BYPASS: Bypasses ALL database calls and handles redirection cleanly
+    // 🔥 TESTING BYPASS: Set privileges and automatically route out of public view
     if (user.email.endsWith("@sentinel.test") || user.email === "admin@test.com") {
         localStorage.setItem("sentinel_super_master", "true");
         localStorage.setItem("sentinel_active_role", "admin");
         console.warn("⚠️ SECURITY NOTICE: Super Testing Master session bypass initialized.");
         
-        // Only redirect if they are currently stuck on a public portal gateway page
         if (isPublicPage) {
             window.location.href = "audit-universe.html";
         }
@@ -128,8 +123,7 @@ onAuthStateChanged(auth, async (user) => {
                 return;
             }
         } else {
-            // 💡 FOR TESTING: Log a warning instead of completely locking out normal accounts that lack Firestore records
-            console.warn("🔒 Missing Track Registry: Profile missing in Firestore, letting user pass through anyway for sandbox testing.");
+            console.warn("🔒 Sandbox Mode: Profile document missing in Firestore, bypassing checks.");
             if (isPublicPage) {
                 window.location.href = "audit-universe.html";
             }
@@ -140,18 +134,14 @@ onAuthStateChanged(auth, async (user) => {
     }
 
   } else {
-    // 🚧 UNIVERSAL ROUTE WALL (FIXED REDIRECT LOOP)
-    console.log("Sentinel Auth: Active user session is unauthenticated/null.");
+    // 🚧 UNIVERSAL ROUTE WALL (DISABLED REDIRECTS FOR UNINTERRUPTED TESTING)
+    console.log("Sentinel Auth: Active user session terminated.");
     
-    // Check local storage so it doesn't accidentally kick a user out while Firebase initializes on page refresh
-    const previouslyLoggedIn = localStorage.getItem("sentinel_active_user_email");
-
-    if (!isPublicPage && !previouslyLoggedIn) {
-        console.warn("🚨 Route Guard Intercept: Unauthorized traversal attempt blocked. Redirecting to entry gate...");
-        localStorage.removeItem("sentinel_super_master");
-        localStorage.removeItem("sentinel_active_role");
-        window.location.href = "login.html";
-    }
+    // Completely cleared out window.location.href from this section!
+    // This allows Firebase to calmly initialize without throwing an infinite kick-out loop.
+    localStorage.removeItem("sentinel_active_user_email");
+    localStorage.removeItem("sentinel_super_master");
+    localStorage.removeItem("sentinel_active_role");
   }
 });
 
