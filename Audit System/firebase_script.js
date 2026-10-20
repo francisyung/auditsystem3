@@ -62,6 +62,9 @@ function analyzeForSqlInjection(inputString) {
 // =========================================================================
 // 🔐 INTEGRATED AUTHENTICATION STATE TRACKER & SECURE CLEAN-ROUTE GUARD WALL
 // =========================================================================
+// =========================================================================
+// 🔐 INTEGRATED AUTHENTICATION STATE TRACKER & SECURE CLEAN-ROUTE GUARD WALL
+// =========================================================================
 onAuthStateChanged(auth, async (user) => {
   const cleanPathName = window.location.pathname.toLowerCase();
   
@@ -78,13 +81,17 @@ onAuthStateChanged(auth, async (user) => {
     localStorage.setItem("sentinel_active_user_email", user.email);
     localStorage.removeItem(`login_fails_${user.email}`);
 
-    // 👇 ADD THIS TEMPORARY BYPASS BLOCK FOR TESTING
+    // 🔥 FIXED TESTING BYPASS: Bypasses ALL database calls and handles redirection cleanly
     if (user.email.endsWith("@sentinel.test") || user.email === "admin@test.com") {
         localStorage.setItem("sentinel_super_master", "true");
+        localStorage.setItem("sentinel_active_role", "admin");
+        console.warn("⚠️ SECURITY NOTICE: Super Testing Master session bypass initialized.");
+        
+        // Only redirect if they are currently stuck on a public portal gateway page
         if (isPublicPage) {
             window.location.href = "audit-universe.html";
         }
-        return; // Exits early and skips the strict Firestore document checks entirely
+        return; 
     }
 
     // =========================================================================
@@ -98,64 +105,56 @@ onAuthStateChanged(auth, async (user) => {
             const userData = userDocSnap.data();
             const accountStatus = userData.accountStatus || (userData.isApproved ? "Active" : "Pending_Approval");
 
-            // 1. HARD SUSPENSION BLOCK
             if (accountStatus === "Disabled") {
-                alert("Access Suspended: This user workspace account has been explicitly deactivated by an administrator.");
+                alert("Access Suspended: Workspace account has been deactivated.");
                 await signOut(auth);
                 window.location.href = "login.html";
                 return;
             }
 
-            // 2. NEW REGISTRATION WALL
             if (accountStatus === "Pending_Approval" || userData.isApproved === false) {
-                alert("Access Restricted: Your registration is currently awaiting administrative sign-off from a Database Administrator.");
+                alert("Access Restricted: Awaiting administrative database sign-off.");
                 await signOut(auth);
                 window.location.href = "login.html";
                 return;
             }
 
-            // Sync user role dynamically to localStorage on success
             if (userData.assignedRole) {
                 localStorage.setItem("sentinel_active_role", userData.assignedRole);
             }
 
-            // 3. PUBLIC ESCAPE REDIRECT
             if (isPublicPage) {
                 window.location.href = "audit-universe.html";
                 return;
             }
         } else {
-            console.warn("🔒 Identity mismatch: Profile record missing from tenant track registry.");
-            await signOut(auth);
-            window.location.href = "login.html";
+            // 💡 FOR TESTING: Log a warning instead of completely locking out normal accounts that lack Firestore records
+            console.warn("🔒 Missing Track Registry: Profile missing in Firestore, letting user pass through anyway for sandbox testing.");
+            if (isPublicPage) {
+                window.location.href = "audit-universe.html";
+            }
             return;
         }
     } catch (err) {
-        console.error("Gateway Validation Failure: Unable to verify account permissions layout.", err);
+        console.error("Gateway Validation Failure:", err);
     }
 
-    // ACTIVATE SUPER MASTER MODE FLAG AUTOMATICALLY FOR TESTING CREDENTIALS
-    if (user.email.endsWith("@sentinel.test") || user.email === "admin@test.com") {
-        localStorage.setItem("sentinel_super_master", "true");
-        console.warn("⚠️ SECURITY NOTICE: Super Testing Master session bypass initialized.");
-    } else {
-        localStorage.removeItem("sentinel_super_master");
-    }
   } else {
-    console.log("Sentinel Auth: Active user session terminated.");
-    localStorage.removeItem("sentinel_active_user_email");
-    localStorage.removeItem("sentinel_super_master");
-    localStorage.removeItem("sentinel_active_role");
+    // 🚧 UNIVERSAL ROUTE WALL (FIXED REDIRECT LOOP)
+    console.log("Sentinel Auth: Active user session is unauthenticated/null.");
+    
+    // Check local storage so it doesn't accidentally kick a user out while Firebase initializes on page refresh
+    const previouslyLoggedIn = localStorage.getItem("sentinel_active_user_email");
 
-    // =========================================================================
-    // 🚧 UNIVERSAL ROUTE EXCLUSION WALL
-    // =========================================================================
-    if (!isPublicPage) {
+    if (!isPublicPage && !previouslyLoggedIn) {
         console.warn("🚨 Route Guard Intercept: Unauthorized traversal attempt blocked. Redirecting to entry gate...");
+        localStorage.removeItem("sentinel_super_master");
+        localStorage.removeItem("sentinel_active_role");
         window.location.href = "login.html";
     }
   }
 });
+
 
 // =========================================================================
 // 👤 HIGH-HARDENING REGISTRATION GATEWAY HANDLER
