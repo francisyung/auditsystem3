@@ -8,20 +8,54 @@ import { auth, db } from "./firebase_script.js";
 import { getFirestore, collection, getDocs, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     if (window.Theme) window.Theme.init();
-    
-    // SECURE ENTRY GATE: Verify that the current user has the correct clearance level to view this module
-    const currentActiveRole = localStorage.getItem("sentinel_active_role") || "officer";
-    if (currentActiveRole !== "db_admin") {
-        console.error("⛔ Security Access Exception: Unauthorized path traversal intercepted. Directing to universe.");
-        alert("Access Denied: The User Management Console is reserved exclusively for the Database Admin (db_admin) role.");
-        window.location.href = "audit-universe.html";
+
+    // Fast path: already known db_admin
+    if (localStorage.getItem("sentinel_active_role") === "db_admin") {
+        loadOrganizationalUsersDirectory();
         return;
     }
 
-    // Initialize data streaming layer
-    loadOrganizationalUsersDirectory();
+    // Wait for Firebase Auth (max ~5s) then verify role from Firestore
+    try {
+        const user = await new Promise((resolve) => {
+            let done = false;
+            const unsub = window.onAuthStateChanged(window.auth, (u) => {
+                if (!done) { done = true; try{unsub();}catch(e){} resolve(u); }
+            });
+            setTimeout(() => { if (!done) { done = true; resolve(window.auth?.currentUser || null); } }, 5000);
+        });
+
+        if (!user) {
+            alert("Access Denied: Please login first.");
+            window.location.href = "login.html";
+            return;
+        }
+
+        const { doc: fsDoc, getDoc: fsGet } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js");
+        // Need db instance — reuse window.db from firebase_script.js
+        const snap = await fsGet(fsDoc(window.db, "organizations", "demo_corporation_kra", "users", user.uid));
+
+        let role = localStorage.getItem("sentinel_active_role") || "officer";
+        if (snap.exists() && snap.data().assignedRole) {
+            role = snap.data().assignedRole;
+            localStorage.setItem("sentinel_active_role", role);
+        }
+
+        if (role !== "db_admin") {
+            console.error("⛔ Security Access Exception:", role, "for", user.email);
+            alert(`Access Denied: [${role}] cannot open User Management. Login as db_admin.`);
+            window.location.href = "audit-universe.html";
+            return;
+        }
+
+        loadOrganizationalUsersDirectory();
+    } catch (e) {
+        console.error("Admin gate failure:", e);
+        alert("Access Denied: Could not verify role.");
+        window.location.href = "audit-universe.html";
+    }
 });
 // Local safety fallback helper to prevent out-of-order execution script crashes
 const safeEscape = function(str) {
