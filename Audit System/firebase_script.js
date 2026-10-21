@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc, getDoc, updateDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -75,13 +75,15 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     console.log("🛡️ Sentinel Auth: User logged into workspace:", user.email, user.uid);
     localStorage.setItem("sentinel_active_user_email", user.email);
-    localStorage.removeItem(`login_fails_${user.email}`);
+    // FIX: do NOT clear fail counter here — handleLogin clears it only AFTER the Firestore gate passes.
+    // (Clearing it here let a correct password instantly wipe a lock.)
 
-    // 🔥 TESTING BYPASS: Set privileges and automatically route out of public view
+    // ⚠️ TESTING BYPASS — DISABLE IN PRODUCTION: this bypass skips Disabled/Locked/Pending checks
+    // for @sentinel.test / admin@test.com. Remove this block before go-live or gate it behind a flag.
     if (user.email.endsWith("@sentinel.test") || user.email === "admin@test.com") {
         localStorage.setItem("sentinel_super_master", "true");
         localStorage.setItem("sentinel_active_role", "admin");
-        console.warn("⚠️ SECURITY NOTICE: Super Testing Master session bypass initialized.");
+        console.warn("⚠️ SECURITY NOTICE: Super Testing Master session bypass initialized — REMOVE BEFORE PRODUCTION.");
         
         if (isPublicPage) {
             window.location.href = "audit-universe.html";
@@ -99,9 +101,12 @@ onAuthStateChanged(auth, async (user) => {
         if (userDocSnap.exists()) {
             const userData = userDocSnap.data();
             const accountStatus = userData.accountStatus || (userData.isApproved ? "Active" : "Pending_Approval");
+            const lockedUntilMs = userData.lockedUntil?.toMillis ? userData.lockedUntil.toMillis() : (userData.lockedUntil?.seconds ? userData.lockedUntil.seconds * 1000 : 0);
+            const isBruteLocked = accountStatus === "Locked" || (userData.failedAttempts || 0) >= 3 || (lockedUntilMs && lockedUntilMs > Date.now());
 
-            if (accountStatus === "Disabled") {
-                alert("Access Suspended: Workspace account has been deactivated.");
+            if (accountStatus === "Disabled" || isBruteLocked) {
+                await pushSecurityTelemetryLog(`🔒 SESSION TERMINATED: ${accountStatus === "Disabled" ? "Disabled" : "Locked"} account [${user.email}] kicked by auth guard.`);
+                alert(accountStatus === "Disabled" ? "Access Suspended: Workspace account has been deactivated." : "Account Locked: Too many failed attempts. Contact your administrator.");
                 await signOut(auth);
                 window.location.href = "login.html";
                 return;
@@ -186,8 +191,16 @@ window.handleSignup = async function (event) {
           company: company,
           departmentId: departmentId,
           email: email,
+          emailLower: email.toLowerCase(),
           assignedRole: chosenRole,
           createdAt: new Date(),
+          // --- FIX: fields the admin panel + lock logic depend on ---
+          isApproved: false,
+          accountStatus: "Pending_Approval",
+          failedAttempts: 0,
+          lastLoginAt: null,
+          lastFailedAt: null,
+          lockedUntil: null,
       });
 
       localStorage.setItem("sentinel_active_role", chosenRole);
@@ -207,11 +220,46 @@ window.handleSignup = async function (event) {
 // =========================================================================
 // 🔑 CORE LOGIN GATEWAY WITH FLOOD-PROTECTION BRUTE FORCE SHIELDS
 // =========================================================================
+// =========================================================================
+// 🔑 CORE LOGIN GATEWAY WITH FLOOD-PROTECTION BRUTE FORCE SHIELDS (FIXED)
+// Real lock is enforced in Firestore (failedAttempts / accountStatus / lockedUntil).
+// localStorage is only a UX helper, key is normalized to lowercase.
+// =========================================================================
+async function findUserDocByEmail(emailLower) {
+  try {
+    const q = query(
+      collection(db, "organizations", "demo_corporation_kra", "users"),
+      where("emailLower", "==", emailLower)
+    );
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      // Fallback: older docs may not have emailLower, try plain email match
+      return snap.docs[0];
+    }
+    const q2 = query(
+      collection(db, "organizations", "demo_corporation_kra", "users"),
+      where("email", "==", emailLower)
+    );
+    const snap2 = await getDocs(q2);
+    // case-insensitive fallback scan
+    let found = null;
+    snap2.forEach((d) => {
+      const data = d.data();
+      if ((data.email || "").toLowerCase() === emailLower) found = d;
+    });
+    return found;
+  } catch (e) {
+    console.warn("findUserDocByEmail blocked by Firestore rules:", e?.message);
+    return null;
+  }
+}
+
 window.handleLogin = async function (event) {
     event.preventDefault();
 
     const btn = document.getElementById('login-submit');
-    const email = document.getElementById('email').value.trim();
+    const emailRaw = document.getElementById('email').value.trim();
+    const email = emailRaw.toLowerCase(); // FIX: normalize so Test@X vs test@x share one counter
     const password = document.getElementById('password').value;
 
     if (!email || !password) {
@@ -220,47 +268,123 @@ window.handleLogin = async function (event) {
     }
 
     // 1. INJECTION SCANNING
-    if (analyzeForSqlInjection(email)) {
+    if (analyzeForSqlInjection(emailRaw)) {
         await pushSecurityTelemetryLog(`🚨 SQL INJECTION DETECTED AT LOGIN GATE: String payload intercept processed for input entry: [${email}].`);
         alert("Security Alert: Injection parameters detected. Operation blocked.");
         return;
     }
 
-    // 2. HARD BRUTE-FORCE COUNTER EVALUATION
+    // 2a. UX pre-check (localStorage only — NOT security). Real check happens in Firestore after signIn.
     const failTrackerKey = `login_fails_${email}`;
     let activeFailCount = parseInt(localStorage.getItem(failTrackerKey) || "0", 10);
 
     if (activeFailCount >= 3) {
-        await pushSecurityTelemetryLog(`🔒 ACCOUNT LOCKED: Brute-force threshold breached for target user account: [${email}]. Input frozen.`);
-        alert("Account Temporarily Locked: Exceeded 3 failed login attempts. Contact your Administrator.");
-        return;
+        // FIX: also consult Firestore before calling Auth, when rules allow it
+        const preDoc = await findUserDocByEmail(email);
+        if (preDoc) {
+          const d = preDoc.data();
+          const lockedUntil = d.lockedUntil?.toMillis ? d.lockedUntil.toMillis() : (d.lockedUntil?.seconds ? d.lockedUntil.seconds * 1000 : 0);
+          if (d.accountStatus === "Disabled" || d.accountStatus === "Locked" || (d.failedAttempts || 0) >= 3 || (lockedUntil && lockedUntil > Date.now())) {
+            await pushSecurityTelemetryLog(`🔒 ACCOUNT LOCKED (server-confirmed): blocked pre-auth attempt for: [${email}].`);
+            alert("Account Temporarily Locked: Exceeded 3 failed login attempts or disabled by admin. Contact your Administrator.");
+            return;
+          }
+          // If Firestore says the account was unlocked by admin, respect it and clear stale local block
+          if ((d.failedAttempts || 0) < 3 && d.accountStatus === "Active") {
+            localStorage.removeItem(failTrackerKey);
+            activeFailCount = 0;
+          } else {
+            await pushSecurityTelemetryLog(`🔒 ACCOUNT LOCKED: Brute-force threshold breached for target user account: [${email}]. Input frozen.`);
+            alert("Account Temporarily Locked: Exceeded 3 failed login attempts. Contact your Administrator.");
+            return;
+          }
+        } else {
+            await pushSecurityTelemetryLog(`🔒 ACCOUNT LOCKED (local): Brute-force threshold breached for target user account: [${email}]. Input frozen.`);
+            alert("Account Temporarily Locked: Exceeded 3 failed login attempts. Contact your Administrator.");
+            return;
+        }
     }
 
     if (btn) btn.disabled = true;
     if (window.SentinelAuthUI) window.SentinelAuthUI.setLoading(btn, true);
 
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, emailRaw, password);
         const user = userCredential.user;
+
+        // 2b. FIX — server-side gate AFTER Firebase Auth succeeds, BEFORE redirect:
+        // Firebase Auth does NOT know about your Firestore accountStatus, so you must enforce it here.
+        try {
+          const userDocRef = doc(db, "organizations", "demo_corporation_kra", "users", user.uid);
+          const snap = await getDoc(userDocRef);
+          if (snap.exists()) {
+            const ud = snap.data();
+            const lockedUntilMs = ud.lockedUntil?.toMillis ? ud.lockedUntil.toMillis() : (ud.lockedUntil?.seconds ? ud.lockedUntil.seconds * 1000 : 0);
+            const isLocked = ud.accountStatus === "Locked" || (ud.failedAttempts || 0) >= 3 || (lockedUntilMs && lockedUntilMs > Date.now());
+            if (ud.accountStatus === "Disabled" || isLocked) {
+              await pushSecurityTelemetryLog(`🔒 BLOCKED LOGIN ON DISABLED/LOCKED ACCOUNT: [${user.email}] signed in to Firebase but rejected by Firestore gate (status=${ud.accountStatus}, fails=${ud.failedAttempts || 0}).`);
+              await signOut(auth);
+              localStorage.setItem(failTrackerKey, "3");
+              alert(ud.accountStatus === "Disabled"
+                ? "Access Suspended: Workspace account has been deactivated. Contact your administrator."
+                : "Account Temporarily Locked: Exceeded 3 failed login attempts. Contact your Administrator.");
+              window.location.href = "login.html";
+              return;
+            }
+            if (ud.accountStatus === "Pending_Approval" || ud.isApproved === false) {
+              await pushSecurityTelemetryLog(`⛔ BLOCKED LOGIN PENDING APPROVAL: [${user.email}].`);
+              await signOut(auth);
+              alert("Access Restricted: Awaiting administrative database sign-off.");
+              window.location.href = "login.html";
+              return;
+            }
+            // Success: reset counters + record visible login activity for the admin panel
+            await updateDoc(userDocRef, {
+              failedAttempts: 0,
+              lockedUntil: null,
+              lastLoginAt: serverTimestamp(),
+              lastLoginEmail: user.email,
+            }).catch(() => {});
+            localStorage.removeItem(failTrackerKey);
+          }
+        } catch (gateErr) {
+          console.warn("Post-auth gate check failed (rules?):", gateErr?.message);
+        }
 
         console.log("🛡️ Master Session Initialized:", user.email, user.uid);
         await pushSecurityTelemetryLog(`🔑 USER LOGIN SUCCESSFUL: Authenticated identity handshake completed for session: [${user.email}].`);
-        
+
         alert('Login successful! Welcome to the testing master workspace canvas dashboard.');
         window.location.href = "audit-universe.html";
 
     } catch (error) {
         console.error("Error during login:", error.code, error.message);
-        
+
         // Increment threat matrix indicators on auth failures
         activeFailCount += 1;
         localStorage.setItem(failTrackerKey, activeFailCount.toString());
 
+        // FIX: mirror the failure into Firestore so the ADMIN PANEL can see it
+        try {
+          const fdoc = await findUserDocByEmail(email);
+          if (fdoc) {
+            const prev = fdoc.data().failedAttempts || 0;
+            const next = prev + 1;
+            const patch = { failedAttempts: next, lastFailedAt: serverTimestamp(), lastFailedEmail: email };
+            if (next >= 3) {
+              patch.accountStatus = "Locked";
+              // lock for 30 minutes (adjust to taste; admin unlock sets it back to Active)
+              patch.lockedUntil = new Date(Date.now() + 30 * 60 * 1000);
+            }
+            await updateDoc(fdoc.ref, patch).catch(() => {});
+          }
+        } catch (e) { console.warn("Failed to mirror fail-count to Firestore:", e?.message); }
+
         let errorMessage = "Login failed. Please check your credentials and try again.";
-        
-        if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+
+        if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-login-credentials') {
             errorMessage = `Invalid email or password. Warning: Attempt ${activeFailCount} of 3 before account freeze.`;
-            
+
             if (activeFailCount >= 3) {
                 await pushSecurityTelemetryLog(`🚨 BRUTE-FORCE ALARM: Account [${email}] has been flagged as LOCKED due to consecutive credential failures.`);
                 errorMessage = "Account locked due to multiple incorrect password entries.";
@@ -270,7 +394,7 @@ window.handleLogin = async function (event) {
         } else {
             await pushSecurityTelemetryLog(`❌ AUTHENTICATION ERROR: Network validation drop for [${email}]. Reference code: ${error.code}`);
         }
-        
+
         alert(errorMessage);
     } finally {
         if (btn) btn.disabled = false;

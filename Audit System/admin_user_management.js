@@ -5,7 +5,7 @@
  */
 
 import { auth, db } from "./firebase_script.js";
-import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -75,17 +75,24 @@ async function loadOrganizationalUsersDirectory() {
             const accountStatus = user.accountStatus || (user.isApproved ? "Active" : "Pending_Approval");
             const isApproved = user.isApproved === true;
 
-            // Generate contextual color badges based on state variables
+            // Generate contextual color badges based on state variables (FIX: Locked + fail counts now visible)
+            const fails = user.failedAttempts || 0;
+            const lastLogin = user.lastLoginAt?.seconds ? new Date(user.lastLoginAt.seconds * 1000).toLocaleString('en-KE') : "—";
+            const lastFail = user.lastFailedAt?.seconds ? new Date(user.lastFailedAt.seconds * 1000).toLocaleString('en-KE') : "—";
             let statusBadge = '';
             if (accountStatus === "Active") {
-                statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40">ACTIVE</span>`;
+                statusBadge = fails > 0
+                  ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">ACTIVE</span><div class="text-[10px] text-amber-600 font-bold mt-1">⚠️ ${fails} failed attempt(s)</div>`
+                  : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">ACTIVE</span>`;
             } else if (accountStatus === "Disabled") {
-                statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200 dark:border-rose-800/40">DISABLED</span>`;
+                statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">DISABLED</span>`;
+            } else if (accountStatus === "Locked") {
+                statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-600 text-white border border-red-700">🔒 LOCKED (${fails} fails)</span>`;
             } else {
-                statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-800/40">PENDING APPROVAL</span>`;
+                statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">PENDING APPROVAL</span>`;
             }
 
-            // Build structural operational command buttons dynamically
+            // Build structural operational command buttons dynamically (FIX: Locked gets Unlock path)
             let actionControlsHtml = '';
             
             if (!isApproved) {
@@ -101,6 +108,12 @@ async function loadOrganizationalUsersDirectory() {
                             Disable Account
                         </button>
                     `;
+                } else if (accountStatus === "Locked") {
+                    actionControlsHtml += `
+                        <button onclick="executeAdministrativeStatusToggle('${safeUid}', 'Active', '${safeName}', '${safeEmail}')" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-bold text-[10px] tracking-wide uppercase transition-all shadow-sm" title="Resets failedAttempts + lockedUntil">
+                            🔓 Unlock Account
+                        </button>
+                    `;
                 } else {
                     actionControlsHtml += `
                         <button onclick="executeAdministrativeStatusToggle('${safeUid}', 'Active', '${safeName}', '${safeEmail}')" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-bold text-[10px] tracking-wide uppercase transition-all shadow-sm">
@@ -110,6 +123,7 @@ async function loadOrganizationalUsersDirectory() {
                 }
             }
             
+            const failInfo = `<div class="font-bold ${fails >= 3 ? "text-red-500" : "text-slate-500"}">${fails} fail(s)</div><div class="text-[10px] text-slate-400">last fail: ${lastFail}</div>`;
             tr.innerHTML = `
                 <td class="p-3 text-center font-mono font-bold text-slate-400 w-12 bg-slate-50/50 dark:bg-slate-900/10">${index + 1}</td>
                 <td class="p-3 font-semibold text-on-surface dark:text-slate-200">
@@ -128,7 +142,8 @@ async function loadOrganizationalUsersDirectory() {
                         <option value="db_admin" ${activeRole === 'db_admin' ? 'selected' : ''}>⚙️ Database Admin (Logs Only)</option>
                     </select>
                 </td>
-                <td class="p-3 text-center">${statusBadge}</td>
+                <td class="p-3 text-center">${statusBadge}<div class="text-[10px] text-slate-400 mt-1">login: ${lastLogin}</div></td>
+                <td class="p-3 text-center text-[11px]">${failInfo}</td>
                 <td class="p-3 text-center w-36">${actionControlsHtml}</td>
                 <td class="p-3 text-slate-400 font-mono text-[11px]">
                     ${user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString('en-KE') : "Legacy Member"}
@@ -158,7 +173,9 @@ window.executeAdministrativeApproval = async function(targetUid, targetUserName,
         
         await updateDoc(userDocRef, {
             isApproved: true,
-            accountStatus: "Active"
+            accountStatus: "Active",
+            failedAttempts: 0,
+            lockedUntil: null
         });
 
         console.log(`⚙️ Registration Authorized: Account UID [${targetUid}] successfully whitelisted by db_admin.`);
@@ -193,10 +210,14 @@ window.executeAdministrativeStatusToggle = async function(targetUid, targetTarge
     try {
         const userDocRef = doc(db, "organizations", "demo_corporation_kra", "users", targetUid);
         
-        // Update user state variables on database
-        await updateDoc(userDocRef, {
-            accountStatus: targetTargetStatus
-        });
+        // Update user state variables on database (FIX: unlocking also clears brute-force counters)
+        const patch = { accountStatus: targetTargetStatus };
+        if (targetTargetStatus === "Active") {
+            patch.failedAttempts = 0;
+            patch.lockedUntil = null;
+            patch.lastFailedAt = null;
+        }
+        await updateDoc(userDocRef, patch);
 
         console.log(`⚙️ Account Status Altered: Account UID [${targetUid}] explicitly modified to status [${targetTargetStatus}].`);
 
@@ -208,8 +229,10 @@ window.executeAdministrativeStatusToggle = async function(targetUid, targetTarge
             );
             
             // Clean local brute-force memory lock variables if the account is being explicitly enabled
+            // FIX: clear normalized lowercase key too (login now keys by lowercase)
             if (targetTargetStatus === "Active") {
                 localStorage.removeItem(`login_fails_${targetEmail}`);
+                localStorage.removeItem(`login_fails_${(targetEmail || "").toLowerCase()}`);
                 await window.AuditStore.writeSystemAuditLog(
                     `SECURITY PROFILE RESET: BRUTE-FORCE COUNTER CACHES PURGED BY DB_ADMIN FOR ACCOUNT KEY: [${targetEmail}]`,
                     "db_admin"
