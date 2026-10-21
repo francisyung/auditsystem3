@@ -58,113 +58,80 @@ function analyzeForSqlInjection(inputString) {
   ];
   return maliciousPatterns.some(pattern => pattern.test(inputString));
 }
-// Helper: find user doc by email when UID doc is missing (old docs, manual docs, auto-ID docs)
-
-
-function getLockedUntilMs(data) {
-  const v = data?.lockedUntil;
-  if (!v) return 0;
-  if (typeof v.toMillis === "function") return v.toMillis();
-  if (typeof v.seconds === "number") return v.seconds * 1000;
-  if (v instanceof Date) return v.getTime();
-  if (typeof v === "number") return v;
-  return 0;
-}
-
+// =========================================================================
+// 🔐 INTEGRATED AUTHENTICATION STATE TRACKER & SECURE CLEAN-ROUTE GUARD WALL
+// =========================================================================
 onAuthStateChanged(auth, async (user) => {
   const cleanPathName = window.location.pathname.toLowerCase();
-
-  const isPublicPage =
-    cleanPathName === "" ||
-    cleanPathName === "/" ||
-    cleanPathName.endsWith("login") ||
-    cleanPathName.endsWith("login.html") ||
-    cleanPathName.endsWith("signup") ||
+  
+  const isPublicPage = 
+    cleanPathName === "" || 
+    cleanPathName === "/" || 
+    cleanPathName.endsWith("login") || 
+    cleanPathName.endsWith("login.html") || 
+    cleanPathName.endsWith("signup") || 
     cleanPathName.endsWith("signup.html");
 
   if (user) {
     console.log("🛡️ Sentinel Auth: User logged into workspace:", user.email, user.uid);
     localStorage.setItem("sentinel_active_user_email", user.email);
-    // FIX: do NOT clear login_fails_* here. handleLogin clears it only AFTER Firestore gate passes.
-    // Clearing it here let a correct password instantly wipe a 3-fail lock.
+    // FIX: do NOT clear fail counter here — handleLogin clears it only AFTER the Firestore gate passes.
+    // (Clearing it here let a correct password instantly wipe a lock.)
 
-    // NOTE: testing bypass REMOVED. Your old bypass let @sentinel.test / admin@test.com
-    // skip Disabled/Locked/Pending checks entirely. Re-add only behind a dev flag if you must.
+    // ⚠️ TESTING BYPASS — DISABLE IN PRODUCTION: this bypass skips Disabled/Locked/Pending checks
+    // for @sentinel.test / admin@test.com. Remove this block before go-live or gate it behind a flag.
+    if (user.email.endsWith("@sentinel.test") || user.email === "admin@test.com") {
+        localStorage.setItem("sentinel_super_master", "true");
+        localStorage.setItem("sentinel_active_role", "admin");
+        console.warn("⚠️ SECURITY NOTICE: Super Testing Master session bypass initialized — REMOVE BEFORE PRODUCTION.");
+        
+        if (isPublicPage) {
+            window.location.href = "audit-universe.html";
+        }
+        return; 
+    }
 
     // =========================================================================
     // 🛡️ CRITICAL REAL-TIME ACCOUNT STATUS & RESTRICTION MATRIX CHECK
     // =========================================================================
     try {
-        let userDocRef = doc(db, "organizations", "demo_corporation_kra", "users", user.uid);
-        let userDocSnap = await getDoc(userDocRef);
-        let userData = null;
+        const userDocRef = doc(db, "organizations", "demo_corporation_kra", "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
 
-        // ---- SELF-HEAL: UID doc missing (your yung67443@gmail.com case) ----
-        if (!userDocSnap.exists()) {
-          const emailLower = (user.email || "").toLowerCase();
-          console.warn("🔒 UID doc missing for", user.email, user.uid, "- trying email lookup...");
-          const emailDoc = await findUserDocByEmail(emailLower);
+        if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            const accountStatus = userData.accountStatus || (userData.isApproved ? "Active" : "Pending_Approval");
+            const lockedUntilMs = userData.lockedUntil?.toMillis ? userData.lockedUntil.toMillis() : (userData.lockedUntil?.seconds ? userData.lockedUntil.seconds * 1000 : 0);
+            const isBruteLocked = accountStatus === "Locked" || (userData.failedAttempts || 0) >= 3 || (lockedUntilMs && lockedUntilMs > Date.now());
 
-          if (emailDoc) {
-            console.warn(`UID mismatch! Auth UID [${user.uid}] but Firestore doc is [${emailDoc.id}]. Migrating to UID doc.`);
-            const src = emailDoc.data();
-            // Create/repair the correct UID-keyed doc so all future logins + admin writes hit one place
-            await setDoc(userDocRef, {
-              ...src,
-              email: user.email,
-              emailLower: emailLower,
-              fullName: src.fullName || src.displayName || src.preferredName || user.email,
-              assignedRole: src.assignedRole || "officer",
-              // Preserve a real Disabled/Locked state if source had it, else default sensibly
-              isApproved: src.isApproved !== undefined ? src.isApproved : true,
-              accountStatus: src.accountStatus || (src.isApproved === false ? "Pending_Approval" : "Active"),
-              failedAttempts: src.failedAttempts || 0,
-              lockedUntil: src.lockedUntil || null,
-            }, { merge: true });
+            if (accountStatus === "Disabled" || isBruteLocked) {
+                await pushSecurityTelemetryLog(`🔒 SESSION TERMINATED: ${accountStatus === "Disabled" ? "Disabled" : "Locked"} account [${user.email}] kicked by auth guard.`);
+                alert(accountStatus === "Disabled" ? "Access Suspended: Workspace account has been deactivated." : "Account Locked: Too many failed attempts. Contact your administrator.");
+                await signOut(auth);
+                window.location.href = "login.html";
+                return;
+            }
 
-            await pushSecurityTelemetryLog(`🔧 UID SELF-HEAL: Migrated Firestore profile for [${user.email}] from doc [${emailDoc.id}] to Auth UID [${user.uid}].`);
+            if (accountStatus === "Pending_Approval" || userData.isApproved === false) {
+                alert("Access Restricted: Awaiting administrative database sign-off.");
+                await signOut(auth);
+                window.location.href = "login.html";
+                return;
+            }
 
-            userDocSnap = await getDoc(userDocRef);
-          }
+            if (userData.assignedRole) {
+                localStorage.setItem("sentinel_active_role", userData.assignedRole);
+            }
 
-          if (!userDocSnap.exists()) {
-            // Truly orphan Auth user with no profile anywhere: do NOT bypass — kick to login.
-            // If you want open testing, change this to allow + redirect to universe.
-            console.warn("🔒 Sandbox Mode: No profile found by UID or email, denying access.");
-            await pushSecurityTelemetryLog(`⛔ ORPHAN SESSION BLOCKED: No Firestore profile for [${user.email}] UID [${user.uid}].`);
-            alert("Access Restricted: No workspace profile found. Contact your administrator.");
-            await signOut(auth);
-            window.location.href = "login.html";
-            return;
-          }
-        }
-
-        userData = userDocSnap.data();
-        const accountStatus = userData.accountStatus || (userData.isApproved ? "Active" : "Pending_Approval");
-        const lockedUntilMs = getLockedUntilMs(userData);
-        const isBruteLocked = accountStatus === "Locked" || (userData.failedAttempts || 0) >= 3 || (lockedUntilMs && lockedUntilMs > Date.now());
-
-        if (accountStatus === "Disabled" || isBruteLocked) {
-            await pushSecurityTelemetryLog(`🔒 SESSION TERMINATED: ${accountStatus === "Disabled" ? "Disabled" : "Locked"} account [${user.email}] kicked by auth guard (status=${accountStatus}, fails=${userData.failedAttempts || 0}).`);
-            alert(accountStatus === "Disabled" ? "Access Suspended: Workspace account has been deactivated." : "Account Locked: Too many failed attempts. Contact your administrator.");
-            await signOut(auth);
-            window.location.href = "login.html";
-            return;
-        }
-
-        if (accountStatus === "Pending_Approval" || userData.isApproved === false) {
-            alert("Access Restricted: Awaiting administrative database sign-off.");
-            await signOut(auth);
-            window.location.href = "login.html";
-            return;
-        }
-
-        if (userData.assignedRole) {
-            localStorage.setItem("sentinel_active_role", userData.assignedRole);
-        }
-
-        if (isPublicPage) {
-            window.location.href = "audit-universe.html";
+            if (isPublicPage) {
+                window.location.href = "audit-universe.html";
+                return;
+            }
+        } else {
+            console.warn("🔒 Sandbox Mode: Profile document missing in Firestore, bypassing checks.");
+            if (isPublicPage) {
+                window.location.href = "audit-universe.html";
+            }
             return;
         }
     } catch (err) {
@@ -174,7 +141,7 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     // 🚧 UNIVERSAL ROUTE WALL (DISABLED REDIRECTS FOR UNINTERRUPTED TESTING)
     console.log("Sentinel Auth: Active user session terminated.");
-
+    
     // Completely cleared out window.location.href from this section!
     // This allows Firebase to calmly initialize without throwing an infinite kick-out loop.
     localStorage.removeItem("sentinel_active_user_email");
@@ -182,6 +149,7 @@ onAuthStateChanged(auth, async (user) => {
     localStorage.removeItem("sentinel_active_role");
   }
 });
+
 
 // =========================================================================
 // 👤 HIGH-HARDENING REGISTRATION GATEWAY HANDLER
