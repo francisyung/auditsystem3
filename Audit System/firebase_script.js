@@ -59,37 +59,7 @@ function analyzeForSqlInjection(inputString) {
   return maliciousPatterns.some(pattern => pattern.test(inputString));
 }
 // Helper: find user doc by email when UID doc is missing (old docs, manual docs, auto-ID docs)
-async function findUserDocByEmail(emailLower) {
-  const base = collection(db, "organizations", "demo_corporation_kra", "users");
-  // 1) preferred: emailLower field (written by FIXED signup/login)
-  try {
-    const q1 = query(base, where("emailLower", "==", emailLower));
-    const s1 = await getDocs(q1);
-    if (!s1.empty) return s1.docs[0];
-  } catch (e) { console.warn("emailLower lookup blocked:", e?.message); }
-  // 2) exact email field
-  try {
-    const q2 = query(base, where("email", "==", emailLower));
-    const s2 = await getDocs(q2);
-    let found = null;
-    s2.forEach((d) => {
-      if (((d.data().email || "").toLowerCase()) === emailLower) found = d;
-    });
-    if (found) return found;
-  } catch (e) { console.warn("email lookup blocked:", e?.message); }
-  // 3) legacy workEmail field (your 'young' doc uses workEmail)
-  try {
-    const q3 = query(base, where("workEmail", "==", emailLower));
-    const s3 = await getDocs(q3);
-    let found = null;
-    s3.forEach((d) => {
-      const v = (d.data().workEmail || d.data().email || "").toLowerCase();
-      if (v === emailLower) found = d;
-    });
-    if (found) return found;
-  } catch (e) { console.warn("workEmail lookup blocked:", e?.message); }
-  return null;
-}
+
 
 function getLockedUntilMs(data) {
   const v = data?.lockedUntil;
